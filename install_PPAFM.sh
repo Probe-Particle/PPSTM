@@ -11,7 +11,6 @@ mkdir PPAFM
 cd PPAFM
 git init
 git pull https://github.com/ProkopHapala/ProbeParticleModel/
-#mv ProbeParticleModel  PPAFM
 cd ../$directory
 ln -s ../PPAFM ./PPAFM
 ln -s ../PPAFM/pyProbeParticle pyProbeParticle
