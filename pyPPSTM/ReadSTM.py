@@ -454,4 +454,126 @@ def	read_FIREBALL_all(name = 'phi_' , geom='answer.bas', fermi=None, orbs = 'sp'
 	print "All coefficients read"
 	return eig.copy(), coeffs.copy(), Ratin.copy();
 
+
+def read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lower_atoms=[], lower_coefs=[]):
+	'''TODO'''
+	initial_check(orbs=orbs, pbc=pbc, imaginary=imaginary, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs)
+	# read geometry
+	#TODO: read also cell information
+	import ase.io
+	geom = ase.io.read("crazy_mol.xyz")
+	Ratin = get_GPAW_geom(geom=geom)
+	at_num = geom.get_atomic_numbers()
+	labels, eig, occs, evecs = read_cp2k_MO_file(name)
+
+	# place fermi energy at middle of HOMO-LUMO gap
+	lumo = np.argmax(occs==0.0)
+	homo = lumo -1
+	fermi_energy = (eig[homo] + eig[lumo]) / 2.0
+
+	# select relevant MOs
+	eig = to_fermi(eig, fermi, orig_fermi=fermi_energy)
+	eig = cut_eigenenergies(eig)
+
+	# copy coefficients of relevant MOs
+	coef = np.zeros((n_max_-n_min_,num_at_,Ynum_))
+	for i in range(n_min_,n_max_):
+		ii = i-n_min_
+		for j, label in enumerate(labels):
+			iatom = int(label[1]) - 1
+			func = label[3]
+			if func.endswith("s"):
+				coef[ii,iatom,0] += evecs[j,i]
+
+			# beware: unusual order of directions
+			elif func.endswith("py"):
+				coef[ii,iatom,1] += evecs[j,i]
+			elif func.endswith("pz"):
+				coef[ii,iatom,2] += evecs[j,i]
+			elif func.endswith("px"):
+				coef[ii,iatom,3] += evecs[j,i]
+			elif func.endswith("dxy"):
+				if (orbs =='spd'):
+					coef[ii,iatom,4] += evecs[j,i]
+			elif func.endswith("dyz"):
+				if (orbs =='spd'):
+					coef[ii,iatom,5] += evecs[j,i]
+			elif func.endswith("dz2"):
+				if (orbs =='spd'):
+					coef[ii,iatom,6] += evecs[j,i]
+			elif func.endswith("dxz"):
+				if (orbs =='spd'):
+					coef[ii,iatom,7] += evecs[j,i]
+			elif func.endswith("dx2"):
+				if (orbs =='spd'):
+					coef[ii,iatom,8] += evecs[j,i]
+			elif func.endswith("dy2"):
+				if (orbs =='spd'):
+					coef[ii,iatom,8] -= evecs[j,i]  # coef[,,8] = dx2 - dy2
+			else:
+				raise(Exception("Unhandled basis function type: "+func))
+
+	# lowering tunneling for predefined atoms
+	# lowering over atoms and applying PBC
+	coeffs = handle_coef(coef)
+	print "All coefficients read"
+	return eig.copy(), coeffs.copy(), Ratin.copy();
+
+#===============================================================================
+def read_cp2k_MO_file(fn):
+	'''TODO'''
+	print("Reading CP2K MOs from:"+fn)
+
+	# read all lines into memory
+	f = open(fn)
+	lines = []
+	for l in f.readlines():
+		l = l.strip()
+		if(len(l)==0): continue
+		lines.append(l)
+	f.close()
+
+	# check if file has expected format
+	assert lines[0].strip() == "MO EIGENVALUES, MO OCCUPATION NUMBERS, AND CARTESIAN MO EIGENVECTORS"
+	assert lines[-2].startswith("Fermi energy:")
+	assert lines[-1].startswith("HOMO-LUMO gap:")
+
+	# detect dimensions
+	parts = lines[-3].split()
+	nbasis = int(parts[0])
+	natoms = int(parts[1])
+	nmos = int(lines[-nbasis-5].split()[-1])
+	print("Found %d MOs spanned by %d basis functions centered on %d atoms."%(nmos, nbasis, natoms))
+
+	# unfold table
+	idx = []
+	evals = []
+	occs = []
+	evecs = [ list() for i in range(nbasis)]
+	labels = [l.split()[:4] for l in lines[4:nbasis+4]]
+	for i in range(nmos/4):
+		a = i*(nbasis+3) +1
+		idx.extend(lines[a].split())
+		evals.extend(lines[a+1].split())
+		occs.extend(lines[a+2].split())
+		for j in range(nbasis):
+			parts = lines[a+3+j].split()
+			assert parts[:4] == labels[j]
+			evecs[j].extend(parts[4:])
+
+	# convert to numpy arrays
+	assert np.all(np.array(idx, int) == np.arange(nmos)+1)
+	evals = np.array(evals, float)
+	occs = np.array(occs, float)
+	evecs = np.array(evecs, float)
+	assert evals.shape == (nmos,)
+	assert occs.shape == (nmos,)
+	assert evecs.shape == (nbasis, nmos)
+
+	# convert hartree to eV
+	evals = 27.211385 * evals
+
+	# done
+	return labels, evals, occs, evecs
+
 ############## END OF LIBRARY ##################################

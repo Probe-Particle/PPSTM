@@ -1,0 +1,49 @@
+&FORCE_EVAL
+  METHOD Quickstep
+  &DFT
+    &SCF 
+      &MIXING
+        ALPHA 0.2
+        BETA  1.0
+      &END MIXING
+    &END SCF
+    &XC
+      &XC_FUNCTIONAL Pade
+      &END XC_FUNCTIONAL
+    &END XC
+    &PRINT
+      &MO ON
+        EIGVECS
+        CARTESIAN
+        FILENAME cartesian-mos
+        &EACH
+          QS_SCF 0
+        &END EACH
+      &END MO
+    &END PRINT
+  &END DFT
+  &SUBSYS
+    &CELL
+      ABC 15.0 15.0 10.0
+    &END CELL
+    &TOPOLOGY
+      COORD_FILE_NAME crazy_mol.xyz
+      COORD_FILE_FORMAT xyz
+    &END TOPOLOGY
+    &KIND H
+      BASIS_SET DZVP-GTH-PADE
+      POTENTIAL GTH-PADE
+    &END KIND
+    &KIND C
+      BASIS_SET DZVP-GTH-PADE
+      POTENTIAL GTH-PADE
+    &END KIND
+    &KIND N
+      BASIS_SET DZVP-GTH-PADE
+      POTENTIAL GTH-PADE
+    &END KIND
+  &END SUBSYS
+&END FORCE_EVAL
+&GLOBAL
+  PROJECT crazy_mol
+&END GLOBAL
