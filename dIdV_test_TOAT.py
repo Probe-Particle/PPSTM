@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 import os
 import numpy as np
@@ -26,8 +26,8 @@ lvs = None
 WorkFunction = 5.0 #more or less standart.
 fermi=None	# the Fermi from phik ... .dat file; !!! All energies are relative to Fermi !!!! None -  means: -5.04612664712 eV
 orbs= 'sp'	# 'sp' works now, 'spd' works for fireball as well
-cut_min=-1.0	# HOMO -0.88 bellow the Fermi Level, other orbitals cut
-cut_max=+1.0	# LUMO -0.88 above the Fermi Level
+cut_min=-1.3	# HOMO -0.88 bellow the Fermi Level, other orbitals cut
+cut_max=+1.3	# LUMO -0.88 above the Fermi Level
 cut_at=-1	# All atoms of the molecule
 eta = 0.01	# very low, to pronounce the single orbitals only
 WF_decay=1.0	# for STM only - how fast the exponential decay fall, with the applied bias ( if 1 - 1:1 correspondence with bias; if 0, it doesn't change)
@@ -44,7 +44,7 @@ lower_coefs=[]	# Lowering of the hoppings
 #					lower_atoms=lower_atoms, lower_coefs=lower_coefs)
 #eigEn, coefs, Ratin  = RS.read_GPAW_all(name = 'out_LCAO_LDA.gpw', fermi=fermi, orbs = orbs, pbc=pbc,
 #					cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
-eigEn, coefs, Ratin  = RS.read_CP2K_all(name = 'crazy_mol', fermi=fermi, orbs = orbs, pbc=pbc,
+eigEn, coefs, Ratin  = RS.read_CP2K_all(name = 'TOAT', fermi=fermi, orbs = orbs, pbc=pbc,
 					cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
 
 # --- the grid on which the STM signal is calculated; tip_r1 - PP distored by the relaxation in the PPAFM code; tip_r2 - uniform grid:
@@ -63,7 +63,7 @@ tip_r2 = RS.mkSpaceGrid(lvec[0,0],lvec[0,0]+xl,dx,lvec[0,1],lvec[0,1]+yl,dy,lvec
 
 # --- specification on which voltages the STM (dI/dV ...) calculations are performed - two methods - direct specification or sequence of voltages
 
-Voltages=[-0.88,+0.88]
+Voltages=[-1.2,+1.2]
 namez=['HOMO','LUMO']
 
 #Voltages=np.arange(-1.0,+1.0+0.01,0.1) # this part is important for scans over slabs at different voltages
@@ -169,7 +169,6 @@ for WorkFunction in [WorkFunction]:
 		plt.title(name_plot6)
 		
 		plt.savefig( 'didv_'+namez[i]+"_WF_"+str(WorkFunction)+"_"+str(eta)+'_%03d.png' %k , bbox_inches='tight' )
-		plt.close()
 		#plt.show()
 		#
 		# --- for saving WSxM format, if wanted

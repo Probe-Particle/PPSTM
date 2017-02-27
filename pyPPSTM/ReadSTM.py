@@ -461,11 +461,10 @@ def read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), imaginary = False, cut
 	# read geometry
 	#TODO: read also cell information
 	import ase.io
-	geom = ase.io.read("crazy_mol.xyz")
+	geom = ase.io.read(name+".xyz")
 	Ratin = get_GPAW_geom(geom=geom)
 	at_num = geom.get_atomic_numbers()
-	labels, eig, occs, evecs = read_cp2k_MO_file(name)
-
+	labels, eig, occs, evecs = read_cp2k_MO_file(name+"-cartesian-mos-1_0.MOLog")
 	# place fermi energy at middle of HOMO-LUMO gap
 	lumo = np.argmax(occs==0.0)
 	homo = lumo -1
@@ -551,7 +550,7 @@ def read_cp2k_MO_file(fn):
 	occs = []
 	evecs = [ list() for i in range(nbasis)]
 	labels = [l.split()[:4] for l in lines[4:nbasis+4]]
-	for i in range(nmos/4):
+	for i in range((nmos+3)/4): # round up
 		a = i*(nbasis+3) +1
 		idx.extend(lines[a].split())
 		evals.extend(lines[a+1].split())
