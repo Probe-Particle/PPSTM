@@ -1,0 +1,29 @@
+&OPTION
+basisfile = answer.bas 
+lvsfile = input.lvs
+kptpreference = samplek.kpts
+nstepf = 1
+sigmatol = 0.0000000001
+max_scf_iterations = 100
+dt = 1
+iquench=-1
+iqout = 1
+ifixcharge=0
+&END
+
+&OUTPUT
+iwrtxyz = 0
+iwrtdos = 0
+iwrtatom= 0
+iwrtden = 0
+iwrtcdcoefs = -2
+&END
+
+&QUENCH
+&END
+
+&MESH
+&END
+
+
+

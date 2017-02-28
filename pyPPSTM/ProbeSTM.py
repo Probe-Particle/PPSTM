@@ -75,7 +75,8 @@ def dIdV_tilt( V, WF, eta ,eig, R, R0, Rat, coes, orbs='sp', pz=0.0, pxy =0.0, d
 	tip[2] = dz2
 	tip[3] = dxyz
 	print "tip coefs:", tip
-	cur = dIdV_sp_sp_tilt( V, WF, eta, eig, R, R0, Rat, coes, tip, len_R, al)
+	orb_t = 4
+	cur = dIdV_sp_sp_tilt( V, WF, eta, eig, R, R0, Rat, coes, tip, len_R, al, orb_t)
 	return cur;
 
 def STM( V, nV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxz=0.0, dyz=0.0, dz2=0.0, WF_decay=1.0):
@@ -125,7 +126,7 @@ def IETS_simple( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.
 	print "IETS done"
 	return cur1;
 
-def before_C( eig, R, Rat, coes):
+def before_C( eig, R, Rat, coes, orb_t):
 	NoAt = len(Rat)
 	NoOrb = len(eig)
 	sh = R.shape
@@ -133,7 +134,13 @@ def before_C( eig, R, Rat, coes):
 	Npoints = sh[0]*sh[1]*sh[2]	#len(R)/3
 	assert (NoOrb == len(coes)), "Different eigennumbers, than basis"
 	if (len(coes) != 0):
-		assert (NoOrb == len(coes)*len(coes[0])/(4*NoAt)), "Different eigennumbers, than basis"	
+		#DEBUG:#
+		#print "NoAt",NoAt
+		#print "NoOrb", NoOrb
+		#print "orb_t", orb_t
+		#print "len(coes)", len(coes)
+		#print "len(coes[0])", len(coes[0])
+		assert (NoOrb == len(coes)*len(coes[0])/(orb_t*NoAt)), "Different eigennumbers, than basis"	
 	print "We're going to C++"
 	return NoAt, NoOrb, Npoints, cur_1d, sh;
 
@@ -167,7 +174,7 @@ lib.proc_dIdVspdspd.argtypes = [ c_int, c_int, c_int, c_int, c_double, c_double,
 lib.proc_dIdVspdspd.restype  = None
 def dIdV_sp_sp( V, WF, eta ,eig, R, Rat, coes, tip_coes, orb_t):
 	print "Entering the dI/dV ( sp(d)-sp(d) ) procedure"
-	NoAt, NoOrb, Npoints, cur_1d, sh = before_C( eig, R, Rat, coes)
+	NoAt, NoOrb, Npoints, cur_1d, sh = before_C( eig, R, Rat, coes, orb_t)
 	lib.proc_dIdVspdspd( orb_t, NoAt, NoOrb, Npoints, V, WF, eta, eig, R.copy(), Rat, coes, tip_coes, cur_1d)
 	print "We're back in Python"
 	return cur_1d.reshape((sh[0],sh[1],sh[2])).copy();
@@ -175,9 +182,9 @@ def dIdV_sp_sp( V, WF, eta ,eig, R, Rat, coes, tip_coes, orb_t):
 # void proc_dIdVspsp_tilt( int NoAt, int NoOrb, int Npoints, double V, double WF, double eta, double len_R, double al, double* eig, double* R_, double* R0_, double* Rat_, double* coesin, double* tip_coes, double* cur)
 lib.proc_dIdVspsp_tilt.argtypes = [ c_int, c_int, c_int, c_double, c_double, c_double, c_double, c_double, array1d, array4d, array4d, array2d, array2d, array1d, array1d ]
 lib.proc_dIdVspsp_tilt.restype  = None
-def dIdV_sp_sp_tilt( V, WF, eta ,eig, R, R0, Rat, coes, tip_coes, len_R, al):
+def dIdV_sp_sp_tilt( V, WF, eta ,eig, R, R0, Rat, coes, tip_coes, len_R, al, orb_t):
 	print "Entering the dI/dV (sp-sp) procedure with tilting orbitals"
-	NoAt, NoOrb, Npoints, cur_1d, sh = before_C( eig, R, Rat, coes)
+	NoAt, NoOrb, Npoints, cur_1d, sh = before_C( eig, R, Rat, coes, orb_t)
 	lib.proc_dIdVspsp_tilt( NoAt, NoOrb, Npoints, V, WF, eta, len_R, al, eig, R.copy(), R0.copy(), Rat, coes, tip_coes, cur_1d)
 	print "We're back in Python"
 	return cur_1d.reshape((sh[0],sh[1],sh[2])).copy();
@@ -187,7 +194,7 @@ lib.proc_IETSspspd.argtypes = [ c_int, c_int, c_int, c_int, c_double, c_double, 
 lib.proc_IETSspspd.restype  = None
 def IETS_sp_sp( V, WF, eta ,eig, R, Rat, coes, tip_coes, Amp, orb_t):
 	print "Entering the IETS (sp-sp(d) procedure"
-	NoAt, NoOrb, Npoints, cur_1d, sh = before_C( eig, R, Rat, coes)
+	NoAt, NoOrb, Npoints, cur_1d, sh = before_C( eig, R, Rat, coes, orb_t)
 	lib.proc_IETSspspd( orb_t, NoAt, NoOrb, Npoints, V, WF, eta, Amp, eig, R.copy(), Rat, coes, tip_coes, cur_1d)
 	print "We're back in Python"
 	return cur_1d.reshape((sh[0],sh[1],sh[2])).copy();

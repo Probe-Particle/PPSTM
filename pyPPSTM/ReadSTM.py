@@ -69,11 +69,11 @@ def cut_atoms(atoms):
 	Cut unwanted atoms !!! from the end of the geometry !!! important atoms should be first
 	'''
 	assert (cut_at_ <= len(atoms[1])), "wrong cut for atoms"
-	if not ((cut_at_ == -1)or(cut_at == len(atoms[1]))):
+	if not ((cut_at_ == -1)or(cut_at_ == len(atoms[1]))):
 		atoms2 = [atoms[0][:cut_at_],atoms[1][:cut_at_],atoms[2][:cut_at_],atoms[3][:cut_at_]]
 	else:
 		atoms2 = atoms
-	global num_at_ ; num_at_= len(atoms[1])
+	global num_at_ ; num_at_= len(atoms2[1])
 	return atoms2;
 
 def for_PBC(atoms,lvs):
@@ -118,6 +118,7 @@ def get_AIMS_geom(geom='geometry.in'):
 	'''
 	print " # ============ define atoms ============"
 	atoms, nDim, lvs = bU.loadGeometryIN(geom)
+	lvs = np.array(lvs)
 	del nDim
 	atoms = cut_atoms(atoms)
 	at_num = []
@@ -199,7 +200,7 @@ def remove_coeffs(coeffs):
 	Removing the LCAO coefficients for cutted atoms
 	'''
 	if (cut_at_ != -1):
-		coeffs=np.delete(coeffs,range(cut_at*Ynum_,num_at_*Ynum_),1)
+		coeffs=np.delete(coeffs,range(cut_at_*Ynum_,num_at_*Ynum_),1)
 		global num_at_; num_at_ = cut_at_
 	return coeffs;
 	
@@ -241,6 +242,7 @@ def	read_AIMS_all(name = 'KS_eigenvectors.band_1.kpt_1.out', geom='geometry.in',
 	initial_check(orbs=orbs, pbc=pbc, imaginary=imaginary, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs)
 	# obtaining the geometry :
 	Ratin, at_num = get_AIMS_geom(geom=geom)
+	#print "at_num:",at_num
 
 	# getting eigen-energies:
 	filein = open(name )
