@@ -2,12 +2,21 @@
 
 import os
 import numpy as np
+from scipy.ndimage import uniform_filter
 from   ctypes import c_int, c_double, c_char_p
 import ctypes
+
 import basUtils as bU
 import elements
 
 import cpp_utils
+
+#important constants:
+
+hbar       = 6.58211951440e-16 # [eV.s]
+aumass     = 1.66053904020e-27 # [kg] 
+eVA2_to_Nm = 16.0217662        # [eV/A^2] / [N/m] 
+G2Amp      = 7.7480917346E-05  # rescaling into Amper
 
 
 # ==============================
@@ -99,13 +108,13 @@ def STM( V, nV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, p
 			cur = i_
 		else:
 			cur += i_
-	cur *= abs(V)*7.7480917346E-05 # rescaling into Amper
+	cur *= abs(V)*G2Amp
 	print "All dI/dV steps done, current rescalled into Ampers"
 	return cur;
 
-def IETS_simple( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxz=0.0, dyz=0.0, dz2=0.0, Amp=0.02):
+def IETS_simple( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxz=0.0, dyz=0.0, dz2=0.0, Amp=0.05):
 	'''
-	IETS_simple( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxz=0.0, dyz=0.0, dz2=0.0, Amp=0.02)
+	IETS_simple( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxz=0.0, dyz=0.0, dz2=0.0, Amp=0.05)
 	V - voltage = (energy vs. the Fermi Level in eV);
 	WF - workfunction (normally ~5 eV gives reasonable results),
 	eta - energy smearing (0.5-0.30 eV) deppending on system (for single orbital very low number
@@ -115,7 +124,7 @@ def IETS_simple( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.
 	orbs = 'sp' orbitals of the sample (spd don't work at the moment
 	s and/or px and/or py and/or pz orbitals at the PP
 	unification of all the predefined dI/dV procedures from C++, you can choose, whatever PP orbital you want
-	Amp=0.02 amplitude of vibrations in x and y directions
+	Amp=0.05 amplitude of vibrations in x and y directions (the same as in PPAFM)
 	IETS = (dI/dV)/dx+(dI/dV)/dy
 	'''
 	tip, orb_t = standart_check(orbs=orbs, s=s, px=px, py=py, pz=pz, dxz=dxz, dyz=dyz, dz2=dz2)
@@ -125,6 +134,45 @@ def IETS_simple( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.
 	cur1 = IETS_sp_sp( V, WF, eta, eig, R, Rat, coes, tip, Amp, orb_t)
 	print "IETS done"
 	return cur1;
+
+def IETS_complex( V, WF, eta ,eig, R, eigenEner, eigenVec1, eigenVec2, eigenVec3, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxz=0.0, dyz=0.0, dz2=0.0, Amp=0.05, M=16):
+	'''
+	IETS_complex( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxz=0.0, dyz=0.0, dz2=0.0, Amp=0.05)
+	V - voltage = (energy vs. the Fermi Level in eV);
+	WF - workfunction (normally ~5 eV gives reasonable results),
+	eta - energy smearing (0.5-0.30 eV) deppending on system (for single orbital very low number
+	eig - eigenenergies of sample states (=molecular orbitals)
+	R input of points in whish you calculate dI/dV (relaxed via PP afm, or nonrelaxed via mkSpaceGrid)
+	coes -- LCAO coefficients from read_fire_coes (Fireball, maybe FHI-AIMS & mathematica) or read_GPAW_all
+	orbs = 'sp' orbitals of the sample (spd don't work at the moment
+	s and/or px and/or py and/or pz orbitals at the PP
+	Amp=0.05 amplitude of vibrations in x and y directions (the same as in PPAFM)
+	M = 16 effectiva mass of the vibrating molecule/atom ; in Atomic Units
+	denomin = 1/w_vib^2
+	IETS = 1/w_vib1^2 * d(dI/dV)/dvib1+ 1/w_vib2^2 *d(dI/dV)/dvib2 + 1/w_vib3^2 *d(dI/dV)/dvib3
+	'''
+	tip, orb_t = standart_check(orbs=orbs, s=s, px=px, py=py, pz=pz, dxz=dxz, dyz=dyz, dz2=dz2)
+	print "Not working yet"
+	print "You entered complex IETS calculations that consist of IETS calculations in different positoins of PP"
+	print "Vibration (x,y) Amplitude is:",Amp
+	sh1 = np.array(R.shape)
+	sh2 = np.array(eigenEner.shape)
+	print "dimensions of arrays:", sh1, sh2
+	assert ((sh1[0]==sh2[0])and(sh1[1]==sh2[1])and(sh1[2]==sh2[2])and(sh1[3]==sh2[3])) , "different shape of R (tip positions ) & eigenEner(gies)"
+	tmp = eigenEner.copy()
+	#due to negative eigen-energies in special points:
+	for i in range(len(eigenEner)):
+	    for l in [0]: #range(len(eigvalK[0,0,0])):
+		eigenEner[i,:,:,l]=uniform_filter(tmp[i,:,:,l], size=3, mode='nearest')
+	del tmp;
+	# the end
+	Evib = hbar * np.sqrt( ( eVA2_to_Nm * eigenEner )/( M * aumass ) )
+	denomin = 1/(Evib*Evib) # 1/(Evib[:,:,:0]*Evib[:,:,:0]) + ...
+	print "Calculating IETS along the softest & middle-soft vibration"
+	iets, iets_stm  = IETScomplex( V, WF, eta, eig, R, eigenVec1*Amp, eigenVec2*Amp, denomin, Rat, coes, tip, orb_t )
+	print "IETS done, gives you back denominators - 1/w1^2, 1/w2^2  & full IETS signal"
+	#return denomin[:,:,:,0]+denomin[:,:,:,1]+denomin[:,:,:,2],iets;
+	return denomin[:,:,:,0]+denomin[:,:,:,1], iets_stm, iets;
 
 def before_C( eig, R, Rat, coes, orb_t):
 	NoAt = len(Rat)
@@ -193,11 +241,24 @@ def dIdV_sp_sp_tilt( V, WF, eta ,eig, R, R0, Rat, coes, tip_coes, len_R, al, orb
 lib.proc_IETSspspd.argtypes = [ c_int, c_int, c_int, c_int, c_double, c_double, c_double, c_double, array1d, array4d, array2d, array2d, array1d, array1d ]
 lib.proc_IETSspspd.restype  = None
 def IETS_sp_sp( V, WF, eta ,eig, R, Rat, coes, tip_coes, Amp, orb_t):
-	print "Entering the IETS (sp-sp(d) procedure"
+	print "Entering the IETS (sp-sp(d)) procedure"
 	NoAt, NoOrb, Npoints, cur_1d, sh = before_C( eig, R, Rat, coes, orb_t)
 	lib.proc_IETSspspd( orb_t, NoAt, NoOrb, Npoints, V, WF, eta, Amp, eig, R.copy(), Rat, coes, tip_coes, cur_1d)
 	print "We're back in Python"
 	return cur_1d.reshape((sh[0],sh[1],sh[2])).copy();
+
+#  void proc_IETScomplex( int const_orb, int NoAt, int NoOrb, int Npoints, double V, double WF, double eta, double* eig, double* R_, double* eigenVec1_, double* eigenVec2_, double* denomin_,
+#                             double* Rat_, double* coesin, double* tip_coes, double* cur, double* cur2)
+lib.proc_IETScomplex.argtypes = [ c_int, c_int, c_int, c_int, c_double, c_double, c_double, array1d, array4d, array4d, array4d, array4d,
+									   array2d, array2d, array1d, array1d, array1d ]
+lib.proc_IETScomplex.restype  = None
+def IETScomplex( V, WF, eta ,eig, R, eigenVec1, eigenVec2, denomin, Rat, coes, tip_coes, orb_t):
+	print "Entering the complex IETS (sp-sp(d)) procedure"
+	NoAt, NoOrb, Npoints, cur_1d, sh = before_C( eig, R, Rat, coes, orb_t)
+	cur_2d = cur_1d.copy()
+	lib.proc_IETScomplex( orb_t, NoAt, NoOrb, Npoints, V, WF, eta, eig, R.copy(), eigenVec1.copy(), eigenVec2.copy(), denomin.copy(), Rat, coes, tip_coes, cur_1d, cur_2d)
+	print "We're back in Python"
+	return cur_1d.reshape((sh[0],sh[1],sh[2])).copy(), cur_2d.reshape((sh[0],sh[1],sh[2])).copy();
 
 
 ############## END OF LIBRARY ##################################

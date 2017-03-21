@@ -2,13 +2,9 @@
 
 import os
 import numpy as np
-from   ctypes import c_int, c_double, c_char_p
-import ctypes
 import basUtils as bU
 import elements
 
-
-import cpp_utils
 
 # this library has functions for reading STM coefficients and make a grid for non-relaxed 3D scan
 
@@ -31,8 +27,6 @@ num_at_ = -1
 # ============================== Pure python functions
 # ==============================
 
-LIB_PATH = os.path.dirname( os.path.realpath(__file__) )
-print " ProbeParticle Library DIR = ", LIB_PATH
 
 def mkSpaceGrid(xmin,xmax,dx,ymin,ymax,dy,zmin,zmax,dz):
 	'''
@@ -153,7 +147,7 @@ def to_fermi(eig, fermi, orig_fermi=0.0):
 	'''
 	fermi = orig_fermi if (fermi == None) else fermi + orig_fermi
 	print "The Fermi Level: ", fermi, " eV; in FHI-AIMS is the Fermi automatically 0."
-	eig -=fermi
+	eig -= fermi
 	return eig;
 
 def cut_eigenenergies(eig):

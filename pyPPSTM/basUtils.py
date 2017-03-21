@@ -58,8 +58,8 @@ def loadGeometryIN( fname ):
 			elif (ws[0]=='trust_radius'):
 				break
 	f.close()
-	print "lvec", lvec
-	print "e,x,y,z", e,x,y,z
+	#print "lvec", lvec
+	#print "e,x,y,z", e,x,y,z
 	nDim = []
 	return [ e,x,y,z,q ], nDim, lvec
 
