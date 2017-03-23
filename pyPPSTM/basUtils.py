@@ -16,17 +16,15 @@ def loadAtoms( name ):
 	except:
                 raise ValueError("First line of a xyz file should contain the "
                 "number of atoms. Aborting...")
-	line = f.readline() 
 	if (n>0):
 		n=int(l)
 		e=[];x=[];y=[]; z=[]; q=[]
 		i = 0;
-		while( i<n ):
-			line = f.readline() 
+		for line in f:
 			words=line.split()
 			nw = len( words)
 			ie = None
-			if( nw >=4 ):
+			try:
 				e.append( words[0] )
 	   			x.append( float(words[1]) )
 	   			y.append( float(words[2]) )
@@ -34,9 +32,8 @@ def loadAtoms( name ):
 				if ( nw >=5 ):
 					q.append( float(words[4]) )
 				else:
-					q.append( 0.0 )				
-				i+=1
-			else:
+					q.append( 0.0 )
+			except:
 				print " skipped line : ", line
 	f.close()
 	nDim = []

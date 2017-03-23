@@ -195,7 +195,6 @@ def remove_coeffs(coeffs):
 	'''
 	if (cut_at_ != -1):
 		coeffs=np.delete(coeffs,range(cut_at_*Ynum_,num_at_*Ynum_),1)
-		global num_at_; num_at_ = cut_at_
 	return coeffs;
 	
 def pbc_coef(coeffs):

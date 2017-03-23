@@ -117,6 +117,7 @@ for zi in range(len(tip_r2)):
 	    plt.xlabel(r' Tip_x $\AA$')
     plt.savefig( name_file+'.png', bbox_inches='tight' )
     plt.show()
+    plt.close()
 
 
 # --- the end

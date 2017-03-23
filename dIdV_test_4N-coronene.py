@@ -1,4 +1,4 @@
-1#!/usr/bin/python
+#!/usr/bin/python
 
 import os
 import numpy as np
@@ -167,6 +167,7 @@ for WorkFunction in [WorkFunction]:
 		plt.title(name_plot6)
 		
 		plt.savefig( 'didv_'+namez[i]+"_WF_"+str(WorkFunction)+"_"+str(eta)+'_%03d.png' %k , bbox_inches='tight' )
+		plt.close()
 		#plt.show()
 		#
 		# --- for saving WSxM format, if wanted

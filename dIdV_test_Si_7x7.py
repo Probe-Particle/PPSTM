@@ -22,7 +22,7 @@ path=''
 # --- specification of PBC, cell, and All the important stuff concerning electrons tunneling:
 
 pbc=(1,1)		# 3x3 cell shifted so the original cell is in the middle
-lvs = np.loadtxt('input.lvs')	
+lvs = np.loadtxt(path+'input.lvs')	
 #lvs = np.array([[23.661884370846174,-13.661203825532905,0.],[23.661884370846174,13.661203825532905,0.],[0.,0.,99.]]
 WorkFunction = 5.0 #more or less standart.
 fermi=None		# the Fermi from phik ... .dat file; !!! All energies are relative to Fermi !!!!
@@ -113,6 +113,7 @@ for i in range(8):
 
 plt.savefig( name_file+'.png', bbox_inches='tight' )
 plt.show()
+plt.close()
 
 curre=np.reshape(curr1,(len(Voltages)-1,sh[0],sh[1],sh[2]))
 # --- plotting part here, plots calculated signal:
@@ -130,6 +131,7 @@ for i in range(8):
 
 plt.savefig( name_file+'.png', bbox_inches='tight' )
 plt.show()
+plt.close()
 
 curre=np.reshape(curr2,(len(Voltages)-1,sh[0],sh[1],sh[2]))
 # --- plotting part here, plots calculated signal:
@@ -147,6 +149,7 @@ for i in range(8):
 
 plt.savefig( name_file+'.png', bbox_inches='tight' )
 plt.show()
+plt.close()
 
 # --- the end
 
