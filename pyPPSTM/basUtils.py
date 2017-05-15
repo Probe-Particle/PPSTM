@@ -78,8 +78,8 @@ def multCell( xyz, cel, m=(2,2,1) ):
 				dz = ia*cel[0][2] + ib*cel[1][2] + ic*cel[2][2]
 				for i in xrange(n):
 					es[j]=xyz[0][i]
-					xs[j]=xyz[1][i] + dx
-					ys[j]=xyz[2][i] + dy
-					zs[j]=xyz[3][i] + dz
+					xs[j]=np.float(xyz[1][i] + dx)
+					ys[j]=np.float(xyz[2][i] + dy)
+					zs[j]=np.float(xyz[3][i] + dz)
 					j+=1
 	return [es,xs,ys,zs]

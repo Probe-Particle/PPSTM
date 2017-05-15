@@ -34,8 +34,8 @@ def pPDOS(eig, coeffs, energies, eta=0.1, atoms=[], orbs='sp' ,spherical='all'):
 	tmp= coeffs.flatten()
 	sh = (dim[0], dim[1]/4, 4) if (orbs=='sp') else (dim[0], dim[1]/9, 9)
 	coef = tmp.reshape(sh)
-	if (orbs=='spd'):
-		coef[:,:,4:9] *= 5 # rescale back what was lowered in the reading procedure
+	#if (orbs=='spd'):
+	#	coef[:,:,4:9] *= 5 # rescale back what was lowered in the reading procedure
 	PDOS = np.zeros(len(energies))
 
 	if (spherical=='all'):

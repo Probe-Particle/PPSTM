@@ -1,4 +1,5 @@
 CC=g++
+#CPPFLAGS  = -O0 -g -Wall -fPIC -ftree-vectorize -std=c++11
 CPPFLAGS=-std=c++11 -O3 -ffast-math -ftree-vectorize 
 CPPLFLAGS= $(CPPFLAGS) -shared -Wl,-soname
 

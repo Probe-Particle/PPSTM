@@ -8,6 +8,10 @@ import elements
 
 # this library has functions for reading STM coefficients and make a grid for non-relaxed 3D scan
 
+#important constants:
+
+eV = 0.036749034; #Atomic units to eV
+
 # global variables:
 
 cut_at_ =-1
@@ -79,17 +83,42 @@ def for_PBC(atoms,lvs):
 		print "Applying PBC"
 		if (pbc_ == (0.5,0.5)):
 			atoms = bU.multCell( atoms, lvs, m=(2,2,1) )
-			Rs = np.array([atoms[1],atoms[2],atoms[3]])
+			Rs = np.array([atoms[1],atoms[2],atoms[3],atoms[0],atoms[0]])
 		else:
 			atoms = bU.multCell( atoms, lvs, m=( (int(2*pbc_[0])+1),(int(2*pbc_[1])+1),1 ) )
-			Rs = np.array([atoms[1],atoms[2],atoms[3]]); 
-			Rs[0] -= int(pbc_[0])*lvs[0,0]+int(pbc_[1])*lvs[1,0]
-			Rs[1] -= int(pbc_[0])*lvs[0,1]+int(pbc_[1])*lvs[1,1]
+			atoms[1] -= int(pbc_[0])*lvs[0,0]+int(pbc_[1])*lvs[1,0]
+			atoms[2] -= int(pbc_[0])*lvs[0,1]+int(pbc_[1])*lvs[1,1]
+			Rs = np.array([atoms[1],atoms[2],atoms[3],atoms[0],atoms[0]]); 
 		print " Number of atoms after PBC: ", len(Rs[0])
 	else:
-		Rs = np.array([atoms[1],atoms[2],atoms[3]])
+		Rs = np.array([atoms[1],atoms[2],atoms[3],atoms[0],atoms[0]])
 	Ratin    = np.transpose(Rs).copy()
-	return Ratin
+	return Ratin;
+
+def get_Ddecay(Ratin):
+	'''
+	Calculates decay for d-orbitals, which has faster decays, than sp-orbitals
+	'''
+	d_A = []
+	d_decay = []
+	for i in range(len(Ratin)):
+		j=Ratin[i,3]
+		#print "i, j", i ,j
+		tmp1 = elements.ELEMENT_DICT[j][8]
+		tmp2 = elements.ELEMENT_DICT[j][9]
+		d_A.append(tmp1)
+		d_decay.append(tmp2)
+	Ratin[:,3]=np.array(d_A)
+	Ratin[:,4]=np.array(d_decay)
+	print "d-decay calculated"
+	#yprint "Ratin:"
+	#print Ratin
+	#Ratout = np.zeros(Ratin.shape, dtype=np.float)
+	#for i in range(len(Ratin)):
+	#	for j in range(len(Ratin[i])):
+	#			Ratout[i,j]=float(Ratin[i,j])
+	#returt Ratout;
+	return Ratin.astype(np.float);
 
 # procedures for preparing geometries for STM:
 
@@ -103,6 +132,7 @@ def get_FIREBALL_geom(geom='answer.bas', lvs=None):
 	atoms = cut_atoms(atoms)
 	print " Number of atoms: ", num_at_
 	Ratin = for_PBC(atoms,lvs)
+	Ratin = get_Ddecay(Ratin)
 	print "atomic geometry read"
 	return Ratin ;
 
@@ -120,6 +150,7 @@ def get_AIMS_geom(geom='geometry.in'):
 		at_num.append(elements.ELEMENT_DICT[i][0])
 	print " Number of atoms: ", num_at_
 	Ratin = for_PBC(atoms,lvs)
+	Ratin = get_Ddecay(Ratin)
 	print "atomic geometry read"
 	return Ratin, np.array(at_num);
 
@@ -136,6 +167,7 @@ def get_GPAW_geom(geom=None):
 	atoms = cut_atoms(atoms)
 	print " Number of atoms: ", num_at_
 	Ratin = for_PBC(atoms,lvs)
+	Ratin = get_Ddecay(Ratin)
 	print "atomic geometry read"
 	return Ratin ;
 
@@ -179,13 +211,13 @@ def lower_Allorb(coef):
 
 def lower_Dorb(coef):
 	'''
-	Lowering hoppings for all d-orbitals (automatically); It has physical reason, but simple rescalling is nasty
+	Not true any more: Lowering hoppings for all d-orbitals (automatically); It has physical reason, but simple rescalling is nasty
 	'''
-	d_rescale=0.2
-	if (Ynum_ > 4): #(orbs=='spd')
-		print "!!! Be aware d-orbs are now rescaled by factor of" ,d_rescale 
-		print "This is due to a faster decay of d-orbs in the original basis sets, but simple rescaling is nasty !!!"
-		coef[:,0,4:] *= d_rescale
+	#d_rescale=0.2
+	#if (Ynum_ > 4): #(orbs=='spd')
+	#	print "!!! Be aware d-orbs are now rescaled by factor of" ,d_rescale 
+	#	print "This is due to a faster decay of d-orbs in the original basis sets, but simple rescaling is nasty !!!"
+	#	coef[:,0,4:] *= d_rescale
 	coeff = coef.flatten()
 	return coeff.reshape((n_max_-n_min_,num_at_*Ynum_));
 

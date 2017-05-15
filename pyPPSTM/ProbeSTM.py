@@ -18,7 +18,6 @@ aumass     = 1.66053904020e-27 # [kg]
 eVA2_to_Nm = 16.0217662        # [eV/A^2] / [N/m] 
 G2Amp      = 7.7480917346E-05  # rescaling into Amper
 
-
 # ==============================
 # ============================== Pure python functions
 # ==============================
@@ -167,11 +166,11 @@ def IETS_complex( V, WF, eta ,eig, R, eigenEner, eigenVec1, eigenVec2, eigenVec3
 	del tmp;
 	# the end
 	Evib = hbar * np.sqrt( ( eVA2_to_Nm * eigenEner )/( M * aumass ) )
-	denomin = 1/(Evib*Evib) # 1/(Evib[:,:,:0]*Evib[:,:,:0]) + ...
-	print "Calculating IETS along the softest & middle-soft vibration"
+	denomin = 1/(Evib)
+	print "Calculating IETS along the softest & middle-soft vibration - both PP frustrated transaltions"
 	iets, iets_stm  = IETScomplex( V, WF, eta, eig, R, eigenVec1*Amp, eigenVec2*Amp, denomin, Rat, coes, tip, orb_t )
-	print "IETS done, gives you back denominators - 1/w1^2, 1/w2^2  & full IETS signal"
-	#return denomin[:,:,:,0]+denomin[:,:,:,1]+denomin[:,:,:,2],iets;
+	print "IETS done, gives you back denominators - 1/w1 + 1/w2 , only STM part - dG/d(vibration1) + dG/d(vibration2) &"
+	print "& full IETS signal = 1/w1 * dG/d(vibratio1) + 1/w2 * dG/d(vibration2)  "
 	return denomin[:,:,:,0]+denomin[:,:,:,1], iets_stm, iets;
 
 def before_C( eig, R, Rat, coes, orb_t):
@@ -189,6 +188,7 @@ def before_C( eig, R, Rat, coes, orb_t):
 		#print "len(coes)", len(coes)
 		#print "len(coes[0])", len(coes[0])
 		assert (NoOrb == len(coes)*len(coes[0])/(orb_t*NoAt)), "Different eigennumbers, than basis"	
+	#print "Rat", Rat
 	print "We're going to C++"
 	return NoAt, NoOrb, Npoints, cur_1d, sh;
 
