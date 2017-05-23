@@ -464,11 +464,9 @@ def read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), imaginary = False, cut
 	geom = ase.io.read(name+".xyz")
 	Ratin = get_GPAW_geom(geom=geom)
 	at_num = geom.get_atomic_numbers()
-	labels, eig, occs, evecs = read_cp2k_MO_file(name+"-cartesian-mos-1_0.MOLog")
-	# place fermi energy at middle of HOMO-LUMO gap
+	labels, eig, occs, evecs, fermi_energy = read_cp2k_MO_file(name+"-cartesian-mos-1_0.MOLog")
 	lumo = np.argmax(occs==0.0)
 	homo = lumo -1
-	fermi_energy = (eig[homo] + eig[lumo]) / 2.0
 
 	# select relevant MOs
 	eig = to_fermi(eig, fermi, orig_fermi=fermi_energy)
@@ -534,8 +532,9 @@ def read_cp2k_MO_file(fn):
 
 	# check if file has expected format
 	assert lines[0].strip() == "MO EIGENVALUES, MO OCCUPATION NUMBERS, AND CARTESIAN MO EIGENVECTORS"
-	assert lines[-2].startswith("Fermi energy:")
 	assert lines[-1].startswith("HOMO-LUMO gap:")
+	assert lines[-2].startswith("Fermi energy:")
+	fermi_energy = 27.211385 * float(lines[-2].split()[2])
 
 	# detect dimensions
 	parts = lines[-3].split()
@@ -573,6 +572,6 @@ def read_cp2k_MO_file(fn):
 	evals = 27.211385 * evals
 
 	# done
-	return labels, evals, occs, evecs
+	return labels, evals, occs, evecs, fermi_energy
 
 ############## END OF LIBRARY ##################################
