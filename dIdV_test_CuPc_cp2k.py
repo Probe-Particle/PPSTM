@@ -51,10 +51,13 @@ lower_coefs=[]	# Lowering of the hoppings
 #coefs = np.concatenate((coefs1, coefs2), axis=0)
 #eigEn, coefs, Ratin  = RS.read_GPAW_all(name = 'out_LCAO_LDA.gpw', fermi=fermi, orbs = orbs, pbc=pbc,
 #					cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
-eigEn, coefs, Ratin  = RS.read_CP2K_all(name = 'CuPc', fermi=fermi, orbs = orbs, pbc=pbc,
-					cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
+eigEn1, coefs1, Ratin1  = RS.read_CP2K_all(name = 'CuPc', fermi=fermi, orbs = orbs, pbc=pbc,
+					cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin="alpha");
+eigEn2, coefs2, Ratin2  = RS.read_CP2K_all(name = 'CuPc', fermi=fermi, orbs = orbs, pbc=pbc,
+					cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin="beta");
 
-print eigEn
+print eigEn1
+print eigEn2
 exit()
 
 # --- the grid on which the STM signal is calculated; no tip_r1 - PP distored by the relaxation in the PPAFM code;  only tip_r2 - uniform grid:

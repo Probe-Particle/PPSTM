@@ -455,7 +455,7 @@ def	read_FIREBALL_all(name = 'phi_' , geom='answer.bas', fermi=None, orbs = 'sp'
 	return eig.copy(), coeffs.copy(), Ratin.copy();
 
 
-def read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lower_atoms=[], lower_coefs=[]):
+def read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lower_atoms=[], lower_coefs=[], spin="closed_shell"):
 	'''TODO'''
 	initial_check(orbs=orbs, pbc=pbc, imaginary=imaginary, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs)
 	# read geometry
@@ -464,7 +464,7 @@ def read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), imaginary = False, cut
 	geom = ase.io.read(name+".xyz")
 	Ratin = get_GPAW_geom(geom=geom)
 	at_num = geom.get_atomic_numbers()
-	labels, eig, occs, evecs, fermi_energy = read_cp2k_MO_file(name+"-cartesian-mos-1_0.MOLog")
+	labels, eig, occs, evecs, fermi_energy = read_cp2k_MO_file(name+"-cartesian-mos-1_0.MOLog", spin=spin)
 	lumo = np.argmax(occs==0.0)
 	homo = lumo -1
 
@@ -517,7 +517,7 @@ def read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), imaginary = False, cut
 	return eig.copy(), coeffs.copy(), Ratin.copy();
 
 #===============================================================================
-def read_cp2k_MO_file(fn):
+def read_cp2k_MO_file(fn, spin):
 	'''TODO'''
 	print("Reading CP2K MOs from:"+fn)
 
@@ -530,27 +530,41 @@ def read_cp2k_MO_file(fn):
 		lines.append(l)
 	f.close()
 
-	# check if file has expected format
-	assert lines[0].strip() == "MO EIGENVALUES, MO OCCUPATION NUMBERS, AND CARTESIAN MO EIGENVECTORS"
-	assert lines[-1].startswith("HOMO-LUMO gap:")
-	assert lines[-2].startswith("Fermi energy:")
-	fermi_energy = 27.211385 * float(lines[-2].split()[2])
-
 	# detect dimensions
 	parts = lines[-3].split()
 	nbasis = int(parts[0])
 	natoms = int(parts[1])
 	nmos = int(lines[-nbasis-5].split()[-1])
+	nlines_per_spin = (nbasis+3) * ((nmos+3)/4) + 2
 	print("Found %d MOs spanned by %d basis functions centered on %d atoms."%(nmos, nbasis, natoms))
+
+	# handle spin
+	if spin == "alpha":
+		first_line = 0
+		assert lines[first_line].strip() == "ALPHA MO EIGENVALUES, MO OCCUPATION NUMBERS, AND CARTESIAN MO EIGENVECTORS"
+	elif spin == "beta":
+		first_line = nlines_per_spin + 1
+		assert lines[first_line].strip() == "BETA MO EIGENVALUES, MO OCCUPATION NUMBERS, AND CARTESIAN MO EIGENVECTORS"
+	elif spin == "closed_shell":
+		first_line = 0
+		assert lines[first_line].strip() == "MO EIGENVALUES, MO OCCUPATION NUMBERS, AND CARTESIAN MO EIGENVECTORS"
+	else:
+		raise(Exception("Unknown spin, should be 'alpha', 'beta', or 'closed_shell': "+str(spin)))
+
+	# read fermi energy
+	last_line = first_line + nlines_per_spin
+	assert lines[last_line].startswith("HOMO-LUMO gap:")
+	assert lines[last_line-1].startswith("Fermi energy:")
+	fermi_energy = 27.211385 * float(lines[last_line-1].split()[2])
 
 	# unfold table
 	idx = []
 	evals = []
 	occs = []
-	evecs = [ list() for i in range(nbasis)]
-	labels = [l.split()[:4] for l in lines[4:nbasis+4]]
+	evecs = [list() for i in range(nbasis)]
+	labels = [l.split()[:4] for l in lines[first_line+4:first_line+nbasis+4]]
 	for i in range((nmos+3)/4): # round up
-		a = i*(nbasis+3) +1
+		a = first_line + i*(nbasis+3) + 1
 		idx.extend(lines[a].split())
 		evals.extend(lines[a+1].split())
 		occs.extend(lines[a+2].split())
