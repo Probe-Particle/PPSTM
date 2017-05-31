@@ -15,7 +15,7 @@ import timeit
 # --- specification of paths to the STM input files, PP positions and stored df results & format in which the data are stored - xsf or npy
 
 path=''
-path_pos='Q0.00K0.24/'
+path_pos='Q0.00K0.50/'
 path_df = path_pos+'Amp0.40/'
 data_format ="npy"
 
@@ -33,9 +33,9 @@ eta = 0.01	# very low to pronounce single orbitals only
 # --- these two not needed now (no STM in this script)
 #WF_decay=1.0	# for STM only - how fast the exponential decay fall, with the applied bias ( if 1 - 1:1 correspondence with bias; if 0, it doesn't change)
 #nV = 9		# for STM only - number of STM integrational steps nV ~ V/eta
-lower_atoms=[]	# No atoms has lowered hopping - be aware python numbering occurs here [0] - means lowering of the 1st atom
-lower_coefs=[]	# Lowering of the hoppings # NOTE: it seems, that for the CP2K input there is not suc a big need to lower down the contributions from
-		# oxygens (on a TOAT), then from the other codes
+lower_atoms=[22,23,24]		# atoms 23-25 - oxygens will have lowered tunneling  !!! python numbering of atoms !!!
+lower_coefs=[0.75,0.75,0.75]	# Lowering of the hoppings # NOTE: it seems, that for the CP2K input there is not suc a big need to lower down the contributions from
+				# oxygens (on a TOAT), then from the other codes - 0.5
 
 # --- downloading and examples of downloading of the eigen-energies, the LCAO coefficients and geometry (this time for spin-unpolarized calculations):
 
