@@ -36,6 +36,9 @@ eta = 0.1		# 0.1 - standart for semiconductors
 #nV = 9			# for STM only - number of STM integrational steps nV ~ V/eta
 lower_atoms=[]	# No atoms has lowered hopping - be aware python numbering occurs here [0] - means lowering of the 1st atom
 lower_coefs=[]	# Lowering of the hoppings
+Vmin = -2.0	# Minimum for STM & dIdV scan
+Vmax = +2.0	# Maximum for STM & dIdV scan
+dV   =  0.1
 
 # --- downloading and examples of downloading of the eigen-energies, the LCAO coefficients and geometry (this time for spin-unpolarized calculations):
 
@@ -64,92 +67,92 @@ extent = (xstart,xstart+xl,ystart,ystart+yl)
 tip_r2 = RS.mkSpaceGrid(xstart,xstart+xl,dx,ystart,ystart+yl,dy,zstart,zstart+zl,dz)
 sh = tip_r2.shape
 
-# --- specification on which voltages the STM (dI/dV ...) calculations are performed - two methods - direct specification or sequence of voltages
-
-#Voltages=[-0.88,+0.88]
-#namez=['HOMO','LUMO']
-
-Voltages=np.arange(-2.0,+2.0+0.01,0.5) # this part is important for scans over slabs at different voltages
-namez = []
-for V in Voltages:
-    namez.append(str(round(V,1)))
-
 # --- the Main Loop - for different WorkFunction (exponential z-decay of current), sample bias Voltages & eta - lorentzian FWHM
 
-curr0 = np.array([])
-curr1 = np.array([])
-curr2 = np.array([])
+STM0 = np.array([])
+STM1 = np.array([])
+dIdV0 = np.array([])
+dIdV1 = np.array([])
 
 for WorkFunction in [WorkFunction]:
-    i=0;
-    for V in Voltages:
-	if (V != 0.0):
-	    nV = int(abs(V/eta)+1)
-	    print "Voltage: ", V, "; number of integration steps: ", nV
-	    for eta in [eta]:
-			current0 = PS.dIdV( V, WorkFunction, eta, eigEn, tip_r2, Ratin, coefs, orbs=orbs, s=1.0, px=0.0, py=0.0, pz = 0.0) 
-			WF_decay = 1 # ( tunnelling barrier changes 1:1 with applied sample bias)
-			current1 = PS.STM( V, nV, WorkFunction, eta, eigEn, tip_r2, Ratin, coefs, orbs=orbs, s=1.0, WF_decay=WF_decay)
-			WF_decay = 0 # ( tunnelling barrienr doesn't change)
-			current2 = PS.STM( V, nV, WorkFunction, eta, eigEn, tip_r2, Ratin, coefs, orbs=orbs, s=1.0, WF_decay=WF_decay)
-			curr0 = np.append(curr0,current0)
-			curr1 = np.append(curr1,current1)
-			curr2 = np.append(curr2,current2)
-	i = i+1
+    WF_decay = 0 # ( tunnelling barrienr doesn't change)
+    STM0, dIdV0 = PS.MSTM( Vmin, Vmax, dV, WorkFunction, eta, eigEn, tip_r2, Ratin, coefs, orbs=orbs, s=1.0, WF_decay=WF_decay)
+    WF_decay = 1 # ( tunnelling barrier changes 1:1 with applied sample bias)
+    STM1, dIdV1 = PS.MSTM( Vmin, Vmax, dV, WorkFunction, eta, eigEn, tip_r2, Ratin, coefs, orbs=orbs, s=1.0, WF_decay=WF_decay)
 
-curre=np.reshape(curr0,(len(Voltages)-1,sh[0],sh[1],sh[2]))
 # --- plotting part here, plots calculated signal:
 print " plotting "
-name_file='didV-7x7-5Ang.dat'
+name_file='didV-7x7-5Ang'
 # ploting part here:
 plt.figure( figsize=(0.4* xl , 0.4*yl/2 ) )
-for i in range(8):
-		j=i if i <=3 else i+1
-		plt.subplot(2,4,i+1)
-		plt.imshow( curre[i,0,:,:], origin='image', extent=extent , cmap='gray')
-		plt.xlabel(r' Tip_x $\AA$')
-		plt.ylabel(r' Tip_y $\AA$')
-		plt.title("Sample bias:"+namez[j]+"V")
+ni=21; nn=2;
+for i in range(ni):
+		plt.subplot(3,7,i+1)
+		plt.imshow( dIdV0[i*nn,0,:,:], origin='image', extent=extent , cmap='gray')
+		if np.mod(i,7)==0 :
+			plt.ylabel(r' Tip_y $\AA$')
+		if i >= 14:
+			plt.xlabel(r' Tip_x $\AA$')
+		plt.title("Sample bias:"+str(Vmin+i*nn*dV)+"V")
 
 plt.savefig( name_file+'.png', bbox_inches='tight' )
 plt.show()
 plt.close()
 
-curre=np.reshape(curr1,(len(Voltages)-1,sh[0],sh[1],sh[2]))
 # --- plotting part here, plots calculated signal:
 print " plotting "
-name_file='STM_corresponding_barrier-7x7-5Ang.dat'
+name_file='didV-7x7-5Ang_test'
 # ploting part here:
 plt.figure( figsize=(0.4* xl , 0.4*yl/2 ) )
-for i in range(8):
-		j=i if i <=3 else i+1
-		plt.subplot(2,4,i+1)
-		plt.imshow( curre[i,0,:,:], origin='image', extent=extent , cmap='gray')
-		plt.xlabel(r' Tip_x $\AA$')
-		plt.ylabel(r' Tip_y $\AA$')
-		plt.title("Sample bias:"+namez[j]+"V")
+for i in range(ni):
+		plt.subplot(3,7,i+1)
+		plt.imshow( dIdV1[i*nn,0,:,:], origin='image', extent=extent , cmap='gray')
+		if np.mod(i,7)==0 :
+			plt.ylabel(r' Tip_y $\AA$')
+		if i >= 14:
+			plt.xlabel(r' Tip_x $\AA$')
+		plt.title("Sample bias:"+str(Vmin+i*nn*dV)+"V")
 
 plt.savefig( name_file+'.png', bbox_inches='tight' )
 plt.show()
 plt.close()
 
-curre=np.reshape(curr2,(len(Voltages)-1,sh[0],sh[1],sh[2]))
 # --- plotting part here, plots calculated signal:
 print " plotting "
-name_file='STM_same_barrier-7x7-5Ang.dat'
+name_file='STM-7x7-5Ang_no_changes_in_WF'
 # ploting part here:
 plt.figure( figsize=(0.4* xl , 0.4*yl/2 ) )
-for i in range(8):
-		j=i if i <=3 else i+1
-		plt.subplot(2,4,i+1)
-		plt.imshow( curre[i,0,:,:], origin='image', extent=extent , cmap='gray')
-		plt.xlabel(r' Tip_x $\AA$')
-		plt.ylabel(r' Tip_y $\AA$')
-		plt.title("Sample bias:"+namez[j]+"V")
+for i in range(ni):
+		plt.subplot(3,7,i+1)
+		plt.imshow( STM0[i*nn,0,:,:], origin='image', extent=extent , cmap='gray')
+		if np.mod(i,7)==0 :
+			plt.ylabel(r' Tip_y $\AA$')
+		if i >= 14:
+			plt.xlabel(r' Tip_x $\AA$')
+		plt.title("Sample bias:"+str(Vmin+i*nn*dV)+"V")
 
 plt.savefig( name_file+'.png', bbox_inches='tight' )
 plt.show()
 plt.close()
+
+# --- plotting part here, plots calculated signal:
+print " plotting "
+name_file='STM-7x7-5Ang_WF_changes_w_V'
+# ploting part here:
+plt.figure( figsize=(0.4* xl , 0.4*yl/2 ) )
+for i in range(ni):
+		plt.subplot(3,7,i+1)
+		plt.imshow( STM1[i*nn,0,:,:], origin='image', extent=extent , cmap='gray')
+		if np.mod(i,7)==0 :
+			plt.ylabel(r' Tip_y $\AA$')
+		if i >= 14:
+			plt.xlabel(r' Tip_x $\AA$')
+		plt.title("Sample bias:"+str(Vmin+i*nn*dV)+"V")
+
+plt.savefig( name_file+'.png', bbox_inches='tight' )
+plt.show()
+plt.close()
+
 
 # --- the end
 

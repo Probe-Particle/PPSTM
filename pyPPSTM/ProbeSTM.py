@@ -112,6 +112,51 @@ def STM( V, nV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, p
 	print "All dI/dV steps done, current rescalled into Ampers"
 	return cur;
 
+def MSTM( Vmin, Vmax, dV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=1.0, px =0.0, py=0.0, pz=0.0, dxz=0.0, dyz=0.0, dz2=0.0, WF_decay=1.0):
+	'''
+	MSTM( Vmin, Vmax,  dV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=1.0, px =0.0, py=0.0, pz=0.0, WF_decay=1.0):
+	summing more dI/dV via rectangle integration, be aware Work Function is changing with Voltage!
+	'''
+	#assert (float(V) != 0.0),"you cannot have zero Voltage"
+	print "Multiple STM simulation via more dI/dV calculations, store - all STMs and dIdVs"
+	print "Be aware Work Function is changing with Voltage by a factor: ",  WF_decay
+	Vmin = Vmin if Vmin <= 0.0 else 0.0;
+	Vmax = Vmax if Vmax >= 0.0 else 0.0;
+	ii=0;
+	#dIdVs = np.array([ ]); STMs = np.array([ ]);
+	v0 = -1
+	for v_ in np.arange(Vmin,Vmax+0.001,dV):
+		print "Start to calculate voltage step %d of %d in total." %(ii, len(np.arange(Vmin,Vmax+0.001,dV)))
+		assert (WF-v_*WF_decay> 0.1), "Non-physical Work Function or Voltage, together WF <= 0.1 eV	"
+		print "WF for this step is: " , WF-v_*WF_decay, " eV"
+		i_ = dIdV( v_, WF-v_*WF_decay, eta ,eig, R, Rat, coes, orbs=orbs, s=s, px =px, py=py, pz=pz, dxz=dxz, dyz=dyz, dz2=dz2)
+		#print "DEBUG: size of i_:", i_.shape
+		dIdVs = np.array([i_]) if v_ == Vmin else np.append(dIdVs, np.array([i_]),axis=0)
+		if -0.005 < v_ < 0.005:
+			v0 = ii
+		ii +=1
+	print "dIdVs calculated, voltage 0 has number %d (python logic)" %(v0)
+	#print "DEBUG: size of dIdVs array:", dIdVs.shape
+	assert (v0 != -1), "no zero voltage in the scan"
+	ii=0;
+	for v_ in np.arange(Vmin,Vmax+0.001,dV):
+		print "Sample bias Voltage:" , v_
+		cur = dIdVs[v0]
+		if (v_ < -0.005):
+			#print "Voltages for STM without zero:", np.arange(ii,v0,1) ;
+			for i in np.arange(ii,v0,1):
+				cur +=dIdVs[i] 
+		if (v_ > 0.005):
+			#print "Voltages for STM without zero:", np.arange(v0+1,ii+0.001,1) ;
+			for i in np.arange(v0+1,ii+0.001,1):
+				cur +=dIdVs[i] 
+		cur *= abs(0.001)*G2Amp if -0.005 < v_ < 0.005 else abs(v_)*G2Amp;
+		STMs = np.array([cur]) if v_ == Vmin else np.append(STMs, np.array([cur]) , axis=0)
+		del cur; ii += 1;
+	print "All dI/dV steps done, current rescalled into Ampers"
+	#print "DEBUG: size of STMs and dIdVs arrays:", STMs.shape , dIdVs.shape
+	return STMs, dIdVs;
+
 def IETS_simple( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxz=0.0, dyz=0.0, dz2=0.0, Amp=0.05):
 	'''
 	IETS_simple( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxz=0.0, dyz=0.0, dz2=0.0, Amp=0.05)
