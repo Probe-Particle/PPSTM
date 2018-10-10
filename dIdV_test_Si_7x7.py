@@ -27,8 +27,8 @@ lvs = np.loadtxt(path+'input.lvs')
 WorkFunction = 5.0 #more or less standart.
 fermi=None		# the Fermi from phik ... .dat file; !!! All energies are relative to Fermi !!!!
 orbs= 'spd'		# 'sp' and 'spd' works now
-cut_min=-2.5	# +/- 0.5 eV bigger than the maximal bias (+/- 2.0 V)
-cut_max=+2.5	# 
+cut_min=-1.0	#cut_min=-2.5	# +/- 0.5 eV bigger than the maximal bias (+/- 2.0 V)
+cut_max=+2.0	#cut_max=+2.5	# <- older from older script
 cut_at=18		# Adatoms (12) and restatoms (6) only
 eta = 0.1		# 0.1 - standart for semiconductors
 # -- next two parameters will be specified in the main loop
@@ -69,7 +69,9 @@ sh = tip_r2.shape
 #Voltages=[-0.88,+0.88]
 #namez=['HOMO','LUMO']
 
-Voltages=np.arange(-2.0,+2.0+0.01,0.5) # this part is important for scans over slabs at different voltages
+#Voltages=np.arange(-2.0,+2.0+0.01,0.5) # this part is important for scans over slabs at different voltages
+# ABOVE - original long calculations, 
+Voltages=np.arange(-0.5,+0.5+0.01,0.5) # this part is important for scans over slabs at different voltages
 namez = []
 for V in Voltages:
     namez.append(str(round(V,1)))
@@ -102,17 +104,17 @@ curre=np.reshape(curr0,(len(Voltages)-1,sh[0],sh[1],sh[2]))
 print " plotting "
 name_file='didV-7x7-5Ang.dat'
 # ploting part here:
-plt.figure( figsize=(0.4* xl , 0.4*yl/2 ) )
-for i in range(8):
-		j=i if i <=3 else i+1
-		plt.subplot(2,4,i+1)
+plt.figure( figsize=(0.2* xl , 0.2*yl/2 ) )
+for i in range(2):
+		j=i if i <=0 else i+1
+		plt.subplot(1,2,i+1)
 		plt.imshow( curre[i,0,:,:], origin='image', extent=extent , cmap='gray')
 		plt.xlabel(r' Tip_x $\AA$')
 		plt.ylabel(r' Tip_y $\AA$')
 		plt.title("Sample bias:"+namez[j]+"V")
 
 plt.savefig( name_file+'.png', bbox_inches='tight' )
-plt.show()
+#plt.show()
 plt.close()
 
 curre=np.reshape(curr1,(len(Voltages)-1,sh[0],sh[1],sh[2]))
@@ -120,17 +122,17 @@ curre=np.reshape(curr1,(len(Voltages)-1,sh[0],sh[1],sh[2]))
 print " plotting "
 name_file='STM_corresponding_barrier-7x7-5Ang.dat'
 # ploting part here:
-plt.figure( figsize=(0.4* xl , 0.4*yl/2 ) )
-for i in range(8):
-		j=i if i <=3 else i+1
-		plt.subplot(2,4,i+1)
+plt.figure( figsize=(0.2* xl , 0.2*yl/2 ) )
+for i in range(2):
+		j=i if i <=0 else i+1
+		plt.subplot(1,2,i+1)
 		plt.imshow( curre[i,0,:,:], origin='image', extent=extent , cmap='gray')
 		plt.xlabel(r' Tip_x $\AA$')
 		plt.ylabel(r' Tip_y $\AA$')
 		plt.title("Sample bias:"+namez[j]+"V")
 
 plt.savefig( name_file+'.png', bbox_inches='tight' )
-plt.show()
+#plt.show()
 plt.close()
 
 curre=np.reshape(curr2,(len(Voltages)-1,sh[0],sh[1],sh[2]))
@@ -138,17 +140,17 @@ curre=np.reshape(curr2,(len(Voltages)-1,sh[0],sh[1],sh[2]))
 print " plotting "
 name_file='STM_same_barrier-7x7-5Ang.dat'
 # ploting part here:
-plt.figure( figsize=(0.4* xl , 0.4*yl/2 ) )
-for i in range(8):
-		j=i if i <=3 else i+1
-		plt.subplot(2,4,i+1)
+plt.figure( figsize=(0.2* xl , 0.2*yl/2 ) )
+for i in range(2):
+		j=i if i <=0 else i+1
+		plt.subplot(1,2,i+1)
 		plt.imshow( curre[i,0,:,:], origin='image', extent=extent , cmap='gray')
 		plt.xlabel(r' Tip_x $\AA$')
 		plt.ylabel(r' Tip_y $\AA$')
 		plt.title("Sample bias:"+namez[j]+"V")
 
 plt.savefig( name_file+'.png', bbox_inches='tight' )
-plt.show()
+#plt.show()
 plt.close()
 
 # --- the end

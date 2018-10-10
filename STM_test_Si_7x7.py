@@ -96,7 +96,7 @@ for i in range(ni):
 		plt.title("Sample bias:"+str(Vmin+i*nn*dV)+"V")
 
 plt.savefig( name_file+'.png', bbox_inches='tight' )
-plt.show()
+#plt.show()
 plt.close()
 
 # --- plotting part here, plots calculated signal:
@@ -114,7 +114,7 @@ for i in range(ni):
 		plt.title("Sample bias:"+str(Vmin+i*nn*dV)+"V")
 
 plt.savefig( name_file+'.png', bbox_inches='tight' )
-plt.show()
+#plt.show()
 plt.close()
 
 # --- plotting part here, plots calculated signal:
@@ -132,7 +132,7 @@ for i in range(ni):
 		plt.title("Sample bias:"+str(Vmin+i*nn*dV)+"V")
 
 plt.savefig( name_file+'.png', bbox_inches='tight' )
-plt.show()
+#plt.show()
 plt.close()
 
 # --- plotting part here, plots calculated signal:
@@ -150,7 +150,7 @@ for i in range(ni):
 		plt.title("Sample bias:"+str(Vmin+i*nn*dV)+"V")
 
 plt.savefig( name_file+'.png', bbox_inches='tight' )
-plt.show()
+#plt.show()
 plt.close()
 
 

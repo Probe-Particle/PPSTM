@@ -77,7 +77,8 @@ plt.ylabel("DOS [arb.un.]")
 plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 #plt.axis('image')
 plt.savefig( 'PDOS_eta_'+str(eta)+'eV.png' , bbox_inches='tight' ) 
-plt.show()
+#plt.show()
+plt.close()
 
 # --- the end
 

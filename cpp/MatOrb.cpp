@@ -21,9 +21,6 @@ const double I_3 = 0.3333333;        // 1/3
 static double decay = 1;
 //static double decay2 = 1;
 static double Norm = 1;
-Vec3d * dr; //=new Vec3d[NoAt];
-double* radial; //= new double[NoAt];
-double* rev_rr; //= new double[NoAt];
 
 // ================= OTHER FUNCTIONS
 

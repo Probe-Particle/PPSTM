@@ -1,4 +1,13 @@
 #!/bin/bash
+OMP=1	# 0 = 'False' , 1 = 'True'
+if [ $OMP -eq 1 ]
+then
+    export OMP_NUM_THREADS=8
+fi
+
+echo "OMP_NUM_THREADS:"
+echo $OMP_NUM_THREADS
+echo "Now the tests:"
 
 echo "test for the PP-STM code:"
 python PPSTM/PPAFM/generateLJFF.py -i crazy_mol.xyz --npy
