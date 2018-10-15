@@ -19,8 +19,9 @@ extern "C" {
 int read_AIMS_coefs(char *fname, double* coefs, int* period, int nMO, int nAtoms, int nPerAtoms ){
     setlocale( LC_ALL, "C" ); // https://msdn.microsoft.com/en-us/library/x99tb11d(v=vs.71).aspx
     FILE *f;
-    const int nchmax = 32000;
-    char line[nchmax]; // define a length which is long enough to store a line
+    const int nchmax = 1000000;
+    char* line = new char[nchmax];
+    //char line[nchmax]; // define a length which is long enough to store a line
     char word[64];
     f=fopen(fname, "r");
     int nPerMO = nPerAtoms*nAtoms;
@@ -62,6 +63,7 @@ int read_AIMS_coefs(char *fname, double* coefs, int* period, int nMO, int nAtoms
         }
     }
     fclose(f);
+    delete [] line;
     return 0;
 }
 
