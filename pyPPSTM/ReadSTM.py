@@ -163,6 +163,30 @@ def cut_eigenenergies(eig):
 	assert (n_min_ < n_max_), "no orbitals left for dI/dV"
 	return eig[n_min_:n_max_];
 
+def getAimsEigenE(fname, fermi=0.0):
+	# getting eigen-energies:
+	filein = open(fname )
+	skip_header = 2
+	for i in range(20):
+		tmp=filein.readline().split()
+		skip_header += 1
+		if (len(tmp)>1):
+			if (tmp[1]=='Basis'):
+				break
+	tmp=filein.readline()
+	pre_eig = filein.readline().split()
+	filein.close()
+	pre_eig=np.delete(pre_eig,[0,1,2],0)
+	n_bands = len(pre_eig)
+	eig = np.zeros(n_bands)
+	for i in range(n_bands):
+		eig[i] = float(pre_eig[i])
+	del pre_eig, tmp;
+	eig = to_fermi(eig, fermi, orig_fermi=0.0)
+	eig = cut_eigenenergies(eig)
+	print "eigenenergies read"
+	return eig 
+
 # procedure for handling the coefficients:
 
 def lower_Allorb(coef):

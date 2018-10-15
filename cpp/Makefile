@@ -2,10 +2,13 @@ CC=g++
 CPPFLAGS=-std=c++11 -O3 -ffast-math -ftree-vectorize 
 CPPLFLAGS= $(CPPFLAGS) -shared -Wl,-soname
 
-all: STM
+all: STM IO
 
 STM:
 	$(CC) $(CPPFLAGS) -c -fPIC ProbeSTM_spd.cpp
 	$(CC) $(CPPLFLAGS),ProbeSTM_spd_lib.so -o ProbeSTM_spd_lib.so ProbeSTM_spd.o
+IO:
+	$(CC) $(CPPFLAGS) -c -fPIC IO.cpp
+	$(CC) $(CPPLFLAGS),IO_lib.so -o IO_lib.so IO.o
 clean:
 	rm *.o *.so *.pyc
