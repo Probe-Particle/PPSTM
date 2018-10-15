@@ -183,7 +183,7 @@ def getAimsEigenE(fname, fermi=0.0):
 		eig[i] = float(pre_eig[i])
 	del pre_eig, tmp;
 	eig = to_fermi(eig, fermi, orig_fermi=0.0)
-	eig = cut_eigenenergies(eig)
+	#eig = cut_eigenenergies(eig)
 	print "eigenenergies read"
 	return eig 
 
@@ -292,7 +292,7 @@ def	read_AIMS_all(name = 'KS_eigenvectors.band_1.kpt_1.out', geom='geometry.in',
 	for j in range(num_at_):
 		Z = at_num[j];
 		per = el[Z][2]
-		temp=int((np.mod(2,2)-0.5)*2)	# phase of radial function in long distance for l=0: if n even - +1, if odd - -1
+		temp=int((np.mod(per,2)-0.5)*2)	# phase of radial function in long distance for l=0: if n even - +1, if odd - -1
 		if (orbs == 'sp'):
 			orb_sign[j]=[temp,-1*temp,-1*temp,temp]		# {1, 1, 1, -1};(*Dont change, means - +s, +py +pz -px*) but l=1 has opposite phase than l=0 ==>  sign[s]*{1, -1, -1, 1};
 		else: # (orbs == 'spd'):

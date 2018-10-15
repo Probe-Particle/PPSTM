@@ -56,5 +56,5 @@ def read_AIMS_coefs(fname, at_nums, nAtom, nPerAtom=9 ):
     for iZ,per in zip(at_nums,periods): print iZ,per
     coefs = np.zeros( (nMO,nAtom,nPerAtom) )
     lib.read_AIMS_coefs( fname,coefs, periods, nMO, nAtom, nPerAtom );
-    return coefs, eigs
+    return coefs.copy(), eigs.copy()
 

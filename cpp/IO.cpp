@@ -26,8 +26,8 @@ int read_AIMS_coefs(char *fname, double* coefs, int* period, int nMO, int nAtoms
     f=fopen(fname, "r");
     int nPerMO = nPerAtoms*nAtoms;
 
-    const int signs[9] = {-1, 1,1,-1,   -1,-1,-1,1,-1 };
-
+    const int signs[9] = {1, -1,-1,1,   -1,-1,-1,1,-1 }; //# {1, 1, 1, -1, 1, 1, 1, 1, -1, 1};(*Dont change, means - +s, +py +pz -px +dxy +dyz +dz2 -dxz +dx2y2)
+			             //# but l=1 has opposite phase than l=0 and l=2 is n-1 - the same phase as l=1 ==>  sign[s]*{1, -1, -1, 1, -1, -1, -1, 1, -1};
     fgets(line,nchmax,f);
 
     int iline=0;
@@ -49,7 +49,7 @@ int read_AIMS_coefs(char *fname, double* coefs, int* period, int nMO, int nAtoms
             case 'd': if((n==period[ia]-1 ) && (nPerAtoms>=9) ) ioff = m+6; break; // -2 -> 4
         }
         if(ioff>=0){
-            int sign   = signs[ioff] * ((period[ia] % 2) * 2 - 1);
+            int sign   = signs[ioff] * ((period[ia] % 2) * 2 - 1); //# phase of radial function in long distance for l=0: if n even - +1, if odd - -1
             printf( "line# %i ia,per %i %i n,l,m %i %c %i io,sign %i %i \n", iline, ia, period[ia], n, l, m, ioff, sign );
             double* coefs_ = coefs + ia*nPerAtoms + ioff;
             char* s = line+34;
