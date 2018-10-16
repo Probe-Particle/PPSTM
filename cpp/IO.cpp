@@ -16,7 +16,7 @@ void str_cp(int n, const char* src, char* dest){
 extern "C" {
 
 
-int read_AIMS_coefs(char *fname, double* coefs, int* period, int nMO, int nAtoms, int nPerAtoms ){
+int read_AIMS_coefs(char *fname, double* coefs, int* period, int nMOmax, int nMOmin, int nAtoms, int nPerAtoms ){
     setlocale( LC_ALL, "C" ); // https://msdn.microsoft.com/en-us/library/x99tb11d(v=vs.71).aspx
     FILE *f;
     const int nchmax = 1000000;
@@ -42,7 +42,7 @@ int read_AIMS_coefs(char *fname, double* coefs, int* period, int nMO, int nAtoms
         str_cp(2,line+21,word); int n  = strtod(word, NULL); //printf( " n  |%s| \n", word); // n-quantum number
         str_cp(2,line+27,word); int m  = strtod(word, NULL); //printf( " m  |%s| \n", word); // m-quantum number
         int ioff = -1;
-        //printf( " ia %i n,l,m %i %c %i \n", ia, n, l, m  );
+        //printf( " ia %i n,l,m %i %c %i \n", ia, n, l, m  ); //Debug
         switch(l){
             case 's': if( n==period[ia]   )                     ioff = 0;   break;
             case 'p': if( n==period[ia]   )                     ioff = m+2; break; // -1 -> 1
@@ -50,10 +50,10 @@ int read_AIMS_coefs(char *fname, double* coefs, int* period, int nMO, int nAtoms
         }
         if(ioff>=0){
             int sign   = signs[ioff] * ((period[ia] % 2) * 2 - 1); //# phase of radial function in long distance for l=0: if n even - +1, if odd - -1
-            printf( "line# %i ia,per %i %i n,l,m %i %c %i io,sign %i %i \n", iline, ia, period[ia], n, l, m, ioff, sign );
+            //printf( "line# %i ia,per %i %i n,l,m %i %c %i io,sign %i %i \n", iline, ia, period[ia], n, l, m, ioff, sign ); //DEBUG1111
             double* coefs_ = coefs + ia*nPerAtoms + ioff;
-            char* s = line+34;
-            for(int imo=0; imo<nMO; imo++){
+            char* s = line+34+30*nMOmin;
+            for(int imo=0; imo<nMOmax-nMOmin; imo++){
                 str_cp(12,s, word);
                 *coefs_ = strtof(word, NULL) * sign;
                 //printf( " (%04i,%04i,%03i) |%s| %g \n", ia, imo, ioff, word, *coefs_  );

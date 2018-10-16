@@ -111,12 +111,13 @@ for zi in range(len(tip_r2)):
     for i in range(8):
 	plt.subplot(2,4,i+1)
 	plt.imshow( curre[i,zi,:,:], origin='image', extent=extent , cmap='gray')
-	plt.ylabel(r' Tip_y $\AA$')
+	if ((i == 0)or(i==4)):
+	    plt.ylabel(r' Tip_y $\AA$')
 	plt.title("dI/dV "+namez[i])
 	if (i>3):
 	    plt.xlabel(r' Tip_x $\AA$')
     plt.savefig( name_file+'.png', bbox_inches='tight' )
-    plt.show()
+    #plt.show()
     plt.close()
 
 

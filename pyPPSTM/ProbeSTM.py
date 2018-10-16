@@ -202,7 +202,7 @@ def IETS_complex( V, WF, eta ,eig, R, eigenEner, eigenVec1, eigenVec2, eigenVec3
 	print "IETS = 1/w_vib1^2 * d(dI/dV)/dvib1+ 1/w_vib2^2 *d(dI/dV)/dvib2"
 	sh1 = np.array(R.shape)
 	sh2 = np.array(eigenEner.shape)
-	print "dimensions of arrays:", sh1, sh2
+	#print "dimensions of arrays:", sh1, sh2 # DEBUG only
 	assert ((sh1[0]==sh2[0])and(sh1[1]==sh2[1])and(sh1[2]==sh2[2])and(sh1[3]==sh2[3])) , "different shape of R (tip positions ) & eigenEner(gies)"
 	tmp = eigenEner.copy()
 	#due to negative eigen-energies in special points:

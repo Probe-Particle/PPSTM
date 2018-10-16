@@ -1,5 +1,5 @@
 #!/bin/bash
-OMP=1	# 0 = 'False' , 1 = 'True'
+OMP=0	# 0 = 'False' , 1 = 'True'
 if [ $OMP -eq 1 ]
 then
     export OMP_NUM_THREADS=8

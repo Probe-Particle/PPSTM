@@ -5,6 +5,11 @@ import numpy as np
 import basUtils as bU
 import elements
 
+from   ctypes import c_int, c_double, c_char_p
+import ctypes
+import cpp_utils
+
+import time
 
 # this library has functions for reading STM coefficients and make a grid for non-relaxed 3D scan
 
@@ -22,6 +27,43 @@ n_min_ = 0
 n_max_ = 0
 Ynum_ = 4
 num_at_ = -1
+
+# ==============================
+# ============================== C++ compilations
+# ==============================
+
+LIB_PATH = os.path.dirname( os.path.realpath(__file__) )
+print " ProbeParticle Library DIR = ", LIB_PATH
+
+cpp_name='IO'
+#cpp_utils.compile_lib( cpp_name  )
+cpp_utils.make("IO")
+lib    = ctypes.CDLL(  cpp_utils.CPP_PATH + "/" + cpp_name + cpp_utils.lib_ext )     # load dynamic librady object using ctypes 
+
+# define used numpy array types for interfacing with C++
+
+array1i = np.ctypeslib.ndpointer(dtype=np.int32,  ndim=1, flags='CONTIGUOUS')
+array1d = np.ctypeslib.ndpointer(dtype=np.double, ndim=1, flags='CONTIGUOUS')
+array2d = np.ctypeslib.ndpointer(dtype=np.double, ndim=2, flags='CONTIGUOUS')
+array3d = np.ctypeslib.ndpointer(dtype=np.double, ndim=3, flags='CONTIGUOUS')
+array4d = np.ctypeslib.ndpointer(dtype=np.double, ndim=4, flags='CONTIGUOUS')
+
+# ========
+# ======== Python warper function for C++ functions
+# ========
+
+#************* sp(d) now as well *************
+# int read_AIMS_coefs          (char *fname, double* coefs, int* period, int nMOmax, int nMOmin, int nAtoms, int nPerAtoms ){
+lib.read_AIMS_coefs.argtypes = [ c_char_p,   array3d,       array1i,     c_int,      c_int,      c_int,      c_int ]
+lib.read_AIMS_coefs.restype  = c_int
+def read_AIMS_coefs(fname, at_nums ):
+    #eigs = ReadSTM.getAimsEigenE(fname)
+    #nMO = len(eigs)
+    periods = np.array([ elements.ELEMENTS[iZ][2] for iZ in at_nums ], dtype=np.int32)
+    #for iZ,per in zip(at_nums,periods): print iZ,per # for DEBUG
+    coefs = np.zeros( (n_max_ - n_min_ ,num_at_ , Ynum_) ); # print "DEBUG: coefs.shape", coefs.shape
+    lib.read_AIMS_coefs( fname,coefs, periods, n_max_, n_min_ , num_at_ , Ynum_ );
+    return coefs.copy()#, eigs.copy()
 
 # ==============================
 # ============================== Pure python functions
@@ -163,29 +205,32 @@ def cut_eigenenergies(eig):
 	assert (n_min_ < n_max_), "no orbitals left for dI/dV"
 	return eig[n_min_:n_max_];
 
-def getAimsEigenE(fname, fermi=0.0):
-	# getting eigen-energies:
-	filein = open(fname )
-	skip_header = 2
-	for i in range(20):
-		tmp=filein.readline().split()
-		skip_header += 1
-		if (len(tmp)>1):
-			if (tmp[1]=='Basis'):
-				break
-	tmp=filein.readline()
-	pre_eig = filein.readline().split()
-	filein.close()
-	pre_eig=np.delete(pre_eig,[0,1,2],0)
-	n_bands = len(pre_eig)
-	eig = np.zeros(n_bands)
-	for i in range(n_bands):
-		eig[i] = float(pre_eig[i])
-	del pre_eig, tmp;
-	eig = to_fermi(eig, fermi, orig_fermi=0.0)
-	#eig = cut_eigenenergies(eig)
-	print "eigenenergies read"
-	return eig 
+# ********** TO BE REMOVED ************
+# just for testing C++ AIMS reading procedure
+#def getAimsEigenE(fname, fermi=0.0):
+#	# getting eigen-energies:
+#	filein = open(fname )
+#	skip_header = 2
+#	for i in range(20):
+#		tmp=filein.readline().split()
+#		skip_header += 1
+#		if (len(tmp)>1):
+#			if (tmp[1]=='Basis'):
+#				break
+#	tmp=filein.readline()
+#	pre_eig = filein.readline().split()
+#	filein.close()
+#	pre_eig=np.delete(pre_eig,[0,1,2],0)
+#	n_bands = len(pre_eig)
+#	eig = np.zeros(n_bands)
+#	for i in range(n_bands):
+#		eig[i] = float(pre_eig[i])
+#	del pre_eig, tmp;
+#	eig = to_fermi(eig, fermi, orig_fermi=0.0)
+#	#eig = cut_eigenenergies(eig)
+#	print "eigenenergies read"
+#	return eig 
+# ************************************
 
 # procedure for handling the coefficients:
 
@@ -282,7 +327,9 @@ def	read_AIMS_all(name = 'KS_eigenvectors.band_1.kpt_1.out', geom='geometry.in',
 	eig = to_fermi(eig, fermi, orig_fermi=0.0)
 	eig = cut_eigenenergies(eig)
 	print "eigenenergies read"
-	
+	# ****** TO BE REMOVED ********
+	"""
+	# old slow python procedure
 	# finding position of the LCAO coeficients in the AIMS output file & its phase - sign
 	tmp = np.genfromtxt(name,skip_header=skip_header, usecols=(1,2,3,4,5),dtype=None)
 	orb_pos=np.zeros((num_at_,Ynum_), dtype=np.int)
@@ -337,7 +384,9 @@ def	read_AIMS_all(name = 'KS_eigenvectors.band_1.kpt_1.out', geom='geometry.in',
 				coef[:,j,l] = tmp[orb_pos[j,l],:]
 				coef[:,j,l] *= orb_sign[j,l]
 	del tmp;
+	"""
 	# lowering over atoms and applying PBC
+	coef = read_AIMS_coefs(name, at_num ) # Maximal error between C++ and python reading ~1.5E-08; reading procedure ~100x faster
 	coeffs = handle_coef(coef)
 	print "All coefficients read"
 	return eig.copy(), coeffs.copy(), Ratin.copy();
