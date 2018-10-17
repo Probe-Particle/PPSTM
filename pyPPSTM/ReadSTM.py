@@ -90,7 +90,7 @@ def initial_check(orbs = 'sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_
 	assert ((orbs == 'sp')or(orbs == 'spd')), "sorry I can't do different orbitals" 
 	assert (imaginary == False), "sorry imaginary version is under development" 	
 	print "reading FHI-AIMS LCAO coefficients for basis: ",orbs	
-	global cut_at_ ; cut_at_ = cut_at
+	global cut_at_ ; cut_at_ = -1 if cut_at == None else cut_at
 	global pbc_    ; pbc_ = pbc
 	global cut_min_ ; cut_min_ = cut_min
 	global cut_max_ ; cut_max_ = cut_max

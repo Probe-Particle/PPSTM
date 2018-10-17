@@ -8,116 +8,154 @@
 #
 # Note : This type of simulations works for solid slabs or molecules on slabs (substrate) ; for freestanding molecule it can give you nonsences
 #
+# ***** System information: path (absolute or relative) to your PPSTM code *****
+#
+ppstm_path = '$HOME/Program_Files/PPSTM/'
+#
 # ***** Main informations ******
 #
-scan_type     = 'didv'               # 'didv'='dIdV''='didv-single' -- only dIdV for one voltage = V ; 'v-scan'='V-scan'='Voltage-scan' -- both STM & dIdV scan - V .. Vmax; 'STM'='STM-single' -- STM for one Voltage = V, use V-scan rather #
-tip_type      = 'fixed'              # 'fixed'='f' -- for stiff/metal tip apexes ; 'relaxed'='r' -- for flexible tip apexes (precalculated by PP-AFM) #
-V             = -2.0                 # !!!! V = Vmin for SCAN !!!! #
-V_max         = +2.0                 # V = V_min >= -2.0 V ; V_max <= 2.0 V (othervise changes in the later code needed) #
-dV            =  0.1                 # voltage step , dV <= 0.1 V #
-eta           =  0.1                 # Lorentzian width of states in energy scale: typically 0.1; can be in range of 0.3-0.05 eV in some cases (low amount of layers ...) even up to 1.0 eV #
-WF_decay      =  0.0                 # 0.0 <= WF_decay <= 1.0 ; How fast WorkFunction tunnelling barrier is changing with Voltage : (WF = WF_0 + V*WF_decay) -- 0.0 no change ; 1.0 - the same change as voltage #
-tip_orb       = 's'                  # 's' ; 'pxy' -- px & py ; 'spxy' -- 50% s & 50% pxy ; '5spxy' -- 5% s & 95% pxy ; '10spxy' -- 10% s & 90% pxy ; 'CO' -- 13% s & 87% pxy (PRL 119, 166001 (2017)) ; 'pz' ; For sample_orbs = 'sp' , possible 'dz2' and 'dxzyz' -- dxz & dyz #
-sample_orbs   = 'spd'                # orbitals of the sample 'sp' (light atoms only, faster) or 'spd' (all atoms) #
-dft_code      = 'fireball'           # 'fireball'='Fireball'='FIREBALL' ; 'aims'='AIMS'='FHI-AIMS' ; 'cp2k'='CP2K' ; 'gpaw'='GPAW' #
-geometry_file = 'input.xyz'          # E.G. 'input.xyz' , 'input.bas' , 'geometry.in'; None for GPAW $
-pbc           = (0,0)                # (0,0) = None = False -- only original geometry ; (0.5,0.5) -- 2x2 cell ; (1,1) -- 3x3 cell (around original) ; (2,2) -- 5x5 cell (around original) ... #
-lvs           = None                 # None ; [[ax,ay,0],[bx,by,0]],[0,0,cz]] or [[ax,ay],[bx,by]] ; 'input.lvs' -- files with specified cell ; in FHI-AIMS & GPAW allready specified with geometry #
-spin          = None                 # None=False ; for FHI-AIMS & CP2K: None, "both" , "up" or "down" (last 3 are for spin-polarizes or spin-unrestricted calculations #
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+scan_type     = 'didv'       # 'didv'='dIdV''='didv-single' -- only dIdV for one voltage = V ; 'v-scan'='V-scan'='Voltage-scan' -- both STM & dIdV scan - V .. Vmax; 'STM'='STM-single' -- STM for one Voltage = V, use V-scan rather #
+tip_type      = 'fixed'      # 'fixed'='f' -- for stiff/metal tip apexes ; 'relaxed'='r' -- for flexible tip apexes (precalculated by PP-AFM) . For this option you have to have "installed" PPAFM in your PPSTM directory #
+V             = -2.0         # !!!! V = Vmin for SCAN !!!! #
+V_max         = +2.0         # V = V_min >= -2.0 V ; V_max <= 2.0 V (othervise changes in the later code needed) #
+dV            =  0.1         # voltage step , dV <= 0.1 V #
+eta           =  0.1         # Lorentzian width of states in energy scale: typically 0.1; can be in range of 0.3-0.05 eV in some cases (low amount of layers ...) even up to 1.0 eV #
+WF_decay      =  0.0         # 0.0 <= WF_decay <= 1.0 ; How fast WorkFunction tunnelling barrier is changing with Voltage : (WF = WF_0 + V*WF_decay) -- 0.0 no change ; 1.0 - the same change as voltage #
+tip_orb       = 's'          # 's' ; 'pxy' -- px & py ; 'spxy' -- 50% s & 50% pxy ; '5spxy' -- 5% s & 95% pxy ; '10spxy' -- 10% s & 90% pxy ; 'CO' -- 13% s & 87% pxy (PRL 119, 166001 (2017)) ; 'pz' ; For sample_orbs = 'sp' , possible 'dz2' and 'dxzyz' -- dxz & dyz #
+sample_orbs   = 'spd'        # orbitals of the sample 'sp' (light atoms only, faster) or 'spd' (all atoms) #
+dft_code      = 'fireball'   # 'fireball'='Fireball'='FIREBALL' ; 'aims'='AIMS'='FHI-AIMS' ; 'cp2k'='CP2K' ; 'gpaw'='GPAW' #
+geometry_file = 'input.xyz'  # E.G. 'input.xyz' , 'input.bas' , 'geometry.in'; None for GPAW #
+pbc           = (0,0)        # (0,0) = None = False -- only original geometry ; (0.5,0.5) -- 2x2 cell ; (1,1) -- 3x3 cell (around original) ; (2,2) -- 5x5 cell (around original) ... #
+lvs           = None         # None ; [[ax,ay,0],[bx,by,0]],[0,0,cz]] or [[ax,ay],[bx,by]] ; 'input.lvs' -- files with specified cell ; in FHI-AIMS & GPAW allready specified with geometry #
+spin          = None         # None=False ; for FHI-AIMS & CP2K: None -- spin-unpolarized/spin-restricted calc. ;  'both' , 'up'='alpha' or 'down" (last 3 are for spin-polarizes or spin-unrestricted calculations #
+cp2k_name     = 'CuPc'       # Name used in CP2K calculations or GPAW calc/ #
+#
+# ***** Informations for x,y,z tip_type = 'fixed' ******
+#
+x = [  0.0, 20.0, 0.25 ]     # [xmin, xmax, dx] #
+y = [  0.0, 15.0, 0.25 ]     # [ymin, ymax, dy] #
+z = [ 10.0, 12.0, 0.1  ]     # !!!! z-starts from zero - normally zmin >= 3-4 Ang above heighest atoms !!!! [zmin, zmax, dz] ; for single height scan use : [z, z, 1.0] #
+#
+# ***** Informations for PP positions, tip_type = 'relaxed' ******
+#
+Q = 0.00                     # charge (PP-AFM) ; Ocharge PP-AFM complex_tip autumn 2018) ; [e] (monopole), [e*A] (dipole), [e*A^2] (quadrupole) #
+K = 0.24                     # x stiffness (PP-AFM master autumn 2018); klat (PP-AFM dev/OpenCl autumn 2018); Oklat (PP-AFM complex_tip autumn 2018) ; [N/m] #
+data_format = 'xsf'          # 'xsf'='XSF' ; 'npy'='NPY' ; -- format in which PPpos are stored from PP-AFM run #
+#
+# *****Output options ******
+#
+png  = True                  # True / False -- plot "png" images (2D constant height) #
+WSxM = False                 # True / False -- write ".xyz" WSxM files (2D constant height) #
+XSF  = False                 # True / False -- write ".xsf" files with 3D stucks of data . For this option you have to have "installed" PPAFM in your PPSTM directory #
+NPY  = False                 # True / False -- write ".npy" numpy binary files with 3D stucks of data . For this option you have to have "installed" PPAFM in your PPSTM directory #
+#
+# ***** Advanced options ******
+#
+cut_atoms   = None           # None = -1 -- All atoms of the sample contributes to tunelling ; 1 -- only 1st atom of the sample contributes to the tunelling ; 57 -- first 57 atoms of the sample contributes to the tunelling ; ... #
+lower_atoms = []             # [] = None -- No atoms has lowered hopping ; be aware python numbering occurs here: [0] - means lowering of the 1st atom; [0,1,2,3] -- lowering of 1st 4 atoms ... #
+lower_coefs = []             # [] = None -- No lowering of the hoppings  ; [0.5] -- lowering of the 1st atom hopping to 0.5                           ; [0.5,0.5,0.5,0.5] -- lowering of 1st 4 atoms to 0.5 ... #
+#
+# ***** More advanced options ******
+#
+WorkFunction =  5.0          # 5.0 eV is standart #
+fermi        = None          # None=0.0 -- no change to the Fermi Level ; -0.1 -- shifts the Fermi Level by 0.1 eV lower ... #
+cut_min      = -2.5          # cut out all orbitals lower than  -2.5 eV bellow Rermi (should be: cut_min <= Vmin-2*eta) . taken to the Fermi Level #
+cut_max      = +2.5          # cut out all orbitals higher than -2.5 eV above  Fermi (should be: cut_max >= Vmax+2*eta) . taken to the Fermi Level #
+files_path   = ''            # where are files fron DFT code ; rather do not use this #
+#
+#
 ##########################################################################################################################
 #                                                                                                                        #
-#                                  DO NOT TOUCH LATER CODE (until you know what you are doing)                           #
+#                                 DO NOT TOUCH LATER CODE (unless you know what you are doing)                           #
 #                                                                                                                        #
 ##########################################################################################################################
+
+print "Importing libraries"
 
 import os
+import sys
+sys.path.append(ppstm_path) 
+
 import numpy as np
-import pyProbeParticle.GridUtils as GU
 import pyPPSTM                   as PS
 import pyPPSTM.ReadSTM           as RS
 import matplotlib
 matplotlib.use('Agg') # Force matplotlib to not use any Xwindows backend. ## !!! important for working on clusters !!!!
 import matplotlib.pyplot as plt
+if (XSF or NPY or (tip_tipe == 'relaxed') or (tip_tipe == 'r'_):
+    print "For XSF or NPY outputs or tip_type = relaxed you have to have installed PPAFM in your PPSTM directory "
+    import pyProbeParticle.GridUtils as GU
 
-# --- specification of paths to the STM input files, PP positions and stored df results & format in which the data are stored - xsf or npy
+print "Libraries imported"
 
-path=''
-path_pos='Q0.00K0.50/'
-path_df = path_pos+'Amp0.40/'
-data_format ="npy"
+# --- the grid on which the STM signal is calculated --- #
 
-# --- specification of PBC, cell, and All the important stuff concerning electrons tunneling:
-
-pbc=(0,0)
-lvs = None
-#lvs = np.array([[15., 0.,0.],[0.,15.,0],[0.,0.,15.]]
-WorkFunction = 5.0 #more or less standart.
-fermi=None	# the Fermi from phik ... .dat file; !!! All energies are relative to Fermi !!!! None -  means: -5.04612664712 eV
-orbs= 'sp'	# 'sp' works now, 'spd' works for fireball as well
-cut_min=-1.0	# HOMO -0.88 bellow the Fermi Level, other orbitals cut
-cut_max=+1.0	# LUMO -0.88 above the Fermi Level
-cut_at=-1	# All atoms of the molecule
-eta = 0.01	# very low, to pronounce the single orbitals only
-WF_decay=1.0	# for STM only - how fast the exponential decay fall, with the applied bias ( if 1 - 1:1 correspondence with bias; if 0, it doesn't change)
-nV = 9		# for STM only - number of STM integrational steps nV ~ V/eta
-lower_atoms=[]	# No atoms has lowered hopping - be aware python numbering occurs here [0] - means lowering of the 1st atom
-lower_coefs=[]	# Lowering of the hoppings
+if (tip_type =='relaxed') or (tip_tipe == 'r'_):
+    print "Importing positions of PP from the PP-AFM calculations. Path for the data:"
+    path_pos="Q%1.2fK%1.2f" %(Q,K)
+    print path_pos
+    tip_r, lvec, nDim = GU.load_vec_field( path_pos+'PPpos' ,data_format=data_format)
+    extent = (lvec[0,0],lvec[0,0]+lvec[1,0],lvec[0,1],lvec[0,1]+lvec[1,1])
+    print "DEBUG: extent", extent
+    print "PP postions imported"
+else:
+    print "Priparing the scan grid for fixed scan"
+    extent = (x[0],x[1],y[0],y[1])
+    tip_r  = RS.mkSpaceGrid(x[0],x[1],x[2],y[0],y[1],y[2],z[0],z[1],z[2])
+    lvec   = np.array([[x[0],y[0],z[0]],[x[1]-x[0],0.,0.],[0.,y[1]-y[0],0.],[0.,0.,z[1]-z[0]]])
+    print "DEBUG: extent", extent
+    print "DEBUG: lvec", lvec
+    print "scan grids prepared"
 
 # --- downloading and examples of downloading of the eigen-energies, the LCAO coefficients and geometry (this time for spin-unpolarized calculations):
 
-eigEn, coefs, Ratin = RS.read_FIREBALL_all(name = path+'phik_example_', geom=path+'crazy_mol.xyz', fermi=fermi, orbs = orbs, pbc=pbc,
-					    cut_min=cut_min, cut_max=cut_max,cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
-#eigEn, coefs, Ratin = RS.read_AIMS_all(name = 'KS_eigenvectors_up.band_1.kpt_1.out', geom='geometry.in',fermi=fermi, orbs = 'sp', pbc=pbc,
-#					imaginary = False, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at,
-#					lower_atoms=lower_atoms, lower_coefs=lower_coefs)
-#eigEn, coefs, Ratin  = RS.read_GPAW_all(name = 'out_LCAO_LDA.gpw', fermi=fermi, orbs = orbs, pbc=pbc,
-#					cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
-#eigEn, coefs, Ratin  = RS.read_CP2K_all(name = 'crazy_mol', fermi=fermi, orbs = orbs, pbc=pbc,
-#					cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
+print "Reading electronic & geometry structure files"
 
-# --- the grid on which the STM signal is calculated; tip_r1 - PP distored by the relaxation in the PPAFM code; tip_r2 - uniform grid:
+if ((dft_code == 'fireball') or(dft_code == 'Fireball') or (dft_code == 'FIREBALL')):
+    if isinstance(lvs, (list, tuple, np.ndarray)):
+	
+    else
+	cell = np.loadtxt(lvs)
+    eigEn, coefs, Ratin = RS.read_FIREBALL_all(name = files_path + 'phik_0001_', geom=path+geometry_file, lvs = cell, fermi=fermi, orbs = orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max,cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
 
-tip_r1, lvec, nDim = GU.load_vec_field( path_pos+'PPpos' ,data_format=data_format)
+elif ((dft_code == 'gpaw') or(dft_code == 'GPAW')):
+    eigEn, coefs, Ratin = RS.read_GPAW_all(    name = cp2k_name + '.gpw', fermi=fermi, orbs = orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
 
-dz=0.1
-dx=dy =0.1
+elif ((dft_code == 'aims') or(dft_code == 'AIMS') or (dft_code == 'FHI-AIMS')):
+    if (spin == None):
+	name = 'KS_eigenvectors.band_1.kpt_1.out'
+    elif ((spin == 'up')or(spin == 'alpha')or(spin='=both'):
+	name = 'KS_eigenvectors_up.band_1.kpt_1.out'
+    else:
+	name = 'KS_eigenvectors_dn.band_1.kpt_1.out'
+    eigEn, coefs, Ratin = RS.read_AIMS_all(name = name , geom=geometry_file, fermi=fermi, orbs = orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
+    if (spin == 'both'):
+	eigEn1 = eigEn.copy(); coefs1 = coefs.copy(); del eigEn, coefs ;
+	name = 'KS_eigenvectors_dn.band_1.kpt_1.out'
+	eigEn2, coefs2, Ratin = RS.read_AIMS_all(name = name , geom=geometry_file, fermi=fermi, orbs = orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
+	eigEn = np.concatenate((eigEn1, eigEn2), axis=0)
+	coefs = np.concatenate((coefs1, coefs2), axis=0)
 
-xl = lvec[1,0]
-yl = lvec[2,1]
-zl = lvec[3,2]
-extent = (lvec[0,0],lvec[0,0]+xl,lvec[0,1],lvec[0,1]+yl)
+elif ((dft_code == 'cp2k') or(dft_code == 'CP2K')):
+    if (spin == None):
+	eigEn, coefs, Ratin  = RS.read_CP2K_all(name = cp2k_name , fermi=fermi, orbs = orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
+    elif ((spin == 'up')or(spin == 'alpha')):
+	eigEn, coefs, Ratin  = RS.read_CP2K_all(name = cp2k_name , fermi=fermi, orbs = orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='alpha');
+    elif (spin == 'both'):
+	eigEn1, coefs1, Ratin  = RS.read_CP2K_all(name = cp2k_name , fermi=fermi, orbs = orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='alpha');
+	eigEn2, coefs2, Ratin  = RS.read_CP2K_all(name = cp2k_name , fermi=fermi, orbs = orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='beta');
+	eigEn = np.concatenate((eigEn1, eigEn2), axis=0)
+	coefs = np.concatenate((coefs1, coefs2), axis=0)
+    else:
+	eigEn, coefs, Ratin  = RS.read_CP2K_all(name = cp2k_name , fermi=fermi, orbs = orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='beta');
 
-tip_r2 = RS.mkSpaceGrid(lvec[0,0],lvec[0,0]+xl,dx,lvec[0,1],lvec[0,1]+yl,dy,lvec[0,2],lvec[0,2]+zl,dz)
+print "DEBUG: eigEn.shape ", eigEn.shape
+print "DEBUG: coefs.shape ", coefs.shape
+print "DEBUG: Ratin.shape ", Ratin.shape
 
 # --- specification on which voltages the STM (dI/dV ...) calculations are performed - two methods - direct specification or sequence of voltages
 
-Voltages=[-0.88,+0.88]
-namez=['HOMO','LUMO']
-
-#Voltages=np.arange(-1.0,+1.0+0.01,0.1) # this part is important for scans over slabs at different voltages
-#namez = []
-#for V in Voltages:
-#    namez.append(str(round(V,1)))
-
-# --- downloading the df data
-
-df, lvec2, nDim2 = GU.load_scal_field( path_df+'df' ,data_format=data_format)
+# Not necessary
 
 # --- the Main Loop - for different WorkFunction (exponential z-decay of current), sample bias Voltages & eta - lorentzian FWHM
 
