@@ -44,7 +44,7 @@ data_format = 'xsf'          # 'xsf'='XSF' ; 'npy'='NPY' ; -- format in which PP
 #
 # *****Output options ******
 #
-png  = True                  # True / False -- plot "png" images (2D constant height) #
+PNG  = True                  # True / False -- plot "png" images (2D constant height) #
 WSxM = False                 # True / False -- write ".xyz" WSxM files (2D constant height) #
 XSF  = False                 # True / False -- write ".xsf" files with 3D stucks of data . For this option you have to have "installed" PPAFM in your PPSTM directory #
 NPY  = False                 # True / False -- write ".npy" numpy binary files with 3D stucks of data . For this option you have to have "installed" PPAFM in your PPSTM directory #
@@ -88,6 +88,32 @@ if (XSF or NPY or (tip_tipe == 'relaxed') or (tip_tipe == 'r'_):
 
 print "Libraries imported"
 
+# --- Initial check --- #
+
+assert( PNG or WSxM or XSF or NPY ), "No output set to be True; I'm not going to do anything if there is no output. I'm too lazy like a Gartfield. "
+
+# --- specification of tip orbitals --- # 
+# 's' ; 'pxy' -- px & py ; 'spxy' -- 50% s & 50% pxy ; '5spxy' -- 5% s & 95% pxy ; '10spxy' -- 10% s & 90% pxy ; 'CO' -- 13% s & 87% pxy (PRL 119, 166001 (2017)) ; 'pz' ; For sample_orbs = 'sp' , possible 'dz2' and 'dxzyz' -- dxz & dyz #
+
+if (tip_orb == 's'):
+    tc = [1.,0.,0.,0.,0.,0.,0.] # [s, px, py, pz, dz2, dxz, dyz ] 
+elif (tip_orb == 'pxy'):
+    tc = [0.,0.5,0.5,0.,0.,0.,0.] # [s, px, py, pz, dz2, dxz, dyz ] 
+elif (tip_orb == 'spxy'):
+    tc = [0.5,0.25,0.25,0.,0.,0.,0.] # [s, px, py, pz, dz2, dxz, dyz ] 
+elif (tip_orb == '5spxy'):
+    tc = [0.05,0.475,0.475,0.,0.,0.,0.] # [s, px, py, pz, dz2, dxz, dyz ] 
+elif (tip_orb == '5spxy'):
+    tc = [0.10,0.45,0.45,0.,0.,0.,0.] # [s, px, py, pz, dz2, dxz, dyz ] 
+elif (tip_orb == 'CO'):
+    tc = [0.15,0.5,0.5,0.,0.,0.,0.] # [s, px, py, pz, dz2, dxz, dyz ] 
+elif (tip_orb == 'dz2'):
+    tc = [0.,0.,0.,0.,1.,0.,0.] # [s, px, py, pz, dz2, dxz, dyz ] 
+elif (tip_orb == 'dxzyz'):
+    tc = [0.,0.,0.,0.,0.,0.5,0.5] # [s, px, py, pz, dz2, dxz, dyz ] 
+else 
+    print "Don't know what kinf od tip you mean. I rather going to exit." ; exit()
+
 # --- the grid on which the STM signal is calculated --- #
 
 if (tip_type =='relaxed') or (tip_tipe == 'r'_):
@@ -107,15 +133,16 @@ else:
     print "DEBUG: lvec", lvec
     print "scan grids prepared"
 
-# --- downloading and examples of downloading of the eigen-energies, the LCAO coefficients and geometry (this time for spin-unpolarized calculations):
+# --- reading of the eigen-energies, the LCAO coefficients and geometry --- #
 
 print "Reading electronic & geometry structure files"
 
 if ((dft_code == 'fireball') or(dft_code == 'Fireball') or (dft_code == 'FIREBALL')):
     if isinstance(lvs, (list, tuple, np.ndarray)):
-	
+	lvs = np.array([lvs[ (len(lvs) == 2)
     else
 	cell = np.loadtxt(lvs)
+    print "DEBUG: lvs.shape", lvs.shape
     eigEn, coefs, Ratin = RS.read_FIREBALL_all(name = files_path + 'phik_0001_', geom=path+geometry_file, lvs = cell, fermi=fermi, orbs = orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max,cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
 
 elif ((dft_code == 'gpaw') or(dft_code == 'GPAW')):
@@ -153,26 +180,32 @@ print "DEBUG: eigEn.shape ", eigEn.shape
 print "DEBUG: coefs.shape ", coefs.shape
 print "DEBUG: Ratin.shape ", Ratin.shape
 
-# --- specification on which voltages the STM (dI/dV ...) calculations are performed - two methods - direct specification or sequence of voltages
+print "energies prepared, coeffecients read"
 
-# Not necessary
+# --- the Main calculations --- #
+# 'didv'='dIdV''='didv-single' -- only dIdV for one voltage = V ; 'v-scan'='V-scan'='Voltage-scan' -- both STM & dIdV scan - V .. Vmax; 'STM'='STM-single' -- STM for one Voltage = V, use V-scan rather #
 
-# --- the Main Loop - for different WorkFunction (exponential z-decay of current), sample bias Voltages & eta - lorentzian FWHM
+didv_b = False
+STM_b  = False
 
-for WorkFunction in [WorkFunction]:
-    i=0;
-    for V in Voltages:
-	for eta in [eta]:
-	    current0 = PS.dIdV( V, WorkFunction, eta, eigEn, tip_r2, Ratin, coefs, orbs=orbs, s=1.0, px=0.0, py=0.0, pz = 0.0)
-	    current1 = PS.dIdV( V, WorkFunction, eta, eigEn, tip_r1, Ratin, coefs, orbs=orbs, s=1.0, px=0.0, py=0.0, pz = 0.0)
-	    current2 = PS.dIdV( V, WorkFunction, eta, eigEn, tip_r1, Ratin, coefs, orbs=orbs, s=0.0, px=1.0, py=1.0, pz = 0.0)
-	    current3 = PS.dIdV_tilt( V, WorkFunction, eta, eigEn, tip_r1, tip_r2, Ratin, coefs, orbs=orbs, pz = 1.0, al =1.0)
-	    current4 = PS.dIdV_tilt( V, WorkFunction, eta, eigEn, tip_r1, tip_r2, Ratin, coefs, orbs=orbs, dxyz = 1.0, al =1.0)
-	    current5 = PS.STM( V, nV, WorkFunction, eta, eigEn, tip_r1, Ratin, coefs, orbs=orbs, px=0.5, py=0.5, WF_decay=WF_decay)
-	    # next procedure is under development
-	    current6 = PS.IETS_simple( V, WorkFunction, eta, eigEn, tip_r1, Ratin, coefs, orbs=orbs, s=0.0, px =0.5, py=0.5, pz=0.0, dxz=0.0, dyz=0.0, dz2=0.0, Amp=0.02)
-	
-	    # --- plotting part here, plots all calculated signals:
+if ( (scan_type == 'didv') or (scan_type == 'dIdV') or (scan_type == 'didv-single')):
+    didv    = np.array([   PS.dIdV( V,    WorkFunction, eta, eigEn, tip_r, Ratin, coefs, orbs=orbs, s=tc[0], px =tc[1], py=tc[2], pz=tc[3], dz2=[4], dxz=[5], dyz=[6] ) ])
+    didv_b = True
+    print "DEBUG: didv.shape ", didv.shape
+elif ( (scan_type == 'STM') or (scan_type == 'STM-single') ):
+    nV = abs(V/dV)+1
+    print "DEBUG: V, nV:", V, nV
+    current = np.array([   PS.STM( V, nV, WorkFunction, eta, eigEn, tip_r, Ratin, coefs, orbs=orbs, s=tc[0], px =tc[1], py=tc[2], pz=tc[3], dz2=[4], dxz=[5], dyz=[6], WF_decay=WF_decay) ])
+    STM_b = True
+    print "DEBUG: current.shape ", current.shape
+else:
+    current, didv = PS.MSTM( V, Vmax, dV, WorkFunction, eta, eigEn, tip_r, Ratin, coefs, orbs=orbs, s=tc[0], px =tc[1], py=tc[2], pz=tc[3], dz2=[4], dxz=[5], dyz=[6], WF_decay=WF_decay)
+    didv_b = True
+    STM_b  = True
+    print "DEBUG: didv.shape ", didv.shape
+    print "DEBUG: current.shape ", current.shape
+
+# --- plotting part here, plots all calculated signals --- #
 	    print " plotting "
 	    for k in range(df.shape[0]):
 		dff = np.array(df[k,:,:]).copy()
