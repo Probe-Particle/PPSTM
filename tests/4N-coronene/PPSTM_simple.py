@@ -16,19 +16,19 @@ ppstm_path = './PPSTM/'
 #
 scan_type     = 'didv'       # 'didv'='dIdV''='didv-single' -- only dIdV for one voltage = V ; 'v-scan'='V-scan'='Voltage-scan' -- both STM & dIdV scan - V .. Vmax; 'STM'='STM-single' -- STM for one Voltage = V, use V-scan rather #
 tip_type      = 'relaxed'    # 'fixed'='f' -- for stiff/metal tip apexes ; 'relaxed'='r' -- for flexible tip apexes (precalculated by PP-AFM) . For this option you have to have "installed" PPAFM in your PPSTM directory #
-V             = -2.0         # !!!! V = Vmin for SCAN !!!! #
-V_max         = +2.0         # V = V_min >= -2.0 V ; V_max <= 2.0 V (othervise changes in the later code needed) #
+V             = -0.5         # !!!! V = Vmin for SCAN !!!! #
+V_max         = +0.5         # V = V_min >= -2.0 V ; V_max <= 2.0 V (othervise changes in the later code needed) #
 dV            =  0.1         # voltage step , dV <= 0.1 V #
 eta           =  0.1         # Lorentzian width of states in energy scale: typically 0.1; can be in range of 0.3-0.05 eV in some cases (low amount of layers ...) even up to 1.0 eV #
 WF_decay      =  0.0         # 0.0 <= WF_decay <= 1.0 ; How fast WorkFunction tunnelling barrier is changing with Voltage : (WF = WF_0 + V*WF_decay) -- 0.0 no change ; 1.0 - the same change as voltage #
-tip_orb       = 's'          # 's' ; 'pxy' -- px & py ; 'spxy' -- 50% s & 50% pxy ; '5spxy' -- 5% s & 95% pxy ; '10spxy' -- 10% s & 90% pxy ; 'CO' -- 13% s & 87% pxy (PRL 119, 166001 (2017)) ; 'pz' ; For sample_orbs = 'sp' , possible 'dz2' and 'dxzyz' -- dxz & dyz #
+tip_orb       = 'pxy'          # 's' ; 'pxy' -- px & py ; 'spxy' -- 50% s & 50% pxy ; '5spxy' -- 5% s & 95% pxy ; '10spxy' -- 10% s & 90% pxy ; 'CO' -- 13% s & 87% pxy (PRL 119, 166001 (2017)) ; 'pz' ; For sample_orbs = 'sp' , possible 'dz2' and 'dxzyz' -- dxz & dyz #
 sample_orbs   = 'sp'         # orbitals of the sample 'sp' (light atoms only, faster) or 'spd' (all atoms) #
 dft_code      = 'fireball'   # 'fireball'='Fireball'='FIREBALL' ; 'aims'='AIMS'='FHI-AIMS' ; 'cp2k'='CP2K' ; 'gpaw'='GPAW' #
 geometry_file = 'crazy_mol.xyz'  # E.G. 'input.xyz' , 'input.bas' , 'geometry.in'; None for GPAW #
 pbc           = (0,0)        # (0,0) = None = False -- only original geometry ; (0.5,0.5) -- 2x2 cell ; (1,1) -- 3x3 cell (around original) ; (2,2) -- 5x5 cell (around original) ... #
 lvs           = None         # None ; [[ax,ay,0],[bx,by,0]],[0,0,cz]] or [[ax,ay],[bx,by]] ; 'input.lvs' -- files with specified cell ; in FHI-AIMS & GPAW allready specified with geometry #
 spin          = None         # None=False ; for FHI-AIMS & CP2K: None -- spin-unpolarized/spin-restricted calc. ;  'both' , 'up'='alpha' or 'down" (last 3 are for spin-polarizes or spin-unrestricted calculations #
-cp2k_name     = 'crazy_mol'       # Name used in CP2K calculations or GPAW calc/ #
+cp2k_name     = 'crazy_mol'  # Name used in CP2K calculations or GPAW calc/ #
 #
 # ***** Informations for x,y,z tip_type = 'fixed' ******
 #
@@ -45,9 +45,9 @@ data_format = 'npy'          # 'xsf'='XSF' ; 'npy'='NPY' ; -- format in which PP
 # *****Output options ******
 #
 PNG  = True                  # True / False -- plot "png" images (2D constant height) #
-WSxM = False                 # True / False -- write ".xyz" WSxM files (2D constant height) #
-XSF  = False                 # True / False -- write ".xsf" files with 3D stucks of data . For this option you have to have "installed" PPAFM in your PPSTM directory #
-NPY  = False                 # True / False -- write ".npy" numpy binary files with 3D stucks of data . For this option you have to have "installed" PPAFM in your PPSTM directory #
+WSxM = True                  # True / False -- write ".xyz" WSxM files (2D constant height) #
+XSF  = True                  # True / False -- write ".xsf" files with 3D stucks of data . For this option you have to have "installed" PPAFM in your PPSTM directory #
+NPY  = True                  # True / False -- write ".npy" numpy binary files with 3D stucks of data . For this option you have to have "installed" PPAFM in your PPSTM directory #
 #
 # ***** Advanced options ******
 #
@@ -103,16 +103,18 @@ elif (tip_orb == 'spxy'):
     tc = [0.5,0.25,0.25,0.,0.,0.,0.] # [s, px, py, pz, dz2, dxz, dyz ] 
 elif (tip_orb == '5spxy'):
     tc = [0.05,0.475,0.475,0.,0.,0.,0.] # [s, px, py, pz, dz2, dxz, dyz ] 
-elif (tip_orb == '5spxy'):
+elif (tip_orb == '10spxy'):
     tc = [0.10,0.45,0.45,0.,0.,0.,0.] # [s, px, py, pz, dz2, dxz, dyz ] 
 elif (tip_orb == 'CO'):
     tc = [0.15,0.5,0.5,0.,0.,0.,0.] # [s, px, py, pz, dz2, dxz, dyz ] 
+elif (tip_orb == 'pz'):
+    tc = [0.,0.,0.,1.,0.,0.,0.] # [s, px, py, pz, dz2, dxz, dyz ] 
 elif (tip_orb == 'dz2'):
     tc = [0.,0.,0.,0.,1.,0.,0.] # [s, px, py, pz, dz2, dxz, dyz ] 
 elif (tip_orb == 'dxzyz'):
     tc = [0.,0.,0.,0.,0.,0.5,0.5] # [s, px, py, pz, dz2, dxz, dyz ] 
 else:
-    print "Don't know what kinf od tip you mean. I rather going to exit." ; exit()
+    print "Don't know what kind od tip you mean. I rather going to exit." ; exit()
 
 print "DEBUG: tc ", tc , " [s, px, py, pz, dz2, dxz, dyz ] "
 
@@ -126,6 +128,10 @@ if ((tip_type =='relaxed') or (tip_type == 'r')):
     extent = (lvec[0,0],lvec[0,0]+lvec[1,0],lvec[0,1],lvec[0,1]+lvec[2,1])
     print "DEBUG: extent", extent
     print "PP postions imported"
+    dx=lvec[1,0]/(nDim[2]-1); dy=lvec[2,1]/(nDim[1]-1); dz=lvec[3,2]/(nDim[0]-1);
+    tip_r0 = RS.mkSpaceGrid(lvec[0,0],lvec[0,0]+lvec[1,0],dx,lvec[0,1],lvec[0,1]+lvec[2,1],dy,lvec[0,2],lvec[0,2]+lvec[3,2],dz)
+    print "DEBUG: dx, dy, dz", dx, dy, dz
+    print "DEBUG: tip_r.shape, tip_r0.shape", tip_r.shape, tip_r0.shape
 else:
     print "Priparing the scan grid for fixed scan"
     extent = (x[0],x[1],y[0],y[1])
@@ -239,7 +245,7 @@ if PNG :
 		plt.xlabel(r' Tip_x $\AA$')
 		plt.ylabel(r' Tip_y $\AA$')
 		plt.title("dIdV:"+name_plot)
-		plt.savefig( 'didv_'+namez[vv]+"tip_"+tip_type+"_WF_"+str(WorkFunction+vv*WF_decay)+"_eta_"+str(eta)+'_%03d.png' %k , bbox_inches='tight' )
+		plt.savefig( 'didv_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction+vv*WF_decay)+"_eta_"+str(eta)+'_%03d.png' %k , bbox_inches='tight' )
 		plt.close()
 	    if STM_b :
 		# ploting part here:
@@ -248,7 +254,7 @@ if PNG :
 		plt.xlabel(r' Tip_x $\AA$')
 		plt.ylabel(r' Tip_y $\AA$')
 		plt.title("STM:"+name_plot)
-		plt.savefig( 'STM_'+namez[vv]+"tip_"+tip_type+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)+'_%03d.png' %k , bbox_inches='tight' )
+		plt.savefig( 'STM_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)+'_%03d.png' %k , bbox_inches='tight' )
 		plt.close()
     print "Everything plotted"
 if WSxM :
@@ -256,11 +262,11 @@ if WSxM :
     for vv in range(NoV):
 	for k in range(NoH):
 	    if didv_b :
-		name_file =  'didv_'+namez[vv]+"tip_"+tip_type+"_WF_"+str(WorkFunction+vv*WF_decay)+"_eta_"+str(eta)+'_%03d.xyz' %k 
+		name_file =  'didv_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction+vv*WF_decay)+"_eta_"+str(eta)+'_%03d.xyz' %k 
 		tmp_curr=didv[vv,k,:,:].flatten()
 		out_curr=np.zeros((len(tmp_curr),3))
-		out_curr[:,0]=tip_r[k,:,:,0].flatten()
-		out_curr[:,1]=tip_r[k,:,:,1].flatten()
+		out_curr[:,0]=tip_r0[k,:,:,0].flatten()
+		out_curr[:,1]=tip_r0[k,:,:,1].flatten()
 		out_curr[:,2]=tmp_curr.copy()
 		f=open(name_file,'w')
 		print >> f, "WSxM file copyright Nanotec Electronica"
@@ -271,11 +277,11 @@ if WSxM :
 		f.close()
 		#
 	    if STM_b :
-		name_file =  'STM_'+namez[vv]+"tip_"+tip_type+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)+'_%03d.xyz' %k 
+		name_file =  'STM_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)+'_%03d.xyz' %k 
 		tmp_curr=current[vv,k,:,:].flatten()
 		out_curr=np.zeros((len(tmp_curr),3))
-		out_curr[:,0]=tip_r[k,:,:,0].flatten()
-		out_curr[:,1]=tip_r[k,:,:,1].flatten()
+		out_curr[:,0]=tip_r0[k,:,:,0].flatten()
+		out_curr[:,1]=tip_r0[k,:,:,1].flatten()
 		out_curr[:,2]=tmp_curr.copy()
 		f=open(name_file,'w')
 		print >> f, "WSxM file copyright Nanotec Electronica"
@@ -291,10 +297,10 @@ if XSF :
     print "writing XSF files"
     for vv in range(NoV):
 	if didv_b :
-	    name_file =  'didv_'+namez[vv]+"tip_"+tip_type+"_WF_"+str(WorkFunction+vv*WF_decay)+"_eta_"+str(eta)+'.xsf'
+	    name_file =  'didv_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction+vv*WF_decay)+"_eta_"+str(eta)+'.xsf'
 	    GU.saveXSF(name_file, didv[vv], lvec)#, head=XSF_HEAD_DEFAULT )
 	if STM_b :
-	    name_file =  'STM_'+namez[vv]+"tip_"+tip_type+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)+'.xsf'
+	    name_file =  'STM_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)+'.xsf'
 	    GU.saveXSF(name_file, current[vv], lvec)#, head=XSF_HEAD_DEFAULT )
     print "XSF files written"
 
@@ -302,15 +308,16 @@ if NPY :
     print "writing npy binary files"
     for vv in range(NoV):
 	if didv_b :
-	    name_file =  'didv_'+namez[vv]+"tip_"+tip_type+"_WF_"+str(WorkFunction+vv*WF_decay)+"_eta_"+str(eta)
+	    name_file =  'didv_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction+vv*WF_decay)+"_eta_"+str(eta)
 	    GU.saveNpy(name_file, didv[vv], lvec)#, head=XSF_HEAD_DEFAULT )
 	if STM_b :
-	    name_file =  'STM_'+namez[vv]+"tip_"+tip_type+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)
+	    name_file =  'STM_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)
 	    GU.saveNpy(name_file, current[vv], lvec)#, head=XSF_HEAD_DEFAULT )
     print "npy files written"
 
-# --- the end
+# --- the end --- #
 
 print 
 print
 print "Done"
+print
