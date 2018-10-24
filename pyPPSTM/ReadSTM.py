@@ -135,12 +135,13 @@ def for_PBC(atoms,lvs):
 
 # procedures for preparing geometries for STM:
 
-def get_FIREBALL_geom(geom='answer.bas', lvs=None):
+def get_FIREBALL_geom(geom='answer.bas', lvs=None, sl=False):
 	'''
-	Prepares geometry from the FIREBALL files format
+	Prepares geometry from the FIREBALL files format, sl = means automatically skip line in the xyz file
 	'''
 	print " # ============ define atoms ============"
-	atoms, nDim, tmp = bU.loadAtoms(geom)
+	atoms, nDim, tmp = bU.loadAtoms(geom, sl=sl)
+	#print "DEBUG: atoms", atoms
 	del nDim, tmp
 	atoms = cut_atoms(atoms)
 	print " Number of atoms: ", num_at_
@@ -528,15 +529,29 @@ def	read_FIREBALL_all(name = 'phi_' , geom='answer.bas', fermi=None, orbs = 'sp'
 	return eig.copy(), coeffs.copy(), Ratin.copy();
 
 
-def read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lower_atoms=[], lower_coefs=[], spin="closed_shell"):
-	'''TODO'''
+def read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lvs = None, lower_atoms=[], lower_coefs=[], spin="closed_shell"):
+	'''
+	read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lvs = None, lower_atoms=[], lower_coefs=[], spin="closed_shell"):
+	This procedure uses only local libraries;
+	read coffecients and eigen numbers from CP2k made (iwrtcoefs = -2) file name-cartesian-mos-1_0.MOLog
+	fermi - If None the Fermi Level from the Fireball calculations (in case of molecule and visualising some molecular orbitals it can be move to their energy by putting there real value)
+	orbs = 'sp' read only sp structure of valence orbitals or 'spd' orbitals of the sample
+	pbc (1,1) - means 3 times 3 cell around the original, (0,0) cluster, (0.5,0.5) 2x2 cell (not arround original) etc.
+	imaginary = False (other options for future k-points dependency
+	cut_min = -15.0, cut_max = 5.0 - cut off states(=mol  orbitals) bellow cut_min and above cut_max; energy in eV
+	cut_at = -1 .. all atoms; eg. cut_at = 15 --> only first fifteen atoms for the current calculations (mostly the 1st layer is the important one)
+	lvs = None no lattice vector (cell); for PBC 3x3 array containing the cell vectors has to be put here
+	lower_atotms=[], lower_coefs=[] ... do nothing; lower_atoms=[0,1,2,3], lower_coefs=[0.5,0.5,0.5,0.5] lower coefficients (=hoppings) for the first four atoms by 0.5
+	note: sometimes oxygens have to have hoppings lowered by 0.5 this is under investigation
+	spin="closed_shell" or "alpha" or "beta" for spin-unrestricted calculations
+	'''
 	initial_check(orbs=orbs, pbc=pbc, imaginary=imaginary, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs)
 	# read geometry
-	#TODO: read also cell information
-	import ase.io
-	geom = ase.io.read(name+".xyz")
-	Ratin = get_GPAW_geom(geom=geom)
-	at_num = geom.get_atomic_numbers()
+	Ratin = get_FIREBALL_geom(geom=name+".xyz", lvs=lvs, sl=True) # sl - to always skip the 2nd line from the xyz file
+	#import ase.io # this is ommited, now we are using only inner functions "
+	#geom = ase.io.read(name+".xyz")
+	#Ratin = get_GPAW_geom(geom=geom)
+	#at_num = geom.get_atomic_numbers()
 	labels, eig, occs, evecs, fermi_energy = read_cp2k_MO_file(name+"-cartesian-mos-1_0.MOLog", spin=spin)
 	lumo = np.argmax(occs==0.0)
 	homo = lumo -1

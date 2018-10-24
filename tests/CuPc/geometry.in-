@@ -1,7 +1,7 @@
 #  Final atomic structure:
 #                         x [A]             y [A]             z [A]
-lattice_vector 22.0 0.0 0.0
-lattice_vector 0.0 22.0 0.0
+lattice_vector 30.0 0.0 0.0
+lattice_vector 0.0 30.0 0.0
 lattice_vector 0.0 0.0 30.0
             atom         0.02835813        0.02174327        0.03956731  Cu
             atom         2.42510472        2.41382778        0.04334052  N

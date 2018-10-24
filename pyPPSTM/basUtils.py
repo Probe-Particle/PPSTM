@@ -3,10 +3,16 @@
 import numpy as np
 import elements
 import math
+#import matplotlib.pyplot as plt
+
+
+# default variables:
+
+default_atom_size     =  0.10
 
 # procedures for loading geometry from different files:
 
-def loadAtoms( name ):
+def loadAtoms( name , sl=False):
 	f = open(name,"r")
 	n=0;
 	l = f.readline()
@@ -21,6 +27,10 @@ def loadAtoms( name ):
 		e=[];x=[];y=[]; z=[]; q=[]
 		i = 0;
 		for line in f:
+		    if sl :
+			print " forced skipped line : ", line
+			sl = False
+		    else:
 			words=line.split()
 			nw = len( words)
 			ie = None
@@ -83,3 +93,23 @@ def multCell( xyz, cel, m=(2,2,1) ):
 					zs[j]=xyz[3][i] + dz
 					j+=1
 	return [es,xs,ys,zs]
+
+# =========== Utils for plotting atoms =========================
+
+XSF_HEAD_0='''ATOMS
+'''
+
+XSF_HEAD_2='''
+BEGIN_BLOCK_DATAGRID_3D                        
+   some_datagrid      
+   BEGIN_DATAGRID_3D_whatever 
+'''
+
+def At2XSF(atoms):
+	XSF_HEAD_1=XSF_HEAD_0
+	for i in range(len(atoms[0])):
+		XSF_HEAD_1 = XSF_HEAD_1+str(atoms[0][i])+" "+str(atoms[1][i])+" "+str(atoms[2][i])+" "+str(atoms[3][i])+"\n "
+	XSF_HEAD=XSF_HEAD_1 + XSF_HEAD_2
+	#print "DEBUG: XSF_HEAD:"
+	#print XSF_HEAD
+	return XSF_HEAD ;
