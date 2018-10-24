@@ -7,7 +7,7 @@ This is implementation of efficient and simple model for simulation of High-reso
 
 works in python2.7, matplotlib, cpp4.4.8, (for some parts ASE and GPAW are imporatant)
 
-Documentation is at http://nanosurf.fzu.cz/wiki/doku.php?id=probe_particle_stm  .
+Documentation is at http://nanosurf.fzu.cz/wiki/doku.php?id=probe_particle_stm and here at Wiki: https://github.com/ProkopHapala/ProbeParticleModel/wiki .
 
 Currently it can also simulate IETS images of molecules, if the imaging mechanism is driven by the amplitude of the IETS peak.
 
