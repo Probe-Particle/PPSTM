@@ -3,7 +3,7 @@
 import os
 import numpy as np
 import sys
-sys.path.append('/home/prokop/git/ProbeParticleModel_OCL')
+sys.path.append('./')
 
 import pyProbeParticle.GridUtils as GU
 import pyPPSTM.ReadSTM           as RS
@@ -13,7 +13,7 @@ import time
 
 # ======= setup
 
-path  = '/home/prokop/git/PPSTM/tests/4N-coronene/'
+path  = './'
 
 decay = -1.0    # WARRNING ... with positive decay you get bullshit
 
