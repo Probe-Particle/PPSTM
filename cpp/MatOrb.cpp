@@ -13,7 +13,7 @@ const double rev_dpi = 0.1591549431; // 1/(2 Pi)
 const double four_pi = 12.566371;    // pi*4
 const double N_p = 1.7320508;        // Sqrt(3)
 const double N_d = 3.8729833;        // Sqrt(15)
-const double N_d2 = 4.4721360;       // Sqrt(5)*0.5
+const double N_d2 = 1.1180300;       // Sqrt(5)*0.5
 const double I_3 = 0.3333333;        // 1/3
 
 // ================= GLOBAL VARIABLES

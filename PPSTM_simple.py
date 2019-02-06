@@ -152,6 +152,7 @@ else:
     lvec   = np.array([[x[0],y[0],z[0]],[x[1]-x[0],0.,0.],[0.,y[1]-y[0],0.],[0.,0.,z[1]-z[0]]])
     #print "DEBUG: extent", extent
     #print "DEBUG: lvec", lvec
+    tip_r0 = tip_r
     print "scan grids prepared"
 
 # --- reading of the eigen-energies, the LCAO coefficients and geometry --- #

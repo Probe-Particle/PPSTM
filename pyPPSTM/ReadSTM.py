@@ -255,7 +255,7 @@ def lower_Dorb(coef):
 	if (Ynum_ > 4): #(orbs=='spd')
 		print "!!! Be aware d-orbs are now rescaled by factor of" ,d_rescale 
 		print "This is due to a faster decay of d-orbs in the original basis sets, but simple rescaling is nasty !!!"
-		coef[:,0,4:] *= d_rescale
+		coef[:,:,4:] *= d_rescale
 	coeff = coef.flatten()
 	return coeff.reshape((n_max_-n_min_,num_at_*Ynum_));
 
@@ -487,7 +487,8 @@ def	read_FIREBALL_all(name = 'phi_' , geom='answer.bas', fermi=None, orbs = 'sp'
 	filein = open(name+'s.dat' )
 	pre_eig = filein.readline().split()
 	filein.close()
-	assert (num_at_>int(pre_eig[0][0])),"coefficients for lower amount of atoms, that atoms in geometry file";
+	#print "DEBUG: num_at_  and pre_eig[0] " , num_at_ ,pre_eig[0], type(num_at_), type(pre_eig[0][0]), "int(pre_eig[0])", int(pre_eig[0]) , "(num_at_<=int(pre_eig[0][0]))", (num_at_<=int(pre_eig[0]))
+	assert (num_at_<=int(pre_eig[0])),"coefficients for lower amount of atoms, that atoms in geometry file";
 	n_bands= int(pre_eig[1]);
 	eig = np.loadtxt(name+'s.dat',skiprows=1, usecols=(0,))
 	assert (len(eig)==n_bands), "number of bands wrongly specified"

@@ -15,7 +15,7 @@ ppstm_path = './PPSTM/'
 # ***** Main informations ******
 #
 scan_type     = 'v-scan'     # 'didv'='dIdV''='didv-single' -- only dIdV for one voltage = V ; 'v-scan'='V-scan'='Voltage-scan' -- both STM & dIdV scan - V .. Vmax; 'STM'='STM-single' -- STM for one Voltage = V, use V-scan rather #
-tip_type      = 'relaxed'    # 'fixed'='f' -- for stiff/metal tip apexes ; 'relaxed'='r' -- for flexible tip apexes (precalculated by PP-AFM) . For this option you have to have "installed" PPAFM in your PPSTM directory #
+tip_type      = 'fixed' #'relaxed'    # 'fixed'='f' -- for stiff/metal tip apexes ; 'relaxed'='r' -- for flexible tip apexes (precalculated by PP-AFM) . For this option you have to have "installed" PPAFM in your PPSTM directory #
 V             = -0.5         # !!!! V = Vmin for SCAN !!!! #
 V_max         = +0.5         # V = V_min >= -2.0 V ; V_max <= 2.0 V (othervise changes in the later code needed) #
 dV            =  0.1         # voltage step , dV <= 0.1 V #
@@ -152,6 +152,7 @@ else:
     lvec   = np.array([[x[0],y[0],z[0]],[x[1]-x[0],0.,0.],[0.,y[1]-y[0],0.],[0.,0.,z[1]-z[0]]])
     #print "DEBUG: extent", extent
     #print "DEBUG: lvec", lvec
+    tip_r0 = tip_r
     print "scan grids prepared"
 
 # --- reading of the eigen-energies, the LCAO coefficients and geometry --- #
