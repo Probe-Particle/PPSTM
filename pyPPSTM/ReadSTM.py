@@ -607,7 +607,7 @@ def read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), imaginary = False, cut
 
 #===============================================================================
 def read_cp2k_MO_file(fn, spin):
-	'''TODO'''
+	'''reads files with basis decomposition of states==Molecular orbitals - it can read closed-shell systems, alpha or beta spin separately, meaning you need to run it twice to get both spins,'''
 	print("Reading CP2K MOs from:"+fn)
 
 	# read all lines into memory
@@ -620,19 +620,28 @@ def read_cp2k_MO_file(fn, spin):
 	f.close()
 
 	# detect dimensions
-	parts = lines[-3].split()
+	#parts = lines[-3].split()		# works for files with HOMO-LUMO gap only
+	parts=None; tmp_i = None; 
+	for i in np.arange(1,5):
+		if lines[-1*i][0] == "Fermi" or lines[-1*i][0] == "F":
+			parts= lines[-1*i-1].split(); tmp_i = -1*i-1; break;
+	assert parts != None, "We did't find the -- Fermi -- line - meaning the end of the file"
 	nbasis = int(parts[0])
 	natoms = int(parts[1])
-	nmos = int(lines[-nbasis-5].split()[-1])
-	nlines_per_spin = (nbasis+3) * ((nmos+3)/4) + 2
+	nmos = int(lines[-nbasis-2+tmp_i].split()[-1])
+	nlines_per_spin = (nbasis+3) * ((nmos+3)/4) + 0 # 2 originally but at the end of the file, there can be different endings - I try to run everything flexible
 	print("Found %d MOs spanned by %d basis functions centered on %d atoms."%(nmos, nbasis, natoms))
+	del tmp_i;
 
 	# handle spin
 	if spin == "alpha":
 		first_line = 0
 		assert lines[first_line].strip() == "ALPHA MO EIGENVALUES, MO OCCUPATION NUMBERS, AND CARTESIAN MO EIGENVECTORS"
 	elif spin == "beta":
-		first_line = nlines_per_spin + 1
+		for i in  np.arange(0,5):
+			first_line = nlines_per_spin + i
+			if lines[first_line].strip() == "BETA MO EIGENVALUES, MO OCCUPATION NUMBERS, AND CARTESIAN MO EIGENVECTORS":
+				break;
 		assert lines[first_line].strip() == "BETA MO EIGENVALUES, MO OCCUPATION NUMBERS, AND CARTESIAN MO EIGENVECTORS"
 	elif spin == "closed_shell":
 		first_line = 0
@@ -642,9 +651,13 @@ def read_cp2k_MO_file(fn, spin):
 
 	# read fermi energy
 	last_line = first_line + nlines_per_spin
-	assert lines[last_line].startswith("HOMO-LUMO gap:")
-	assert lines[last_line-1].startswith("Fermi energy:")
-	fermi_energy = 27.211385 * float(lines[last_line-1].split()[2])
+	#assert lines[last_line].startswith("HOMO-LUMO gap:")
+	fermi_line = -1
+	for i in range(-3,6):
+		if lines[last_line+i].startswith("Fermi energy:"):
+			fermi_line = last_line+i; break;
+	assert fermi_line >= 0,("fermi_line number <= 0- we din't find fermi line in the MOLog file:", fermi_line)
+	fermi_energy = 27.211385 * float(lines[fermi_line].split()[2])
 
 	# unfold table
 	idx = []

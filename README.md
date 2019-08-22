@@ -2,6 +2,8 @@
 Code simulating various various STM techniques, especially for tilting tip (dependent on ProkopHapala/ProbeParticleModel)
 This is implementation of efficient and simple model for simulation of High-resolution scanning tunneling microscopy (STM).
 
+- BEWARE - after repairing misteake in d-orbitals the results for FePc are different. We are investigating it.
+
 * currently developed Python/C++ version of the PPSTM code; 
   * Part of the code is depending on the ProbeParticleModel developed by Prokop Hapala and co. (https://github.com/ProkopHapala/ProbeParticleModel)
 

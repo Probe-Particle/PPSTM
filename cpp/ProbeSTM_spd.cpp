@@ -48,6 +48,43 @@
  }
 
 
+ // ================== single point dIdV calculation sp - sp
+ double dIdVdxysp_vec( const Vec3d& r, int NoAt, int NoOrb, int const_orb, double V, double eta,double* eig, Vec3d * Ratin, double* coesin){
+ //printf("inside a function \n");
+ // more testing would be good :-) //
+ double f = 0.0;
+ double Amp=0.05;
+ Vec3d drx1[NoAt];
+ Vec3d drx2[NoAt];
+ double radialx1[NoAt];
+ double radialx2[NoAt];
+ double rev_rrx1[NoAt];
+ double rev_rrx2[NoAt];
+ for(int iat=0; iat<NoAt; iat++){
+	//printf("inside first iat pre calc \n");
+	Vec3d dri;
+	dri.set_sub( r, Ratin[iat] );
+	dri.mul(aB);
+    //dri = dri * aB;
+	drx1[iat]= dri;
+	drx1[iat].x +=Amp*0.5;
+	drx2[iat]= dri;
+	drx2[iat].x +=-Amp*0.5;
+	double rrix1 = drx1[iat].norm();
+	radialx1[iat] = exp(-(rrix1*decay));  
+	rev_rrx1[iat] = 1/rrix1;
+	double rrix2 = drx2[iat].norm();
+	radialx2[iat] = exp(-(rrix2*decay));  
+	rev_rrx2[iat] = 1/rrix2;
+	}
+ for (int i=0; i<NoOrb; i++){
+	f += Lor(V,eig[i],eta)*(sqr( ( Gatomsp<pysp>(NoAt,const_orb,drx1,rev_rrx1,radialx1, coesin+(i*NoAt*const_orb) ) - Gatomsp<pysp>(NoAt,const_orb,drx2,rev_rrx2,radialx2, coesin+(i*NoAt*const_orb) ) )/Amp ));
+
+	}
+ f *= Go*Norm;
+ return f;
+ }
+
  // ================== single point dI/dV calculation pz tilt. - sp(d)
  double dIdVpzsp_vec( const Vec3d& r, const Vec3d& ri, double len_R, double al, int NoAt, int NoOrb, int const_orb, double V, double eta,double* eig, Vec3d * Ratin, double* coesin){
  //printf("inside a function \n");
@@ -310,7 +347,13 @@ extern "C"{
 			}
 		}
 		if (tip_coes[4] > 0){
-			printf("What a pitty, I cannot find no formulas for dxy orb. Shame on the programer!\n");
+			//printf("What a pitty, I cannot find no formulas for dxy orb. Shame on the programer!\n");
+			printf("calculating dxy orb. on a tip sp  -- needs some tets\n");
+			#pragma omp parallel for
+			for (int s=0; s<Npoints; s++){
+			 cur[s] += tip_coes[4]*dIdVdxysp_vec(      R[s], NoAt, NoOrb, const_orb, V, eta, eig, Ratin, coesin);
+			}
+
 		}
 		if (tip_coes[5] > 0){
 			printf("calculating dyz orb. on a tip sp\n");

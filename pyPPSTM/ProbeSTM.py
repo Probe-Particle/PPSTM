@@ -26,16 +26,17 @@ G2Amp      = 7.7480917346E-05  # rescaling into Amper
 LIB_PATH = os.path.dirname( os.path.realpath(__file__) )
 print " ProbeParticle Library DIR = ", LIB_PATH
 
-def standart_check(orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxz=0.0, dyz=0.0, dz2=0.0):
+def standart_check(orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxy=0.0, dxz=0.0, dyz=0.0, dz2=0.0):
 	assert ((orbs == 'sp')or(orbs == 'spd')), "sorry I can't do different orbitals" 
 	#assert (orbs == 'sp'), "sorry I can't do different orbitals" 	
-	assert ((s > 0.0)or(px > 0.0)or(py > 0.0)or(pz > 0.0)or(dz2 > 0.0)or(dxz > 0.0)or(dyz > 0.0)), "all tip orbitals are zero"
-	assert ((s >= 0.0)and(px >= 0.0)and(py >= 0.0)and(pz >= 0.0)and(dz2 >= 0.0)and(dxz >= 0.0)and(dyz >= 0.0)), "you cannot have negative current"
+	assert ((s > 0.0)or(px > 0.0)or(py > 0.0)or(pz > 0.0)or(dz2 > 0.0)or(dxy > 0.0)or(dxz > 0.0)or(dyz > 0.0)), "all tip orbitals are zero"
+	assert ((s >= 0.0)and(px >= 0.0)and(py >= 0.0)and(pz >= 0.0)and(dz2 >= 0.0)and(dxy >= 0.0)and(dxz >= 0.0)and(dyz >= 0.0)), "you cannot have negative current"
 	tip = np.zeros((9))
 	tip[0] = s
 	tip[1] = py
 	tip[2] = pz
 	tip[3] = px
+	tip[4] = dxy
 	tip[5] = dyz
 	tip[6] = dz2
 	tip[7] = dxz
@@ -43,7 +44,7 @@ def standart_check(orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxz=0.0, dyz=0.0, 
 	return tip, orb_t;
 
 
-def dIdV( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxz=0.0, dyz=0.0, dz2=0.0):
+def dIdV( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxy=0.0, dxz=0.0, dyz=0.0, dz2=0.0):
 	'''
 	dIdV( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=1.0, px =0.0, py=0.0, pz=0.0):
 	V - voltage = (energy vs. the Fermi Level in eV);
@@ -56,7 +57,7 @@ def dIdV( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0
 	s and/or px and/or py and/or pz orbitals at the PP
 	unification of all the predefined dI/dV procedures from C++, you can choose, whatever PP orbital you want
 	'''
-	tip, orb_t = standart_check(orbs=orbs, s=s, px=px, py=py, pz=pz, dxz=dxz, dyz=dyz, dz2=dz2)
+	tip, orb_t = standart_check(orbs=orbs, s=s, px=px, py=py, pz=pz, dxy=dxy, dxz=dxz, dyz=dyz, dz2=dz2)
 	cur = dIdV_sp_sp( V, WF, eta, eig, R, Rat, coes, tip, orb_t )
 	return cur;
 
@@ -88,7 +89,7 @@ def dIdV_tilt( V, WF, eta ,eig, R, R0, Rat, coes, orbs='sp', pz=0.0, pxy =0.0, d
 	cur = dIdV_sp_sp_tilt( V, WF, eta, eig, R, R0, Rat, coes, tip, len_R, al, orb_t)
 	return cur;
 
-def STM( V, nV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxz=0.0, dyz=0.0, dz2=0.0, WF_decay=1.0):
+def STM( V, nV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxy=0.0, dxz=0.0, dyz=0.0, dz2=0.0, WF_decay=1.0):
 	'''
 	STM( V, nV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=1.0, px =0.0, py=0.0, pz=0.0, WF_decay=1.0):
 	summing more dI/dV via rectangle integration, be aware Work Function is changing with Voltage!
@@ -102,7 +103,7 @@ def STM( V, nV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, p
 		ii +=1
 		assert (WF-v_*WF_decay> 0.1), "Non-physical Work Function or Voltage, together WF <= 0.1 eV	"
 		print "WF for this step is: " , WF-v_*WF_decay, " eV"
-		i_ = dIdV( v_, WF-v_*WF_decay, eta ,eig, R, Rat, coes, orbs=orbs, s=s, px =px, py=py, pz=pz, dxz=dxz, dyz=dyz, dz2=dz2)
+		i_ = dIdV( v_, WF-v_*WF_decay, eta ,eig, R, Rat, coes, orbs=orbs, s=s, px =px, py=py, pz=pz, dxy=dxy, dxz=dxz, dyz=dyz, dz2=dz2)
 		#print "maximal dI/dV: " , max(i_)
 		if (v_ == 0):
 			cur = i_
@@ -112,7 +113,7 @@ def STM( V, nV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, p
 	print "All dI/dV steps done, current rescalled into Ampers"
 	return cur;
 
-def MSTM( Vmin, Vmax, dV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=1.0, px =0.0, py=0.0, pz=0.0, dxz=0.0, dyz=0.0, dz2=0.0, WF_decay=1.0):
+def MSTM( Vmin, Vmax, dV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=1.0, px =0.0, py=0.0, pz=0.0, dxy=0.0, dxz=0.0, dyz=0.0, dz2=0.0, WF_decay=1.0):
 	'''
 	MSTM( Vmin, Vmax,  dV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=1.0, px =0.0, py=0.0, pz=0.0, WF_decay=1.0):
 	summing more dI/dV via rectangle integration, be aware Work Function is changing with Voltage!
@@ -128,7 +129,7 @@ def MSTM( Vmin, Vmax, dV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=1.0, px =0.0,
 		print "Start to calculate voltage step %d of %d in total." %(ii, len(np.arange(Vmin,Vmax+0.001,dV)))
 		assert (WF-v_*WF_decay> 0.1), "Non-physical Work Function or Voltage, together WF <= 0.1 eV	"
 		print "WF for this step is: " , WF-v_*WF_decay, " eV"
-		i_ = dIdV( v_, WF-v_*WF_decay, eta ,eig, R, Rat, coes, orbs=orbs, s=s, px =px, py=py, pz=pz, dxz=dxz, dyz=dyz, dz2=dz2)
+		i_ = dIdV( v_, WF-v_*WF_decay, eta ,eig, R, Rat, coes, orbs=orbs, s=s, px =px, py=py, pz=pz, dxy=dxy, dxz=dxz, dyz=dyz, dz2=dz2)
 		dIdVs = np.array([i_]) if v_ == Vmin else np.append(dIdVs, np.array([i_]),axis=0)
 		if -0.005 < v_ < 0.005:
 			v0 = ii

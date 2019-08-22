@@ -118,6 +118,10 @@ elif (tip_orb == 'dz2'):
     tc = [0.,0.,0.,0.,1.,0.,0.] # [s, px, py, pz, dz2, dxz, dyz ] 
 elif (tip_orb == 'dxzyz'):
     tc = [0.,0.,0.,0.,0.,0.5,0.5] # [s, px, py, pz, dz2, dxz, dyz ] 
+elif (tip_orb == 'px'):
+    tc = [0.,1.,0.,0.,0.,0.,0.] # [s, px, py, pz, dz2, dxz, dyz ] 
+elif (tip_orb == 'py'):
+    tc = [0.,0.,1.,0.,0.,0.,0.] # [s, px, py, pz, dz2, dxz, dyz ] 
 else:
     print "Don't know what kind od tip you mean. I rather going to exit." ; exit()
 

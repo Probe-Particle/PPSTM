@@ -2,7 +2,7 @@
 OMP=0	# 0 = 'False' , 1 = 'True'
 if [ $OMP -eq 1 ]
 then
-    export OMP_NUM_THREADS=3
+    export OMP_NUM_THREADS=8
 fi
 
 echo "OMP_NUM_THREADS:"
