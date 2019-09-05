@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import os
+import sys
 import numpy as np
 import basUtils as bU
 import elements
@@ -37,7 +38,9 @@ print " ProbeParticle Library DIR = ", LIB_PATH
 
 cpp_name='IO'
 #cpp_utils.compile_lib( cpp_name  )
-cpp_utils.make("IO")
+make_name='MIO' if sys.platform=='darwin' else 'IO'
+print "DEBUG: make_name", make_name
+cpp_utils.make(make_name)
 lib    = ctypes.CDLL(  cpp_utils.CPP_PATH + "/" + cpp_name + cpp_utils.lib_ext )     # load dynamic librady object using ctypes 
 
 # define used numpy array types for interfacing with C++
@@ -566,7 +569,8 @@ def read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), imaginary = False, cut
 	for i in range(n_min_,n_max_):
 		ii = i-n_min_
 		for j, label in enumerate(labels):
-			iatom = int(label[1]) - 1
+			#iatom = int(label[1]) - 1
+			iatom = int(num_at_) - 1
 			func = label[3]
 			if func.endswith("s"):
 				coef[ii,iatom,0] += evecs[j,i]
@@ -636,7 +640,7 @@ def read_cp2k_MO_file(fn, spin):
 	# handle spin
 	if spin == "alpha":
 		first_line = 0
-		assert lines[first_line].strip() == "ALPHA MO EIGENVALUES, MO OCCUPATION NUMBERS, AND CARTESIAN MO EIGENVECTORS"
+		assert lines[first_line].strip() == "ALPHA MO EIGENVALUES, MO OCCUPATION NUMBERS, AND CARTESIAN MO EIGENVECTORS", ("Wrong_line:", lines[first_line].strip())
 	elif spin == "beta":
 		for i in  np.arange(0,5):
 			first_line = nlines_per_spin + i

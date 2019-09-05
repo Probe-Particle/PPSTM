@@ -1,8 +1,9 @@
 #!/usr/bin/python
 
 import os
+import sys
 import numpy as np
-from scipy.ndimage import uniform_filter
+from   scipy.ndimage import uniform_filter
 from   ctypes import c_int, c_double, c_char_p
 import ctypes
 
@@ -247,7 +248,20 @@ def before_C( eig, R, Rat, coes, orb_t):
 
 cpp_name='ProbeSTM_spd'
 #cpp_utils.compile_lib( cpp_name  )
-cpp_utils.make("STM")
+make_name='MSTM' if sys.platform=='darwin' else 'STM'
+
+try:
+	ncpu = int(os.environ['OMP_NUM_THREADS'])
+except:
+	ncpu = 1;
+	print "DEBUG: OMP_NUM_THREADS not defined - serial calculations"
+
+#print "DEBUG: ncpu:", ncpu
+make_name_end ='PAR' if ncpu > 1.01 else ''
+del ncpu;
+make_name += make_name_end
+print "DEBUG: make_name", make_name;
+cpp_utils.make(make_name)
 lib    = ctypes.CDLL(  cpp_utils.CPP_PATH + "/" + cpp_name + cpp_utils.lib_ext )     # load dynamic librady object using ctypes 
 
 # define used numpy array types for interfacing with C++

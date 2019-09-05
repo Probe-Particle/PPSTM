@@ -8,9 +8,11 @@
 #
 # Note : This type of simulations works for solid slabs or molecules on slabs (substrate) ; for freestanding molecule it can give you nonsences
 #
-# ***** System information: path (absolute or relative) to your PPSTM code *****
+# ***** System information: *****
 #
-ppstm_path = './PPSTM/'
+ppstm_path = './PPSTM/'      # path (absolute or relative) to your PPSTM code #
+#
+ncpu       = 7               # number of cpu cores for OMP paralelization: ncpu = 1 -- serial compilation & calculations; iff ncpu > 1, then OMP paralel recompilation is used and C++ calculations are running on more cores #
 #
 # ***** Main informations ******
 #
@@ -76,6 +78,10 @@ print "Importing libraries"
 import os
 import sys
 sys.path.append(ppstm_path) 
+
+if (ncpu > 1):
+    os.environ['OMP_NUM_THREADS'] = str(ncpu)
+    print 'OMP_NUM_THREADS:', os.environ['OMP_NUM_THREADS']
 
 import numpy as np
 import pyPPSTM                   as PS
