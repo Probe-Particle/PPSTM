@@ -12,6 +12,7 @@ rm didv_*tip_*WF_*eta_*.xsf
 rm STM_*tip_*WF_*eta_*.xsf
 rm didv_*tip_*WF_*eta_*.xyz
 rm STM_*tip_*WF_*eta_*.xyz
+rm PDOS_*.png
 echo "Done, bye bye"
 
 

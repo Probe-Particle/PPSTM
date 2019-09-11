@@ -29,6 +29,8 @@ n_max_ = 0
 Ynum_ = 4
 num_at_ = -1
 
+dOrbRes_ = True
+
 # ==============================
 # ============================== C++ compilations
 # ==============================
@@ -98,8 +100,11 @@ def initial_check(orbs = 'sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_
 	global cut_min_ ; cut_min_ = cut_min
 	global cut_max_ ; cut_max_ = cut_max
 	global Ynum_    ; Ynum_ = 4 if (orbs =='sp') else 9
-	global lower_atoms_ ; lower_atoms_ = lower_atoms
-	global lower_coefs_ ; lower_coefs_ = lower_coefs	
+	global lower_atoms_ ; lower_atoms_ = lower_atoms if lower_atoms != 'no-d-rescalling' else []
+	#print  "DEBUG: lower_atoms_", lower_atoms_
+	global dOrbRes_     ; dOrbRes_     = True        if lower_atoms != 'no-d-rescalling' else False
+	#print  "DEBUG: dOrbRes_", dOrbRes_
+	global lower_coefs_ ; lower_coefs_ = lower_coefs
 
 # geometries underprocedures: 
 
@@ -209,33 +214,6 @@ def cut_eigenenergies(eig):
 	assert (n_min_ < n_max_), "no orbitals left for dI/dV"
 	return eig[n_min_:n_max_];
 
-# ********** TO BE REMOVED ************
-# just for testing C++ AIMS reading procedure
-#def getAimsEigenE(fname, fermi=0.0):
-#	# getting eigen-energies:
-#	filein = open(fname )
-#	skip_header = 2
-#	for i in range(20):
-#		tmp=filein.readline().split()
-#		skip_header += 1
-#		if (len(tmp)>1):
-#			if (tmp[1]=='Basis'):
-#				break
-#	tmp=filein.readline()
-#	pre_eig = filein.readline().split()
-#	filein.close()
-#	pre_eig=np.delete(pre_eig,[0,1,2],0)
-#	n_bands = len(pre_eig)
-#	eig = np.zeros(n_bands)
-#	for i in range(n_bands):
-#		eig[i] = float(pre_eig[i])
-#	del pre_eig, tmp;
-#	eig = to_fermi(eig, fermi, orig_fermi=0.0)
-#	#eig = cut_eigenenergies(eig)
-#	print "eigenenergies read"
-#	return eig 
-# ************************************
-
 # procedure for handling the coefficients:
 
 def lower_Allorb(coef):
@@ -255,7 +233,7 @@ def lower_Dorb(coef):
 	Lowering hoppings for all d-orbitals (automatically); It has physical reason, but simple rescalling is nasty
 	'''
 	d_rescale=0.2
-	if (Ynum_ > 4): #(orbs=='spd')
+	if (Ynum_ > 4) and dOrbRes_: #(orbs=='spd') & and d-orbital-rescalling:
 		print "!!! Be aware d-orbs are now rescaled by factor of" ,d_rescale 
 		print "This is due to a faster decay of d-orbs in the original basis sets, but simple rescaling is nasty !!!"
 		coef[:,:,4:] *= d_rescale
@@ -569,12 +547,14 @@ def read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), imaginary = False, cut
 	for i in range(n_min_,n_max_):
 		ii = i-n_min_
 		for j, label in enumerate(labels):
-			#iatom = int(label[1]) - 1
-			iatom = int(num_at_) - 1
+			iatom = int(label[1]) - 1
+			#print "DEBUG: j, label, iatom", j, label, iatom
+			if (iatom >= num_at_):
+				#print "DEBUG iatom>= num_at_", iatom, num_at_
+				break
 			func = label[3]
 			if func.endswith("s"):
 				coef[ii,iatom,0] += evecs[j,i]
-
 			# beware: unusual order of directions
 			elif func.endswith("py"):
 				coef[ii,iatom,1] += evecs[j,i]

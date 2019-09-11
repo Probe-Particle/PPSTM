@@ -25,7 +25,7 @@ def pPDOS(eig, coeffs, energies, eta=0.1, atoms=[], orbs='sp' ,spherical='all'):
 	coeffs - the LCAO coefficients obtained from the reading procedures
 	energies - array of energies on which you want to calculate DOS - e.g energies = np.arange(-2.,2.,0.01)
 	eta - width of the Lorentzian for smearing of the eigenstates
-	atoms = [] ... all atoms; [0] 1st atom only; [1,5] 2nd & 6th atom ....
+	atoms = [] = 'all'... all atoms; [0] 1st atom only; [1,5] 2nd & 6th atom ....
 	orbs = 'sp' or 'spd'
 	spherical = 'all' or 's' or 'p' or 'd' or 'px', 'py', 'pz', 'dxy', 'dxz', 'dyz', 'dz2', 'dx2y2'
 	projection to only some of the spherical harmonics of the atomic orbitals
@@ -62,7 +62,7 @@ def pPDOS(eig, coeffs, energies, eta=0.1, atoms=[], orbs='sp' ,spherical='all'):
 		sp = np.array([7])
 	elif (spherical=='dx2y2'):
 		sp = np.array([8])
-	klist = np.arange(sh[1]) if (atoms==[]) else np.array(atoms);
+	klist = np.arange(sh[1]) if (atoms==[] or atoms=='all') else np.array(atoms);
 	#print "sp:",sp,"klist:",klist
 
 	for i in range(len(energies)):

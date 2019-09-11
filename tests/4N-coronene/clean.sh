@@ -11,6 +11,8 @@ rm didv_*tip_*WF_*eta_*.xsf
 rm STM_*tip_*WF_*eta_*.xsf
 rm didv_*tip_*WF_*eta_*.xyz
 rm STM_*tip_*WF_*eta_*.xyz
+echo "Removing outputs of PPdos_simple, if any"
+rm PDOS_*.png
 echo "Done, bye bye"
 
 
