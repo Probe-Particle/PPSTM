@@ -225,11 +225,26 @@ print "energies prepared, coeffecients read"
 
 didv_b = False
 STM_b  = False
+states_b = False
 
 if ( (scan_type == 'didv') or (scan_type == 'dIdV') or (scan_type == 'didv-single')):
     didv    = np.array([   PS.dIdV( V,    WorkFunction, eta, eigEn, tip_r, Ratin, coefs, orbs=sample_orbs, s=tc[0], px =tc[1], py=tc[2], pz=tc[3], dz2=tc[4], dxz=tc[5], dyz=tc[6] ) ])
     didv_b = True; WF_decay= 0.0;
     #print "DEBUG: didv.shape ", didv.shape
+elif ( (scan_type == 'states') or (scan_type == 'STATES') ):
+    states = np.sort(eigEn); mask = states >= V; states = states[mask]; del mask;
+    mask = states <= V_max; states = states[mask]; del mask;
+    fst = True
+    print "DEBUG: states:", states
+    for isi in states:
+	if fst:
+	    didv    = np.array([   PS.dIdV( isi,    WorkFunction, eta, eigEn, tip_r, Ratin, coefs, orbs=sample_orbs, s=tc[0], px =tc[1], py=tc[2], pz=tc[3], dz2=tc[4], dxz=tc[5], dyz=tc[6] ) ])
+	    fst = False
+	else :
+	    didv =np.append(didv, [PS.dIdV( isi,    WorkFunction, eta, eigEn, tip_r, Ratin, coefs, orbs=sample_orbs, s=tc[0], px =tc[1], py=tc[2], pz=tc[3], dz2=tc[4], dxz=tc[5], dyz=tc[6] ) ], axis =0)
+    #print "DEBUG: didv.shape ", didv.shape
+    didv_b = True; states_b = True; WF_decay= 0.0;
+
 elif ( (scan_type == 'STM') or (scan_type == 'STM-single') ):
     nV = abs(V/dV)+1
     #print "DEBUG: V, nV:", V, nV
@@ -262,10 +277,12 @@ def plotGeom( atoms=None, atomSize=0.1 ):
 
 # --- plotting part here, plots all calculated signals --- #
 
-Voltages=np.arange(V,V_max+0.001,dV) # this part is important for scans over slabs at different voltages
+Voltages= np.arange(V,V_max+0.001,dV) if not states_b else states # this part is important for scans over slabs at different voltages
+round_index = 2 if not states_b else 5
+print "Voltages", Voltages
 namez = []
 for V in Voltages:
-    namez.append(str(round(V,2)))
+    namez.append(str(round(V,round_index)))
 
 NoV = len(didv) if didv_b else len(current)
 NoH = len(didv[0]) if didv_b else len(current[0])
