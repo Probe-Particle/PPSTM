@@ -1,0 +1,34 @@
+&OPTION
+fdataLocation = '/storage/praha1/home/jelen/WORK/FDATA/Fdata_bio_ext'
+inputxyz = 1
+basisfile = 'cell.xyz'
+lvsfile = lat.lvs
+kptpreference = temp.kpts
+nstepf = 1
+idftd3 = 1
+dftd3_func = 'fb_bio'   
+sigmatol = 0.0000000001
+max_scf_iterations = 100
+dt = 0.5
+ifixcharge = 1
+iquench = -1
+icDFT = 0
+idynmat = 0
+&END
+
+&OUTPUT
+iwrtxyz = 1
+iwrtdos = 1
+iwrteigen = 1
+iwrtefermi = 1
+iwrtewf = 0
+iwrtden = 0
+iwrtatom = 0
+iwrtcdcoefs = -2
+&END
+
+&QUENCH
+&END
+
+&MESH
+&END

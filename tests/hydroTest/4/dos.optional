@@ -1,0 +1,7 @@
+  1.0                   ! scale factor (leave 1.0)
+  1       2          ! list of atoms to analyze DOS
+  241                   ! number of energy steps
+  -12.0   0.05          ! initial energy, energy step 
+  0                     ! leave untouched
+  0.0     0.0           ! leave untouched
+  0.02                  ! imaginary part of Green function (controls energy level smearing)

@@ -16,6 +16,7 @@ import time
 
 # global variables:
 
+struct = []
 cut_at_ =-1
 pbc_ = (0,0)
 
@@ -88,12 +89,12 @@ def mkSpaceGrid(xmin,xmax,dx,ymin,ymax,dy,zmin,zmax,dz):
 
 # preparing procedures:
 
-def initial_check(orbs = 'sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lower_atoms=[], lower_coefs=[]):
+def initial_check(orbs = 'sp', pbc=(1,1), kpoint = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lower_atoms=[], lower_coefs=[]):
 	'''
-	do some initial checks of incoming parameters (orbs, imaginary) and most of the global parameters for reading procedures
+	do some initial checks of incoming parameters (orbs, kpoint) and most of the global parameters for reading procedures
 	'''
 	assert ((orbs == 'sp')or(orbs == 'spd')), "sorry I can't do different orbitals" 
-	assert (imaginary == False), "sorry imaginary version is under development" 	
+	#assert ((kpoint == False)or((kpoint ==True)and(True)), "sorry kpoint version is under development" 	# prepared for later
 	print "reading FHI-AIMS LCAO coefficients for basis: ",orbs	
 	global cut_at_ ; cut_at_ = -1 if cut_at == None else cut_at
 	global pbc_    ; pbc_ = pbc
@@ -149,13 +150,23 @@ def get_FIREBALL_geom(geom='answer.bas', lvs=None, sl=False):
 	'''
 	print " # ============ define atoms ============"
 	atoms, nDim, tmp = bU.loadAtoms(geom, sl=sl)
-	#print "DEBUG: atoms", atoms
+	#print "atoms", atoms
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	struct = []
+	for i in range(len(atoms[1])):
+		rs = (atoms[1][i],atoms[2][i],atoms[3][i])
+		struct.append(rs)
+	
+	struct = np.asarray(struct)
+	print "DEBUG: struct:", struct, len(struct[0]), struct[0][0]
+	print len(struct)
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 	del nDim, tmp
 	atoms = cut_atoms(atoms)
 	print " Number of atoms: ", num_at_
 	Ratin = for_PBC(atoms,lvs)
 	print "atomic geometry read"
-	return Ratin ;
+	return Ratin, struct;
 
 def get_AIMS_geom(geom='geometry.in'):
 	'''
@@ -255,9 +266,120 @@ def pbc_coef(coeffs):
 	if ((pbc_ != (0,0))or(pbc_ != (0.0,0.0))) :
 		print "applying pbc"
 		coeff =np.repeat(coeffs,int(pbc_[0]*2+1)*int(pbc_[1]*2+1),0).flatten()
+		print coeff.shape, coeff[0]
 		global num_at_;	num_at_ *=int(pbc_[0]*2+1)*int(pbc_[1]*2+1)
 		coeffs = coeff.reshape((n_max_-n_min_,num_at_*Ynum_))
 	return coeffs;
+
+def pbc_kpoints(coeffsRe,coeffsIm,kaka,Ratin,eig,struct,w):
+	print kaka
+	print struct
+#	Applying PBC to the LCAO Coefficients
+	#print "coeffsRe.shape!!!", coeffsRe.shape
+	#print coeffsRe
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# not sure if this is true for when you cut orbitals
+# because handling them reshapes them in Dorb part, gotta change it afterwards
+
+	coefReNew = coeffsRe.reshape((n_max_-n_min_,num_at_,Ynum_))
+	coefImNew = coeffsIm.reshape((n_max_-n_min_,num_at_,Ynum_))
+
+	print "coefReNew.shape", coefReNew.shape
+	print "coefImNew.shape", coefImNew.shape
+
+	print "coefReNew", coefReNew
+	print "coefImNew", coefImNew
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	ns=len(eig)
+	print "len eig", ns
+	eigNew=np.zeros(ns*4)
+	print len(eigNew)
+
+	for i in range(4):
+		eigNew[i*ns:ns*(i+1)]=eig[:]
+
+
+	print "eigNew:", eigNew, eigNew[0], eigNew[1]
+
+	# change global number of states here
+	if ((pbc_ != (0,0))or(pbc_ != (0.0,0.0))) :
+		print "applying pbc to coefficients..."
+		#print "coeffsRe: ", coeffsRe
+		#coeffRe =np.repeat(coeffsRe,int(pbc_[0]*2+1)*int(pbc_[1]*2+1),0)#.flatten()
+		#print "coeffRe.shape", coeffRe.shape
+		#print "coeffRe[0]: ", coeffRe[0]
+		#print "coeffRe: ", coeffRe
+#		print "coeffRe[0][0]", coeffRe[0][0]
+		#coeffIm =np.repeat(coeffsIm,int(pbc_[0]*2+1)*int(pbc_[1]*2+1),0)#.flatten()
+		#global num_at_;	num_at_ *=int(pbc_[0]*2+1)*int(pbc_[1]*2+1)
+		combinedCoefz = np.zeros((4*(n_max_-n_min_),num_at_,Ynum_))
+		#print "coeff.shape", coeff.shape
+
+################ Dealing with the mathematical part:
+
+		kpn=0; # not sure if we're gonna need this
+
+		i=0 # Real*Cos
+		#print "n_max_-n_min_: ", n_max_-n_min_
+		deltaN = n_max_-n_min_
+
+		for ii in xrange(n_max_-n_min_):
+			for iat in xrange(num_at_):   #   cos (k.Ra)* kpoint weight * Re coefs   
+				#for k in range(len(kaka)): 
+				print "no. atom: ", iat
+				kDotR = np.dot(kaka[1],struct[iat]) 
+				print "kDotR" , kDotR , "cos", np.cos(kDotR)
+				shy=np.cos(kDotR) * coefReNew[ii,iat,:] * w[0]   
+				print shy
+				combinedCoefz[i*deltaN+ii,iat,:]=np.cos(kDotR) * coefReNew[ii,iat,:] * w[0]
+
+				#coeff[i*ii,iat,:]=np.cos(kpoint[kpn,0]*Ratin[iat,0]+kpoint[kpn,1]*Ratin[iat,1]+kpoint[kpn,2]*Ratin[iat,2]) * kpoint[kpn,3] * coeffRe[i*ii,iat,:]
+		i=1 # Real*Sin
+		for ii in range((n_max_-n_min_)):
+			for iat in range(num_at_):   #   sin (k.Ra)* kpoint weight * Re coefs  
+				#for k in range(len(kaka)):
+				print "no. atom: ", iat
+				kDotR = np.dot(kaka[1],struct[iat])    
+  				shy2=np.sin(kDotR) * coefReNew[ii,iat,:] * w[0]   
+				print "part2",shy2
+				combinedCoefz[i*deltaN+ii,iat,:]=np.sin(kDotR) * coefReNew[ii,iat,:] * w[0]
+
+				#coeff[i*ii,iat,:]=np.sin(kDotR) * coefReNew[i*deltaN+ii,iat,:] * w[0] 
+				#coeff[i*ii,iat,:]=np.cos(kpoint[kpn,0]*Ratin[iat,0]+kpoint[kpn,1]*Ratin[iat,1]+kpoint[kpn,2]*Ratin[iat,2]) * kpoint[kpn,3] * coeffRe[i*ii,iat,:]
+
+		i=2 # Im*Cos
+		for ii in range((n_max_-n_min_)):
+			for iat in range(num_at_):   #   cos (k.Ra)* kpoint weight * Re coefs         
+				#for k in range(len(kaka)):
+				print "no. atom: ", iat
+				kDotR = np.dot(kaka[1],struct[iat])   
+   				shy3 = np.cos(kDotR) * coefImNew[ii,iat,:] * w[0]
+				print "part3", shy3
+				combinedCoefz[i*deltaN+ii,iat,:]=np.cos(kDotR) * coefImNew[ii,iat,:] * w[0]
+				#coeff[i*ii,iat,:]=np.cos(kpoint[kpn,0]*Ratin[iat,0]+kpoint[kpn,1]*Ratin[iat,1]+kpoint[kpn,2]*Ratin[iat,2]) * kpoint[kpn,3] * coeffRe[i*ii,iat,:]
+
+		i=3 # Im*Sin
+		for ii in range((n_max_-n_min_)):
+			for iat in range(num_at_):   #   sin (k.Ra)* kpoint weight * Re coefs         
+				#for k in range(len(kaka)):
+				print "no. atom: ", iat
+				kDotR = np.dot(kaka[1],struct[iat])
+				shy4 = np.sin(kDotR) * coefImNew[ii,iat,:] * w[0]
+      				print "part4",shy4
+				combinedCoefz[i*deltaN+ii,iat,:]=np.sin(kDotR) * coefImNew[ii,iat,:] * w[0] 
+				#coeff[i*ii,iat,:]=np.cos(kpoint[kpn,0]*Ratin[iat,0]+kpoint[kpn,1]*Ratin[iat,1]+kpoint[kpn,2]*Ratin[iat,2]) * kpoint[kpn,3] * coeffRe[i*ii,iat,:]
+
+	#assert (len(eigNew) == len(combinedCoefz)), "ERROR: Problem in coefficients department"
+
+	#for i in range(len(eigNew)):
+	#	combinedCoefz[i,:,:] = eigNew[i]
+
+
+		print "DEBUG: combinedCoefz", combinedCoefz
+		print "combinedCoefz.shape" , combinedCoefz.shape
+		coeffs = coeff.reshape(((n_max_-n_min_)*4,num_at_*Ynum_))
+	return coeffs, eigNew;
+
 
 def	handle_coef(coef):
 	'''
@@ -268,22 +390,37 @@ def	handle_coef(coef):
 	coeffs = remove_coeffs(coeffs)
 	return pbc_coef(coeffs);
 
+def     handleCoefKpoint(coefRe,coefIm,kaka,Ratin,eig,struct,w): 
+	print "DEBUG coefRe.shape, coefIm.shape", coefRe.shape, coefIm.shape
+	print "coefRe", coefRe
+	coefRe = lower_Allorb(coefRe)
+	coeffsRe = lower_Dorb(coefRe)
+	coeffsRe = remove_coeffs(coeffsRe)
+	#return pbc_coef(coeffs);	
+	coefIm = lower_Allorb(coefIm)
+	coeffsIm = lower_Dorb(coefIm)
+	coeffsIm = remove_coeffs(coeffsIm)
+	#return pbc_coef(coeffs);
+	print "coeffsIm.shape:", coeffsIm.shape
+	print "coeffsIm before going to do pbc: ", coeffsIm
+	return pbc_kpoints(coeffsRe,coeffsIm,kaka,Ratin,eig,struct,w)
+
 # procedures for preparing everything for STM:
 
-def	read_AIMS_all(name = 'KS_eigenvectors.band_1.kpt_1.out', geom='geometry.in', fermi=None, orbs = 'sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lower_atoms=[], lower_coefs=[]):
+def	read_AIMS_all(name = 'KS_eigenvectors.band_1.kpt_1.out', geom='geometry.in', fermi=None, orbs = 'sp', pbc=(1,1), kpoint = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lower_atoms=[], lower_coefs=[]):
 	'''
-	read_AIMS_all(name = 'KS_eigenvectors.band_1.kpt_1.out', geom='geometry.in', fermi=None, orbs = 'sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lower_atoms=[], lower_coefs=[]):
+	read_AIMS_all(name = 'KS_eigenvectors.band_1.kpt_1.out', geom='geometry.in', fermi=None, orbs = 'sp', pbc=(1,1), kpoint = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lower_atoms=[], lower_coefs=[]):
 	read eigen energies, coffecients (0=Fermi Level) from the 'name' file and geometry  from the 'geom' file.
 	orbs - 'sp' read only sp structure of valence orbitals or 'spd' orbitals of the sample
 	Fermi - set to zero by AIMS itself
 	pbc (1,1) - means 3 times 3 cell around the original, (0,0) cluster, (0.5,0.5) 2x2 cell etc.
-	imaginary = False (other options for future k-points dependency
+	kpoint = False (other options for future k-points dependency
 	cut_min = -15.0, cut_max = 5.0 - cut off states(=mol  orbitals) bellow cut_min and above cut_max; energy in eV
 	cut_at = -1 .. all atoms; eg. cut_at = 15 --> only first fifteen atoms for the current calculations (mostly the 1st layer is the important one)
 	lower_atotms=[], lower_coefs=[] ... do nothing; lower_atoms=[0,1,2,3], lower_coefs=[0.5,0.5,0.5,0.5] lower coefficients (=hoppings) for the first four atoms by 0.5
 	header - newer version of aims gives one aditional line with AIMS-UUID to the output files
 	'''
-	initial_check(orbs=orbs, pbc=pbc, imaginary=imaginary, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs)
+	initial_check(orbs=orbs, pbc=pbc, kpoint=kpoint, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs)
 	# obtaining the geometry :
 	Ratin, at_num = get_AIMS_geom(geom=geom)
 	#print "at_num:",at_num
@@ -373,20 +510,20 @@ def	read_AIMS_all(name = 'KS_eigenvectors.band_1.kpt_1.out', geom='geometry.in',
 	print "All coefficients read"
 	return eig.copy(), coeffs.copy(), Ratin.copy();
 
-def	read_GPAW_all(name = 'OUTPUT.gpw', fermi = None, orbs = 'sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lower_atoms=[], lower_coefs=[] ):
+def	read_GPAW_all(name = 'OUTPUT.gpw', fermi = None, orbs = 'sp', pbc=(1,1), kpoint = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lower_atoms=[], lower_coefs=[] ):
 	'''
-	read_GPAW_all(name = 'OUTPUT.gpw', fermi = None, orbs = 'sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lower_atoms=[], lower_coefs=[]):
+	read_GPAW_all(name = 'OUTPUT.gpw', fermi = None, orbs = 'sp', pbc=(1,1), kpoint = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lower_atoms=[], lower_coefs=[]):
 	This procedure nead to import ASE and GPAW
 	read eigen energies, coffecients, Fermi Level and geometry  from the GPAW  *.gpw file.
 	If fermi = None then Fermi comes from the GPAW calculation
 	orbs - only 'sp' works 	can read only sp structure of valence orbitals (hydrogens_has to be at the end !!!!)
 	pbc (1,1) - means 3 times 3 cell around the original, (0,0) cluster, (0.5,0.5) 2x2 cell etc.
-	imaginary = False (other options for future k-points dependency
+	kpoint = False (other options for future k-points dependency
 	cut_min = -15.0, cut_max = 5.0 - cut off states(=mol  orbitals) bellow cut_min and above cut_max; energy in eV
 	cut_at = -1 .. all atoms; eg. cut_at = 15 --> only first fifteen atoms for the current calculations (mostly the 1st layer is the important one)
 	lower_atotms=[], lower_coefs=[] ... do nothing; lower_atoms=[0,1,2,3], lower_coefs=[0.5,0.5,0.5,0.5] lower coefficients (=hoppings) for the first four atoms by 0.5
 	'''
-	initial_check(orbs=orbs, pbc=pbc, imaginary=imaginary, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs)
+	initial_check(orbs=orbs, pbc=pbc, kpoint=kpoint, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs)
 	# obtaining the geometry :
 	from ase import Atoms
 	from gpaw import GPAW
@@ -445,25 +582,31 @@ def	read_GPAW_all(name = 'OUTPUT.gpw', fermi = None, orbs = 'sp', pbc=(1,1), ima
 	print "All coefficients read"
 	return eig.copy(), coeffs.copy(), Ratin.copy();
 
-def	read_FIREBALL_all(name = 'phi_' , geom='answer.bas', fermi=None, orbs = 'sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lvs = None, lower_atoms=[], lower_coefs=[]):
+def	read_FIREBALL_all(name = 'phi_' , geom='answer.bas', fermi=None, orbs = 'sp', pbc=(1,1), kpoint = 'temp.kpts', cut_min=-15.0, cut_max=5.0, cut_at=-1, lvs = None, lower_atoms=[], lower_coefs=[]):
 	'''
-	read_FIREBALL_all(name = 'phi_' , geom='answer.bas', fermi=None, orbs = 'sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lvs = None, lower_atoms=[], lower_coefs=[]):
+	read_FIREBALL_all(name = 'phi_' , geom='answer.bas', fermi=None, orbs = 'sp', pbc=(1,1), kpoint = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lvs = None, lower_atoms=[], lower_coefs=[]):
 	This procedure uses only local libraries;
 	read coffecients and eigen numbers from Fireball made (iwrtcoefs = -2) files phik_0001_s.dat, phik_0001_py.dat ....
 	fermi - If None the Fermi Level from the Fireball calculations (in case of molecule and visualising some molecular orbitals it can be move to their energy by putting there real value)
 	orbs = 'sp' read only sp structure of valence orbitals or 'spd' orbitals of the sample
 	pbc (1,1) - means 3 times 3 cell around the original, (0,0) cluster, (0.5,0.5) 2x2 cell etc.
-	imaginary = False (other options for future k-points dependency
+	kpoint = False (other options for future k-points dependency
 	cut_min = -15.0, cut_max = 5.0 - cut off states(=mol  orbitals) bellow cut_min and above cut_max; energy in eV
 	cut_at = -1 .. all atoms; eg. cut_at = 15 --> only first fifteen atoms for the current calculations (mostly the 1st layer is the important one)
 	lvs = None no lattice vector (cell); for PBC 3x3 array containing the cell vectors has to be put here
 	lower_atotms=[], lower_coefs=[] ... do nothing; lower_atoms=[0,1,2,3], lower_coefs=[0.5,0.5,0.5,0.5] lower coefficients (=hoppings) for the first four atoms by 0.5
 	note: sometimes oxygens have to have hoppings lowered by 0.5 this is under investigation
 	'''
-	initial_check(orbs=orbs, pbc=pbc, imaginary=imaginary, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs)
+	initial_check(orbs=orbs, pbc=pbc, kpoint=kpoint, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs)
+	# reading the k-points
+	kaka, w = bU.loadKayz(kpoint, sk =1)
+	print "kaka:", kaka
+	print "weights:", w, w[0]
+ 	print "len(kaka)",len(kaka)
+    	print type(kaka)
 	# obtaining the geometry :
-	Ratin = get_FIREBALL_geom(geom=geom, lvs=lvs)
-
+	Ratin ,struct = get_FIREBALL_geom(geom=geom, lvs=lvs)
+	print "Ratin", Ratin
 	# getting eigen-energies
 	filein = open(name+'s.dat' )
 	pre_eig = filein.readline().split()
@@ -477,49 +620,120 @@ def	read_FIREBALL_all(name = 'phi_' , geom='answer.bas', fermi=None, orbs = 'sp'
 	del pre_eig;
 	eig = cut_eigenenergies(eig)
 	print "eigen-energies read"
+	if (len(kaka) == 2) or (kpoint==False): 
+		print " loading the LCAO coefficients -- Gamma-point"
+		coef = np.zeros((n_bands,num_at_,Ynum_))
+		if (num_at_ > 1):
+			coef[:,:,0] = np.loadtxt(name+'s.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+			coef[:,:,1] = np.loadtxt(name+'py.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+			coef[:,:,2] = np.loadtxt(name+'pz.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+			coef[:,:,3] = np.loadtxt(name+'px.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+			if (orbs =='spd'):
+				coef[:,:,4] = np.loadtxt(name+'dxy.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+				coef[:,:,5] = np.loadtxt(name+'dyz.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+				coef[:,:,6] = np.loadtxt(name+'dz2.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+				coef[:,:,7] = np.loadtxt(name+'dxz.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+				coef[:,:,8] = np.loadtxt(name+'dx2y2.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+		else:
+			coef[:,0,0] = np.loadtxt(name+'s.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+			coef[:,0,1] = np.loadtxt(name+'py.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+			coef[:,0,2] = np.loadtxt(name+'pz.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+			coef[:,0,3] = np.loadtxt(name+'px.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+			if (orbs =='spd'):
+				coef[:,0,4] = np.loadtxt(name+'dxy.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+				coef[:,0,5] = np.loadtxt(name+'dyz.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+				coef[:,0,6] = np.loadtxt(name+'dz2.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+				coef[:,0,7] = np.loadtxt(name+'dxz.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+				coef[:,0,8] = np.loadtxt(name+'dx2y2.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
 
-	print " loading the LCAO coefficients"
-	coef = np.zeros((n_bands,num_at_,Ynum_))
-	if (num_at_ > 1):
-		coef[:,:,0] = np.loadtxt(name+'s.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
-		coef[:,:,1] = np.loadtxt(name+'py.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
-		coef[:,:,2] = np.loadtxt(name+'pz.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
-		coef[:,:,3] = np.loadtxt(name+'px.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
-		if (orbs =='spd'):
-			coef[:,:,4] = np.loadtxt(name+'dxy.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
-			coef[:,:,5] = np.loadtxt(name+'dyz.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
-			coef[:,:,6] = np.loadtxt(name+'dz2.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
-			coef[:,:,7] = np.loadtxt(name+'dxz.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
-			coef[:,:,8] = np.loadtxt(name+'dx2y2.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+		# removing states (molecular orbitals) that are not wanted
+		coefRe=coef[n_min_:n_max_,:,:]
+
+		# lowering over atoms and applying PBC
+		coeffsRe = handle_coef(coefRe)
+		print "coeffsRe.shape", coeffsRe.shape
+		coeffsIm = zeros(coeffsRe.shape)
+		print coeffsIm
+		gMode = 1
+		print "All coefficients read, Gamma-point mode ON!"
+	elif (len(kaka) > 2 ):  #type(kpoint) == list()
+#	elif (len(kaka) > 2 and type(kpoint) == np.ndarray and len(kpoint) == 4):  #type(kpoint) == list()
+
+		print " loading the LCAO coefficients with k-points"
+		coefRe = np.zeros((n_bands,num_at_,Ynum_))
+		coefIm = np.zeros((n_bands,num_at_,Ynum_))
+
+		if (num_at_ > 1):
+			coefRe[:,:,0] = np.loadtxt(name+'s.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+			coefRe[:,:,1] = np.loadtxt(name+'py.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+			coefRe[:,:,2] = np.loadtxt(name+'pz.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+			coefRe[:,:,3] = np.loadtxt(name+'px.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+
+			coefIm[:,:,0] = np.loadtxt(name+'s.dat',skiprows=1,usecols=tuple(xrange(2, num_at_*2+1, 2)) )
+			coefIm[:,:,1] = np.loadtxt(name+'py.dat',skiprows=1,usecols=tuple(xrange(2, num_at_*2+1, 2)) )
+			coefIm[:,:,2] = np.loadtxt(name+'pz.dat',skiprows=1,usecols=tuple(xrange(2, num_at_*2+1, 2)) )
+			coefIm[:,:,3] = np.loadtxt(name+'px.dat',skiprows=1,usecols=tuple(xrange(2, num_at_*2+1, 2)) )
+
+			if (orbs =='spd'):
+				coefRe[:,:,4] = np.loadtxt(name+'dxy.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+				coefRe[:,:,5] = np.loadtxt(name+'dyz.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+				coefRe[:,:,6] = np.loadtxt(name+'dz2.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+				coefRe[:,:,7] = np.loadtxt(name+'dxz.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+				coefRe[:,:,8] = np.loadtxt(name+'dx2y2.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+
+				coefIm[:,:,4] = np.loadtxt(name+'dxy.dat',skiprows=1,usecols=tuple(xrange(2, num_at_*2+1, 2)) )
+				coefIm[:,:,5] = np.loadtxt(name+'dyz.dat',skiprows=1,usecols=tuple(xrange(2, num_at_*2+1, 2)) )
+				coefIm[:,:,6] = np.loadtxt(name+'dz2.dat',skiprows=1,usecols=tuple(xrange(2, num_at_*2+1, 2)) )
+				coefIm[:,:,7] = np.loadtxt(name+'dxz.dat',skiprows=1,usecols=tuple(xrange(2, num_at_*2+1, 2)) )
+				coefIm[:,:,8] = np.loadtxt(name+'dx2y2.dat',skiprows=1,usecols=tuple(xrange(2, num_at_*2+1, 2)) )
+		else:
+			coefRe[:,0,0] = np.loadtxt(name+'s.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+			coefRe[:,0,1] = np.loadtxt(name+'py.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+			coefRe[:,0,2] = np.loadtxt(name+'pz.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+			coefRe[:,0,3] = np.loadtxt(name+'px.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+
+			coefIm[:,0,0] = np.loadtxt(name+'s.dat',skiprows=1,usecols=tuple(xrange(2, num_at_*2+1, 2)) )
+			coefIm[:,0,1] = np.loadtxt(name+'py.dat',skiprows=1,usecols=tuple(xrange(2, num_at_*2+1, 2)) )
+			coefIm[:,0,2] = np.loadtxt(name+'pz.dat',skiprows=1,usecols=tuple(xrange(2, num_at_*2+1, 2)) )
+			coefIm[:,0,3] = np.loadtxt(name+'px.dat',skiprows=1,usecols=tuple(xrange(2, num_at_*2+1, 2)) )
+
+			if (orbs =='spd'):
+				coefRe[:,0,4] = np.loadtxt(name+'dxy.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+				coefRe[:,0,5] = np.loadtxt(name+'dyz.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+				coefRe[:,0,6] = np.loadtxt(name+'dz2.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+				coefRe[:,0,7] = np.loadtxt(name+'dxz.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+				coefRe[:,0,8] = np.loadtxt(name+'dx2y2.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
+
+				coefIm[:,0,4] = np.loadtxt(name+'dxy.dat',skiprows=1,usecols=tuple(xrange(2, num_at_*2+1, 2)) )
+				coefIm[:,0,5] = np.loadtxt(name+'dyz.dat',skiprows=1,usecols=tuple(xrange(2, num_at_*2+1, 2)) )
+				coefIm[:,0,6] = np.loadtxt(name+'dz2.dat',skiprows=1,usecols=tuple(xrange(2, num_at_*2+1, 2)) )
+				coefIm[:,0,7] = np.loadtxt(name+'dxz.dat',skiprows=1,usecols=tuple(xrange(2, num_at_*2+1, 2)) )
+				coefIm[:,0,8] = np.loadtxt(name+'dx2y2.dat',skiprows=1,usecols=tuple(xrange(2, num_at_*2+1, 2)) )
+
+		# removing states (molecular orbitals) that are not wanted
+		coefRe=coefRe[n_min_:n_max_,:,:]
+		coefIm=coefIm[n_min_:n_max_,:,:]
+		print "coefIm:", coefIm
+		# lowering over atoms and applying PBC
+		coeffs, eigNew = handleCoefKpoint(coefRe,coefIm,kaka,Ratin,eig,struct,w)
+		print "eigNew", eigNew
+		gMode = 0
+		print "All coefficients read, band mode ON"
 	else:
-		coef[:,0,0] = np.loadtxt(name+'s.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
-		coef[:,0,1] = np.loadtxt(name+'py.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
-		coef[:,0,2] = np.loadtxt(name+'pz.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
-		coef[:,0,3] = np.loadtxt(name+'px.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
-		if (orbs =='spd'):
-			coef[:,0,4] = np.loadtxt(name+'dxy.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
-			coef[:,0,5] = np.loadtxt(name+'dyz.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
-			coef[:,0,6] = np.loadtxt(name+'dz2.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
-			coef[:,0,7] = np.loadtxt(name+'dxz.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
-			coef[:,0,8] = np.loadtxt(name+'dx2y2.dat',skiprows=1,usecols=tuple(xrange(1, num_at_*2+1, 2)) )
-
-	# removing states (molecular orbitals) that are not wanted
-	coef=coef[n_min_:n_max_,:,:]
-	# lowering over atoms and applying PBC
-	coeffs = handle_coef(coef)
-	print "All coefficients read"
-	return eig.copy(), coeffs.copy(), Ratin.copy();
+		print "There's an issue in the k-points, bu bu"
+#	return eigNew.copy(), coeffsRe.copy(), coeffsIm.copy(), Ratin.copy(), gMode.copy();
+	return eigNew.copy(), coeffs.copy(), Ratin.copy(), gMode.copy();
 
 
-def read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lvs = None, lower_atoms=[], lower_coefs=[], spin="closed_shell"):
+def read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), kpoint = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lvs = None, lower_atoms=[], lower_coefs=[], spin="closed_shell"):
 	'''
-	read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lvs = None, lower_atoms=[], lower_coefs=[], spin="closed_shell"):
+	read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), kpoint = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lvs = None, lower_atoms=[], lower_coefs=[], spin="closed_shell"):
 	This procedure uses only local libraries;
 	read coffecients and eigen numbers from CP2k made (iwrtcoefs = -2) file name-cartesian-mos-1_0.MOLog
 	fermi - If None the Fermi Level from the Fireball calculations (in case of molecule and visualising some molecular orbitals it can be move to their energy by putting there real value)
 	orbs = 'sp' read only sp structure of valence orbitals or 'spd' orbitals of the sample
 	pbc (1,1) - means 3 times 3 cell around the original, (0,0) cluster, (0.5,0.5) 2x2 cell (not arround original) etc.
-	imaginary = False (other options for future k-points dependency
+	kpoint = False (other options for future k-points dependency
 	cut_min = -15.0, cut_max = 5.0 - cut off states(=mol  orbitals) bellow cut_min and above cut_max; energy in eV
 	cut_at = -1 .. all atoms; eg. cut_at = 15 --> only first fifteen atoms for the current calculations (mostly the 1st layer is the important one)
 	lvs = None no lattice vector (cell); for PBC 3x3 array containing the cell vectors has to be put here
@@ -527,9 +741,9 @@ def read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), imaginary = False, cut
 	note: sometimes oxygens have to have hoppings lowered by 0.5 this is under investigation
 	spin="closed_shell" or "alpha" or "beta" for spin-unrestricted calculations
 	'''
-	initial_check(orbs=orbs, pbc=pbc, imaginary=imaginary, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs)
+	initial_check(orbs=orbs, pbc=pbc, kpoint=kpoint, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs)
 	# read geometry
-	Ratin = get_FIREBALL_geom(geom=name+".xyz", lvs=lvs, sl=True) # sl - to always skip the 2nd line from the xyz file
+	Ratin ,struct = get_FIREBALL_geom(geom=name+".xyz", lvs=lvs, sl=True) # sl - to always skip the 2nd line from the xyz file
 	#import ase.io # this is ommited, now we are using only inner functions "
 	#geom = ase.io.read(name+".xyz")
 	#Ratin = get_GPAW_geom(geom=geom)

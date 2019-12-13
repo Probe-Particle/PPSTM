@@ -1,0 +1,78 @@
+  FILES:
+   basisfile         : cell.xyz                                
+   lvsfile           : lat.lvs                                 
+   kptsfile          : temp.kpts                               
+   acfile            : ac.dat                        
+   xvfile            : xv.dat                        
+  ======================================================================
+ 
+  TIME STEP:
+   nstepi            :            1
+   nstepf            :            1
+   dtime             :   0.500000000000000     
+  ======================================================================
+ 
+  OPTIONS:
+   iharris           :            0
+   idogs             :            1
+   ihubbard          :            0
+   ihorsfield        :            0
+   imcweda           :            1
+   igsn              :            0
+   iks               :            0
+   iqout             :            1
+   qstate            :   0.000000000000000E+000
+   icluster          :            0
+   iensemble         :            0
+   ifixcharge        :            1
+   ifixneigh         :            0
+   iumbrella         :            0
+   ibarrier          :            0
+   iconstraints      :    0   1   1   1
+   iharmonic         :            0
+   iimage            :            0
+   idynmat           :            0
+   iephc             :            0
+   ivdw              :            0
+   ineb              :            0
+   itrans            :            0
+   itdse             :            0
+   imdet             :            0
+   nddt              :         1000
+   ibias             :            0
+   rescalar          :    1.00000000000000     
+   icDFT             :            0
+   iqmmm             :            0
+   mix_embedding     :            0
+   cut_embedding     :    999.000000000000     
+   idipole           ;            0
+   idftd3            :            1
+   dftd3_func        : fb_bio                                  
+   dftd3_version     :            4
+   dftd3_tz          :  F
+   verbosity         :            1
+   ntpr              :            1
+   restartxyz        :            0
+   inputxyz          :            1
+   fdatalocation     : 
+ /storage/praha1/home/jelen/WORK/FDATA/Fdata_bio_ext                            
+                                                                                
+                                           
+   isocket           :            0
+  ======================================================================
+ 
+  SCF
+   max_scf_iterations  :          100
+   ialgmix             :            1
+   bmix                :   4.000000000000000E-002
+   tempfe              :    100.000000000000     
+   sigmatol            :   1.000000000000000E-010
+ 
+  TEMPERATURE
+   T_initial           :   0.000000000000000E+000
+   T_final             :    10.0000000000000     
+  QUENCH:
+   energytol         :   1.000000000000000E-004
+   forcetol          :   5.000000000000000E-002
+   T_want            :   0.000000000000000E+000
+   taurelax          :    50.0000000000000     

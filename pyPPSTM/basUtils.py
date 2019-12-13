@@ -1,16 +1,16 @@
 #!/usr/bin/python
 
 import numpy as np
-import elements
+#import elements  
 import math
-#import matplotlib.pyplot as plt
-
+from pylab import genfromtxt
 
 # default variables:
 
 default_atom_size     =  0.10
 
 # procedures for loading geometry from different files:
+name = 'answer.xyz'
 
 def loadAtoms( name , sl=False):
 	f = open(name,"r")
@@ -73,6 +73,9 @@ def loadGeometryIN( fname ):
 # other procedures for operating with geometries:
 
 def multCell( xyz, cel, m=(2,2,1) ):
+# For fireball theres a bug to be fixed:
+# ETOT gets printed in the second line if you do relaxation, needs to be removed
+# Otherwise it will be counted  as a part of es
 	n = len(xyz[0])
 	mtot = m[0]*m[1]*m[2]*n
 	es = [None] * mtot
@@ -84,7 +87,9 @@ def multCell( xyz, cel, m=(2,2,1) ):
 		for ib in range(m[1]):
 			for ic in range(m[2]):
 				dx = ia*cel[0][0] + ib*cel[1][0] + ic*cel[2][0]
+				print "dx", dx
 				dy = ia*cel[0][1] + ib*cel[1][1] + ic*cel[2][1]
+				print "dy", dy
 				dz = ia*cel[0][2] + ib*cel[1][2] + ic*cel[2][2]
 				for i in xrange(n):
 					es[j]=xyz[0][i]
@@ -93,6 +98,23 @@ def multCell( xyz, cel, m=(2,2,1) ):
 					zs[j]=xyz[3][i] + dz
 					j+=1
 	return [es,xs,ys,zs]
+#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+def loadKayz(name , sk):
+	kayz = genfromtxt(name, skip_header= sk)
+	print kayz, len(kayz), type(kayz), kayz.shape[1]
+	if (len(kayz) > 0) and (type(kayz) == np.ndarray) and (kayz.shape[1] == 4):
+		kx = kayz[:,0]
+		ky = kayz[:,1]
+		kz = kayz[:,2]
+		w  = kayz[:,3]
+		weights = np.array([kx,ky,kz])
+		noWeights = np.array([kx,ky,kz])
+		kayPoints = np.transpose(noWeights)
+	return kayPoints, w
+
+
+
 
 # =========== Utils for plotting atoms =========================
 

@@ -1,0 +1,6 @@
+#!/bin/bash
+
+echo "the test for PPSTM_test.py script"
+python2.7 PPSTM_test4.py > out.txt
+echo "Now all things made, I'm done, bye."
+
