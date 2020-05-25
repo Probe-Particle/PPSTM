@@ -1,17 +1,18 @@
 # PPSTM (Probe Particle STM)
-Code simulating various various STM techniques, especially for tilting tip (dependent on ProkopHapala/ProbeParticleModel)
+Code simulating various various STM techniques, especially for [tilting tips](https://pubs.acs.org/doi/10.1021/ja204624g) (depending on [ProkopHapala/ProbeParticleModel](https://github.com/ProkopHapala/ProbeParticleModel) )
 This is implementation of efficient and simple model for simulation of High-resolution scanning tunneling microscopy (STM).
+Normall STM simulations using [Chen's approximattion](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.42.8841) is part of the code as well
 
 - BEWARE - after repairing misteake in d-orbitals the results for FePc are different. We are investigating it.
 
-* currently developed Python/C++ version of the PPSTM code; 
+* currently developed Python2/C++ version of the PPSTM code; 
   * Part of the code is depending on the ProbeParticleModel developed by Prokop Hapala and co. (https://github.com/ProkopHapala/ProbeParticleModel)
 
-works in python2.7, matplotlib, cpp4.4.8, (for some parts ASE and GPAW are imporatant)
+works in python2.7, matplotlib, cpp4.4.8, (for some parts ASE and GPAW are imporatant); Python3 version by summer 2020.
 
-Documentation is at http://nanosurf.fzu.cz/wiki/doku.php?id=probe_particle_stm and here at Wiki: https://github.com/ProkopHapala/ProbeParticleModel/wiki .
+Documentation is at http://nanosurf.fzu.cz/wiki/doku.php?id=probe_particle_stm and here at Wiki: https://github.com/ondrejkrejci/PPSTM/wiki .
 
-Currently it can also simulate IETS images of molecules, if the imaging mechanism is driven by the amplitude of the IETS peak.
+It can also simulate IETS images of molecules, if the imaging mechanism is driven by the amplitude of the IETS peak.
 
 ### References (STM)
 * [Ondrej Krejčí, Prokop Hapala, Martin Ondráček, and Pavel Jelínek, Principles and simulations of high-resolution STM imaging with a flexible tip apex, Phys. Rev. B 95, 045407 – Published 6 January 2017 ](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.95.045407) 
