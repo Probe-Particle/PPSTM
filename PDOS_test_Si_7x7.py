@@ -34,7 +34,7 @@ lower_coefs=[]	# Lowering of the hoppings
 # --- downloading and examples of downloading of the eigen-energies, the LCAO coefficients and geometry (this time for spin-unpolarized calculations):
 
 eigEn, coefs, Ratin = RS.read_FIREBALL_all(name = 'phik_0001_', geom='input.xyz', fermi=fermi, orbs = orbs, pbc=pbc,
-					    cut_min=cut_min, cut_max=cut_max,cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
+                        cut_min=cut_min, cut_max=cut_max,cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
 
 # --- on which energies you want to plot pseudo-projected density of states
 
@@ -82,6 +82,6 @@ plt.close()
 
 # --- the end
 
-print 
-print
-print "Done"
+print() 
+print()
+print("Done")

@@ -1,6 +1,6 @@
 # C++ compilers: CC - linux; MCC - Mac OS - we recommend to update g++ compiler on your MAC#
 CC=g++
-MCC=g++-8
+MCC=g++-9
 # flagss Linux; OMPFLAGS used only for OMP compiltion of #
 OMPFLAGS=-fopenmp
 CPPFLAGS=-std=c++11 -O3 -ffast-math -ftree-vectorize 

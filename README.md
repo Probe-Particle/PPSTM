@@ -5,10 +5,10 @@ Normall STM simulations using [Chen's approximattion](https://journals.aps.org/p
 
 - BEWARE - after repairing misteake in d-orbitals the results for FePc are different. We are investigating it.
 
-* currently developed Python2/C++ version of the PPSTM code; 
+* currently developed Python3/C++ version of the PPSTM code; 
   * Part of the code is depending on the ProbeParticleModel developed by Prokop Hapala and co. (https://github.com/ProkopHapala/ProbeParticleModel)
 
-works in python2.7, matplotlib, cpp4.4.8, (for some parts ASE and GPAW are imporatant); Python3 version by summer 2020.
+works in python3(.8), matplotlib, cpp>=4.4.8 (look at wiki instruction for problems with MAC compilation), (for some parts ASE and GPAW are imporatant);
 
 Documentation is at http://nanosurf.fzu.cz/wiki/doku.php?id=probe_particle_stm and here at Wiki: https://github.com/ondrejkrejci/PPSTM/wiki .
 

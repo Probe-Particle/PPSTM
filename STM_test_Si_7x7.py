@@ -43,7 +43,7 @@ dV   =  0.1
 # --- downloading and examples of downloading of the eigen-energies, the LCAO coefficients and geometry (this time for spin-unpolarized calculations):
 
 eigEn, coefs, Ratin = RS.read_FIREBALL_all(name = path+'phik_0001_', geom=path+'input.xyz', fermi=fermi, orbs = orbs, pbc=pbc,
-					    cut_min=cut_min, cut_max=cut_max,cut_at=cut_at, lvs=lvs, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
+                        cut_min=cut_min, cut_max=cut_max,cut_at=cut_at, lvs=lvs, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
 #eigEn, coefs, Ratin = RS.read_AIMS_all(name = 'KS_eigenvectors_up.band_1.kpt_1.out', geom='geometry.in',fermi=fermi, orbs = 'sp', pbc=pbc,
 #					imaginary = False, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at,
 #					lower_atoms=lower_atoms, lower_coefs=lower_coefs)
@@ -81,73 +81,73 @@ for WorkFunction in [WorkFunction]:
     STM1, dIdV1 = PS.MSTM( Vmin, Vmax, dV, WorkFunction, eta, eigEn, tip_r2, Ratin, coefs, orbs=orbs, s=1.0, WF_decay=WF_decay)
 
 # --- plotting part here, plots calculated signal:
-print " plotting "
+print(" plotting ")
 name_file='didV-7x7-5Ang'
 # ploting part here:
 plt.figure( figsize=(0.4* xl , 0.4*yl/2 ) )
 ni=21; nn=2;
 for i in range(ni):
-		plt.subplot(3,7,i+1)
-		plt.imshow( dIdV0[i*nn,0,:,:], origin='image', extent=extent , cmap='gray')
-		if np.mod(i,7)==0 :
-			plt.ylabel(r' Tip_y $\AA$')
-		if i >= 14:
-			plt.xlabel(r' Tip_x $\AA$')
-		plt.title("Sample bias:"+str(Vmin+i*nn*dV)+"V")
+        plt.subplot(3,7,i+1)
+        plt.imshow( dIdV0[i*nn,0,:,:], origin='image', extent=extent , cmap='gray')
+        if np.mod(i,7)==0 :
+            plt.ylabel(r' Tip_y $\AA$')
+        if i >= 14:
+            plt.xlabel(r' Tip_x $\AA$')
+        plt.title("Sample bias:"+str(round(Vmin+i*nn*dV,1))+"V")
 
 plt.savefig( name_file+'.png', bbox_inches='tight' )
 #plt.show()
 plt.close()
 
 # --- plotting part here, plots calculated signal:
-print " plotting "
+print(" plotting ")
 name_file='didV-7x7-5Ang_test'
 # ploting part here:
 plt.figure( figsize=(0.4* xl , 0.4*yl/2 ) )
 for i in range(ni):
-		plt.subplot(3,7,i+1)
-		plt.imshow( dIdV1[i*nn,0,:,:], origin='image', extent=extent , cmap='gray')
-		if np.mod(i,7)==0 :
-			plt.ylabel(r' Tip_y $\AA$')
-		if i >= 14:
-			plt.xlabel(r' Tip_x $\AA$')
-		plt.title("Sample bias:"+str(Vmin+i*nn*dV)+"V")
+        plt.subplot(3,7,i+1)
+        plt.imshow( dIdV1[i*nn,0,:,:], origin='image', extent=extent , cmap='gray')
+        if np.mod(i,7)==0 :
+            plt.ylabel(r' Tip_y $\AA$')
+        if i >= 14:
+            plt.xlabel(r' Tip_x $\AA$')
+        plt.title("Sample bias:"+str(round(Vmin+i*nn*dV,1))+"V")
 
 plt.savefig( name_file+'.png', bbox_inches='tight' )
 #plt.show()
 plt.close()
 
 # --- plotting part here, plots calculated signal:
-print " plotting "
+print(" plotting ")
 name_file='STM-7x7-5Ang_no_changes_in_WF'
 # ploting part here:
 plt.figure( figsize=(0.4* xl , 0.4*yl/2 ) )
 for i in range(ni):
-		plt.subplot(3,7,i+1)
-		plt.imshow( STM0[i*nn,0,:,:], origin='image', extent=extent , cmap='gray')
-		if np.mod(i,7)==0 :
-			plt.ylabel(r' Tip_y $\AA$')
-		if i >= 14:
-			plt.xlabel(r' Tip_x $\AA$')
-		plt.title("Sample bias:"+str(Vmin+i*nn*dV)+"V")
+        plt.subplot(3,7,i+1)
+        plt.imshow( STM0[i*nn,0,:,:], origin='image', extent=extent , cmap='gray')
+        if np.mod(i,7)==0 :
+            plt.ylabel(r' Tip_y $\AA$')
+        if i >= 14:
+            plt.xlabel(r' Tip_x $\AA$')
+        plt.title("Sample bias:"+str(round(Vmin+i*nn*dV,1))+"V")
 
 plt.savefig( name_file+'.png', bbox_inches='tight' )
 #plt.show()
 plt.close()
 
 # --- plotting part here, plots calculated signal:
-print " plotting "
+print(" plotting ")
 name_file='STM-7x7-5Ang_WF_changes_w_V'
 # ploting part here:
 plt.figure( figsize=(0.4* xl , 0.4*yl/2 ) )
 for i in range(ni):
-		plt.subplot(3,7,i+1)
-		plt.imshow( STM1[i*nn,0,:,:], origin='image', extent=extent , cmap='gray')
-		if np.mod(i,7)==0 :
-			plt.ylabel(r' Tip_y $\AA$')
-		if i >= 14:
-			plt.xlabel(r' Tip_x $\AA$')
-		plt.title("Sample bias:"+str(Vmin+i*nn*dV)+"V")
+        plt.subplot(3,7,i+1)
+        plt.imshow( STM1[i*nn,0,:,:], origin='image', extent=extent , cmap='gray')
+        if np.mod(i,7)==0 :
+            plt.ylabel(r' Tip_y $\AA$')
+        if i >= 14:
+            plt.xlabel(r' Tip_x $\AA$')
+        plt.title("Sample bias:"+str(round(Vmin+i*nn*dV,1))+"V")
 
 plt.savefig( name_file+'.png', bbox_inches='tight' )
 #plt.show()
@@ -156,6 +156,6 @@ plt.close()
 
 # --- the end
 
-print 
-print
-print "Done"
+print() 
+print()
+print("Done")

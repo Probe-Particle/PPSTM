@@ -73,7 +73,7 @@ files_path   = ''            # where are files fron DFT code ; rather do not use
 #                                                                                                                        #
 ##########################################################################################################################
 
-print "Importing libraries"
+print("Importing libraries")
 
 import os
 import sys
@@ -81,7 +81,7 @@ sys.path.append(ppstm_path)
 
 if (ncpu > 1):
     os.environ['OMP_NUM_THREADS'] = str(ncpu)
-    print 'OMP_NUM_THREADS:', os.environ['OMP_NUM_THREADS']
+    print('OMP_NUM_THREADS:', os.environ['OMP_NUM_THREADS'])
 
 import numpy as np
 import pyPPSTM                   as PS
@@ -90,14 +90,14 @@ import matplotlib
 matplotlib.use('Agg') # Force matplotlib to not use any Xwindows backend. ## !!! important for working on clusters !!!!
 import matplotlib.pyplot as plt
 if (XSF or NPY or (tip_type == 'relaxed') or (tip_type == 'r' )):
-    print "For XSF or NPY outputs or tip_type = relaxed you have to have installed PPAFM in your PPSTM directory "
+    print("For XSF or NPY outputs or tip_type = relaxed you have to have installed PPAFM in your PPSTM directory ")
     import pyProbeParticle.GridUtils as GU
 if (plot_atoms):
     import pyPPSTM.basUtils as Bu
     import pyPPSTM.elements as elements
 
 
-print "Libraries imported"
+print("Libraries imported")
 
 # --- Initial check --- #
 
@@ -125,7 +125,7 @@ elif (tip_orb == 'dz2'):
 elif (tip_orb == 'dxzyz'):
     tc = [0.,0.,0.,0.,0.,0.5,0.5] # [s, px, py, pz, dz2, dxz, dyz ] 
 else:
-    print "Don't know what kind od tip you mean. I rather going to exit." ; exit()
+    print("Don't know what kind od tip you mean. I rather going to exit.") ; exit()
 
 #print "DEBUG: tc ", tc , " [s, px, py, pz, dz2, dxz, dyz ] "
 
@@ -140,40 +140,40 @@ else:
 # --- the grid on which the STM signal is calculated --- #
 
 if ((tip_type =='relaxed') or (tip_type == 'r')):
-    print "Importing positions of PP from the PP-AFM calculations. Path for the data:"
+    print("Importing positions of PP from the PP-AFM calculations. Path for the data:")
     path_pos="Q%1.2fK%1.2f/" %(Q,K)
-    print path_pos
+    print(path_pos)
     tip_r, lvec, nDim = GU.load_vec_field( path_pos+'PPpos' ,data_format=data_format)
     extent = (lvec[0,0],lvec[0,0]+lvec[1,0],lvec[0,1],lvec[0,1]+lvec[2,1])
     #print "DEBUG: extent", extent
-    print "PP postions imported"
+    print("PP postions imported")
     dx=lvec[1,0]/(nDim[2]-1); dy=lvec[2,1]/(nDim[1]-1); dz=lvec[3,2]/(nDim[0]-1);
     tip_r0 = RS.mkSpaceGrid(lvec[0,0],lvec[0,0]+lvec[1,0],dx,lvec[0,1],lvec[0,1]+lvec[2,1],dy,lvec[0,2],lvec[0,2]+lvec[3,2],dz)
     #print "DEBUG: dx, dy, dz", dx, dy, dz
     #print "DEBUG: tip_r.shape, tip_r0.shape", tip_r.shape, tip_r0.shape
 else:
-    print "Priparing the scan grid for fixed scan"
+    print("Priparing the scan grid for fixed scan")
     extent = (x[0],x[1],y[0],y[1])
     tip_r  = RS.mkSpaceGrid(x[0],x[1],x[2],y[0],y[1],y[2],z[0],z[1],z[2])
     lvec   = np.array([[x[0],y[0],z[0]],[x[1]-x[0],0.,0.],[0.,y[1]-y[0],0.],[0.,0.,z[1]-z[0]]])
     #print "DEBUG: extent", extent
     #print "DEBUG: lvec", lvec
     tip_r0 = tip_r
-    print "scan grids prepared"
+    print("scan grids prepared")
 
 # --- reading of the eigen-energies, the LCAO coefficients and geometry --- #
 
-print "Reading electronic & geometry structure files"
+print("Reading electronic & geometry structure files")
 
 if ((dft_code == 'fireball') or(dft_code == 'Fireball') or (dft_code == 'FIREBALL') or (dft_code == 'cp2k') or(dft_code == 'CP2K')):
     if isinstance(lvs, (list, tuple, np.ndarray)):
-	cell = np.array([[lvs[0][0],lvs[0][1],0.0],[lvs[1][0],lvs[1][1],0.0],[0.0,0.0,99.9]]) if (len(lvs) == 2) else lvs
+        cell = np.array([[lvs[0][0],lvs[0][1],0.0],[lvs[1][0],lvs[1][1],0.0],[0.0,0.0,99.9]]) if (len(lvs) == 2) else lvs
     elif isinstance(lvs, (str)):
-	cell = np.loadtxt(lvs)
+        cell = np.loadtxt(lvs)
     elif ((pbc == (0,0)) or (pbc == (0.,0.))):
-	cell = np.array([[0,0,0],[0,0,0],[0,0,0]]);
+        cell = np.array([[0,0,0],[0,0,0],[0,0,0]]);
     else:
-	print "PBC required, but lattice vector not specified. What can I do with that? I rather go to eat something."; exit()
+        print("PBC required, but lattice vector not specified. What can I do with that? I rather go to eat something."); exit()
     #print "DEBUG: cell.shape", cell.shape
 
 if ((dft_code == 'fireball') or(dft_code == 'Fireball') or (dft_code == 'FIREBALL')):
@@ -184,41 +184,41 @@ elif ((dft_code == 'gpaw') or(dft_code == 'GPAW')):
 
 elif ((dft_code == 'aims') or(dft_code == 'AIMS') or (dft_code == 'FHI-AIMS')):
     if ((spin == None) or (spin == False)):
-	name = 'KS_eigenvectors.band_1.kpt_1.out'
+        name = 'KS_eigenvectors.band_1.kpt_1.out'
     elif ((spin == 'up')or(spin == 'alpha')or(spin == 'both')):
-	name = 'KS_eigenvectors_up.band_1.kpt_1.out'
+        name = 'KS_eigenvectors_up.band_1.kpt_1.out'
     elif ((spin == 'down')or(spin == 'beta')or(spin == 'dn')):
-	name = 'KS_eigenvectors_dn.band_1.kpt_1.out'
+        name = 'KS_eigenvectors_dn.band_1.kpt_1.out'
     else :
-	print "unknown spin, I'm going to sleep. Good Night"; exit()
-    eigEn, coefs, Ratin = RS.read_AIMS_all(name = files_path + name , geom= files_path + geometry_file, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
+        print("unknown spin, I'm going to sleep. Good Night"); exit()
+        eigEn, coefs, Ratin = RS.read_AIMS_all(name = files_path + name , geom= files_path + geometry_file, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
     if (spin == 'both'):
-	eigEn1 = eigEn.copy(); coefs1 = coefs.copy(); del eigEn, coefs ;
-	name = 'KS_eigenvectors_dn.band_1.kpt_1.out'
-	eigEn2, coefs2, Ratin = RS.read_AIMS_all(name = files_path + name , geom= files_path + geometry_file, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
-	eigEn = np.concatenate((eigEn1, eigEn2), axis=0)
-	coefs = np.concatenate((coefs1, coefs2), axis=0)
+        eigEn1 = eigEn.copy(); coefs1 = coefs.copy(); del eigEn, coefs ;
+        name = 'KS_eigenvectors_dn.band_1.kpt_1.out'
+        eigEn2, coefs2, Ratin = RS.read_AIMS_all(name = files_path + name , geom= files_path + geometry_file, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
+        eigEn = np.concatenate((eigEn1, eigEn2), axis=0)
+        coefs = np.concatenate((coefs1, coefs2), axis=0)
 
 elif ((dft_code == 'cp2k') or(dft_code == 'CP2K')):
     if ((spin == None)or(spin == False)):
-	eigEn, coefs, Ratin  = RS.read_CP2K_all(name = files_path + cp2k_name , lvs=cell, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
+        eigEn, coefs, Ratin  = RS.read_CP2K_all(name = files_path + cp2k_name , lvs=cell, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
     elif ((spin == 'up')or(spin == 'alpha')):
-	eigEn, coefs, Ratin  = RS.read_CP2K_all(name = files_path + cp2k_name , lvs=cell, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='alpha');
+        eigEn, coefs, Ratin  = RS.read_CP2K_all(name = files_path + cp2k_name , lvs=cell, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='alpha');
     elif (spin == 'both'):
-	eigEn1, coefs1, Ratin  = RS.read_CP2K_all(name = files_path + cp2k_name , lvs=cell, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='alpha');
-	eigEn2, coefs2, Ratin  = RS.read_CP2K_all(name = files_path + cp2k_name , lvs=cell, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='beta');
-	eigEn = np.concatenate((eigEn1, eigEn2), axis=0)
-	coefs = np.concatenate((coefs1, coefs2), axis=0)
+        eigEn1, coefs1, Ratin  = RS.read_CP2K_all(name = files_path + cp2k_name , lvs=cell, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='alpha');
+        eigEn2, coefs2, Ratin  = RS.read_CP2K_all(name = files_path + cp2k_name , lvs=cell, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='beta');
+        eigEn = np.concatenate((eigEn1, eigEn2), axis=0)
+        coefs = np.concatenate((coefs1, coefs2), axis=0)
     elif ((spin == 'down')or(spin == 'beta')or(spin == 'dn')):
-	eigEn, coefs, Ratin  = RS.read_CP2K_all(name = files_path + cp2k_name , lvs=cell, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='beta');
+        eigEn, coefs, Ratin  = RS.read_CP2K_all(name = files_path + cp2k_name , lvs=cell, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='beta');
     else :
-	print "unknown spin, I'm going to sleep. Good Night"; exit()
+        print("unknown spin, I'm going to sleep. Good Night"); exit()
 
 #print "DEBUG: eigEn.shape ", eigEn.shape
 #print "DEBUG: coefs.shape ", coefs.shape
 #print "DEBUG: Ratin.shape ", Ratin.shape
 
-print "energies prepared, coeffecients read"
+print("energies prepared, coeffecients read")
 
 # --- the Main calculations --- #
 # 'didv'='dIdV''='didv-single' -- only dIdV for one voltage = V ; 'v-scan'='V-scan'='Voltage-scan' -- both STM & dIdV scan - V .. Vmax; 'STM'='STM-single' -- STM for one Voltage = V, use V-scan rather #
@@ -235,15 +235,15 @@ elif ( (scan_type == 'states') or (scan_type == 'STATES') ):
     states = np.sort(eigEn); mask = states >= V; states = states[mask]; del mask;
     mask = states <= V_max; states = states[mask]; del mask;
     fst = True
-    print "DEBUG: states:", states
+    print("DEBUG: states:", states)
     for isi in states:
-	if fst:
-	    didv    = np.array([   PS.dIdV( isi,    WorkFunction, eta, eigEn, tip_r, Ratin, coefs, orbs=sample_orbs, s=tc[0], px =tc[1], py=tc[2], pz=tc[3], dz2=tc[4], dxz=tc[5], dyz=tc[6] ) ])
-	    fst = False
-	else :
-	    didv =np.append(didv, [PS.dIdV( isi,    WorkFunction, eta, eigEn, tip_r, Ratin, coefs, orbs=sample_orbs, s=tc[0], px =tc[1], py=tc[2], pz=tc[3], dz2=tc[4], dxz=tc[5], dyz=tc[6] ) ], axis =0)
-    #print "DEBUG: didv.shape ", didv.shape
-    didv_b = True; states_b = True; WF_decay= 0.0;
+        if fst:
+            didv    = np.array([   PS.dIdV( isi,    WorkFunction, eta, eigEn, tip_r, Ratin, coefs, orbs=sample_orbs, s=tc[0], px =tc[1], py=tc[2], pz=tc[3], dz2=tc[4], dxz=tc[5], dyz=tc[6] ) ])
+            fst = False
+        else :
+            didv =np.append(didv, [PS.dIdV( isi,    WorkFunction, eta, eigEn, tip_r, Ratin, coefs, orbs=sample_orbs, s=tc[0], px =tc[1], py=tc[2], pz=tc[3], dz2=tc[4], dxz=tc[5], dyz=tc[6] ) ], axis =0)
+        #print "DEBUG: didv.shape ", didv.shape
+        didv_b = True; states_b = True; WF_decay= 0.0;
 elif ( (scan_type == 'STM') or (scan_type == 'STM-single') ):
     nV = abs(V/dV)+1
     #print "DEBUG: V, nV:", V, nV
@@ -263,22 +263,22 @@ def plotAtoms( atoms, atomSize=0.1, edge=True, ec='k', color='w' ):
     plt.fig = plt.gcf()
     es = atoms[0]; xs = atoms[1]; ys = atoms[2]
     for i in range(len(xs)):
-	fc = '#%02x%02x%02x' % elements.ELEMENT_DICT[es[i]][7] #; print "DEBUG: fc", fc ; ##fc = '#FFFFFF' ##
-	if not edge:
-	    ec=fc
-	circle=plt.Circle( ( xs[i], ys[i] ), atomSize, fc=fc, ec=ec  )
-	plt.fig.gca().add_artist(circle)
+        fc = '#%02x%02x%02x' % elements.ELEMENT_DICT[es[i]][7] #; print "DEBUG: fc", fc ; ##fc = '#FFFFFF' ##
+        if not edge:
+            ec=fc
+        circle=plt.Circle( ( xs[i], ys[i] ), atomSize, fc=fc, ec=ec  )
+        plt.fig.gca().add_artist(circle)
 
 def plotGeom( atoms=None, atomSize=0.1 ):
     if atoms is not None:
-	plotAtoms( atoms, atomSize=atomSize )
+        plotAtoms( atoms, atomSize=atomSize )
 
 
 # --- plotting part here, plots all calculated signals --- #
 
 Voltages= np.arange(V,V_max+0.001,dV) if not states_b else states # this part is important for scans over slabs at different voltages
 round_index = 2 if not states_b else 5
-print "Voltages", Voltages
+print("Voltages", Voltages)
 namez = []
 for V in Voltages:
     namez.append(str(round(V,round_index)))
@@ -292,95 +292,95 @@ NoH = len(didv[0]) if didv_b else len(current[0])
 #print "DEBUG: NoH", NoH
 
 if PNG :
-    print "We go to plotting "
+    print("We go to plotting ")
     for vv in range(NoV):
-	for k in range(NoH):
-	    #print "DEBUG: long name:::", namez[vv],';height:%03d;tip:'  %k,tip_type,';',tip_orb
-	    name_plot=namez[vv]+';height:'+str(k)+';tip:'+tip_type+';'+tip_orb
-	    if didv_b :
-		# ploting part here:
-		plt.figure( figsize=(0.5 * lvec[1,0] , 0.5 * lvec[2,1] ) )
-		plt.imshow(didv[vv,k,:,:], origin='image', extent=extent , cmap='gray')
-		plotGeom(atoms=geom_plot)
-		plt.xlabel(r' Tip_x $\AA$')
-		plt.ylabel(r' Tip_y $\AA$')
-		plt.title("dIdV:"+name_plot)
-		plt.savefig( 'didv_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction-Voltages[vv]*WF_decay)+"_eta_"+str(eta)+'_%03d.png' %k , bbox_inches='tight' )
-		plt.close()
-	    if STM_b :
-		# ploting part here:
-		plt.figure( figsize=(0.5 * lvec[1,0] , 0.5 * lvec[2,1] ) )
-		plt.imshow(current[vv,k,:,:], origin='image', extent=extent , cmap='gray')
-		plotGeom(atoms=geom_plot)
-		plt.xlabel(r' Tip_x $\AA$')
-		plt.ylabel(r' Tip_y $\AA$')
-		plt.title("STM:"+name_plot)
-		plt.savefig( 'STM_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)+'_%03d.png' %k , bbox_inches='tight' )
-		plt.close()
-    print "Everything plotted"
+        for k in range(NoH):
+            #print "DEBUG: long name:::", namez[vv],';height:%03d;tip:'  %k,tip_type,';',tip_orb
+            name_plot=namez[vv]+';height:'+str(k)+';tip:'+tip_type+';'+tip_orb
+            if didv_b :
+                # ploting part here:
+                plt.figure( figsize=(0.5 * lvec[1,0] , 0.5 * lvec[2,1] ) )
+                plt.imshow(didv[vv,k,:,:], origin='image', extent=extent , cmap='gray')
+                plotGeom(atoms=geom_plot)
+                plt.xlabel(r' Tip_x $\AA$')
+                plt.ylabel(r' Tip_y $\AA$')
+                plt.title("dIdV:"+name_plot)
+                plt.savefig( 'didv_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction-Voltages[vv]*WF_decay)+"_eta_"+str(eta)+'_%03d.png' %k , bbox_inches='tight' )
+                plt.close()
+            if STM_b :
+                # ploting part here:
+                plt.figure( figsize=(0.5 * lvec[1,0] , 0.5 * lvec[2,1] ) )
+                plt.imshow(current[vv,k,:,:], origin='image', extent=extent , cmap='gray')
+                plotGeom(atoms=geom_plot)
+                plt.xlabel(r' Tip_x $\AA$')
+                plt.ylabel(r' Tip_y $\AA$')
+                plt.title("STM:"+name_plot)
+                plt.savefig( 'STM_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)+'_%03d.png' %k , bbox_inches='tight' )
+                plt.close()
+    print("Everything plotted")
 if WSxM :
-    print "writing WSxM files"
+    print("writing WSxM files")
     for vv in range(NoV):
-	for k in range(NoH):
-	    if didv_b :
-		name_file =  'didv_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction-Voltages[vv]*WF_decay)+"_eta_"+str(eta)+'_%03d.xyz' %k 
-		tmp_curr=didv[vv,k,:,:].flatten()
-		out_curr=np.zeros((len(tmp_curr),3))
-		out_curr[:,0]=tip_r0[k,:,:,0].flatten()
-		out_curr[:,1]=tip_r0[k,:,:,1].flatten()
-		out_curr[:,2]=tmp_curr.copy()
-		f=open(name_file,'w')
-		print >> f, "WSxM file copyright Nanotec Electronica"
-		print >> f, "WSxM ASCII XYZ file; obtained from dIdV code by Krejci et al."
-		print >> f, "X[A]  Y[A]  Z[A]"
-		print >> f, ""
-		np.savetxt(f, out_curr)
-		f.close()
-		#
-	    if STM_b :
-		name_file =  'STM_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)+'_%03d.xyz' %k 
-		tmp_curr=current[vv,k,:,:].flatten()
-		out_curr=np.zeros((len(tmp_curr),3))
-		out_curr[:,0]=tip_r0[k,:,:,0].flatten()
-		out_curr[:,1]=tip_r0[k,:,:,1].flatten()
-		out_curr[:,2]=tmp_curr.copy()
-		f=open(name_file,'w')
-		print >> f, "WSxM file copyright Nanotec Electronica"
-		print >> f, "WSxM ASCII XYZ file; obtained from dIdV code by Krejci et al."
-		print >> f, "X[A]  Y[A]  Z[A]"
-		print >> f, ""
-		np.savetxt(f, out_curr)
-		f.close()
-		#
-    print "WSxM files written"
+        for k in range(NoH):
+            if didv_b :
+                name_file =  'didv_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction-Voltages[vv]*WF_decay)+"_eta_"+str(eta)+'_%03d.xyz' %k 
+                tmp_curr=didv[vv,k,:,:].flatten()
+                out_curr=np.zeros((len(tmp_curr),3))
+                out_curr[:,0]=tip_r0[k,:,:,0].flatten()
+                out_curr[:,1]=tip_r0[k,:,:,1].flatten()
+                out_curr[:,2]=tmp_curr.copy()
+                f=open(name_file,'w')
+                print("WSxM file copyright Nanotec Electronica", file=f)
+                print("WSxM ASCII XYZ file; obtained from dIdV code by Krejci et al.", file=f)
+                print("X[A]  Y[A]  Z[A]", file=f)
+                print("", file=f)
+                np.savetxt(f, out_curr)
+                f.close()
+        #
+            if STM_b :
+                name_file =  'STM_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)+'_%03d.xyz' %k 
+                tmp_curr=current[vv,k,:,:].flatten()
+                out_curr=np.zeros((len(tmp_curr),3))
+                out_curr[:,0]=tip_r0[k,:,:,0].flatten()
+                out_curr[:,1]=tip_r0[k,:,:,1].flatten()
+                out_curr[:,2]=tmp_curr.copy()
+                f=open(name_file,'w')
+                print("WSxM file copyright Nanotec Electronica", file=f)
+                print("WSxM ASCII XYZ file; obtained from dIdV code by Krejci et al.", file=f)
+                print("X[A]  Y[A]  Z[A]", file=f)
+                print("", file=f)
+                np.savetxt(f, out_curr)
+                f.close()
+        #
+    print("WSxM files written")
 
 if XSF :
-    print "writing XSF files"
+    print("writing XSF files")
     xsf_head = Bu.At2XSF(geom_plot) if plot_atoms else GU.XSF_HEAD_DEFAULT
     for vv in range(NoV):
-	if didv_b :
-	    name_file =  'didv_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction-Voltages[vv]*WF_decay)+"_eta_"+str(eta)+'.xsf'
-	    GU.saveXSF(name_file, didv[vv], lvec, head=xsf_head )
-	if STM_b :
-	    name_file =  'STM_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)+'.xsf'
-	    GU.saveXSF(name_file, current[vv], lvec, head=xsf_head )
-    print "XSF files written"
+        if didv_b :
+            name_file =  'didv_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction-Voltages[vv]*WF_decay)+"_eta_"+str(eta)+'.xsf'
+            GU.saveXSF(name_file, didv[vv], lvec, head=xsf_head )
+        if STM_b :
+            name_file =  'STM_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)+'.xsf'
+            GU.saveXSF(name_file, current[vv], lvec, head=xsf_head )
+    print("XSF files written")
 
 if NPY :
-    print "writing npy binary files"
+    print("writing npy binary files")
     for vv in range(NoV):
-	if didv_b :
-	    name_file =  'didv_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction-Voltages[vv]*WF_decay)+"_eta_"+str(eta)
-	    GU.saveNpy(name_file, didv[vv], lvec)#, head=XSF_HEAD_DEFAULT )
-	if STM_b :
-	    name_file =  'STM_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)
-	    GU.saveNpy(name_file, current[vv], lvec)#, head=XSF_HEAD_DEFAULT )
-    print "npy files written"
+        if didv_b :
+            name_file =  'didv_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction-Voltages[vv]*WF_decay)+"_eta_"+str(eta)
+            GU.saveNpy(name_file, didv[vv], lvec)#, head=XSF_HEAD_DEFAULT )
+        if STM_b :
+            name_file =  'STM_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)
+            GU.saveNpy(name_file, current[vv], lvec)#, head=XSF_HEAD_DEFAULT )
+    print("npy files written")
 
 # --- the end --- #
 
-print 
-print
-print "Done"
-print
+print() 
+print()
+print("Done")
+print()
 

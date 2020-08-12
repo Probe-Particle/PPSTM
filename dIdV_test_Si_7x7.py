@@ -28,7 +28,7 @@ WorkFunction = 5.0 #more or less standart.
 fermi=None		# the Fermi from phik ... .dat file; !!! All energies are relative to Fermi !!!!
 orbs= 'spd'		# 'sp' and 'spd' works now
 cut_min=-1.0	#cut_min=-2.5	# +/- 0.5 eV bigger than the maximal bias (+/- 2.0 V)
-cut_max=+2.0	#cut_max=+2.5	# <- older from older script
+cut_max=+1.0	#cut_max=+2.5	# <- older from older script
 cut_at=18		# Adatoms (12) and restatoms (6) only
 eta = 0.1		# 0.1 - standart for semiconductors
 # -- next two parameters will be specified in the main loop
@@ -40,7 +40,7 @@ lower_coefs=[]	# Lowering of the hoppings
 # --- downloading and examples of downloading of the eigen-energies, the LCAO coefficients and geometry (this time for spin-unpolarized calculations):
 
 eigEn, coefs, Ratin = RS.read_FIREBALL_all(name = path+'phik_0001_', geom=path+'input.xyz', fermi=fermi, orbs = orbs, pbc=pbc,
-					    cut_min=cut_min, cut_max=cut_max,cut_at=cut_at, lvs=lvs, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
+                        cut_min=cut_min, cut_max=cut_max,cut_at=cut_at, lvs=lvs, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
 #eigEn, coefs, Ratin = RS.read_AIMS_all(name = 'KS_eigenvectors_up.band_1.kpt_1.out', geom='geometry.in',fermi=fermi, orbs = 'sp', pbc=pbc,
 #					imaginary = False, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at,
 #					lower_atoms=lower_atoms, lower_coefs=lower_coefs)
@@ -85,33 +85,33 @@ curr2 = np.array([])
 for WorkFunction in [WorkFunction]:
     i=0;
     for V in Voltages:
-	if (V != 0.0):
-	    nV = int(abs(V/eta)+1)
-	    print "Voltage: ", V, "; number of integration steps: ", nV
-	    for eta in [eta]:
-			current0 = PS.dIdV( V, WorkFunction, eta, eigEn, tip_r2, Ratin, coefs, orbs=orbs, s=1.0, px=0.0, py=0.0, pz = 0.0) 
-			WF_decay = 1 # ( tunnelling barrier changes 1:1 with applied sample bias)
-			current1 = PS.STM( V, nV, WorkFunction, eta, eigEn, tip_r2, Ratin, coefs, orbs=orbs, s=1.0, WF_decay=WF_decay)
-			WF_decay = 0 # ( tunnelling barrienr doesn't change)
-			current2 = PS.STM( V, nV, WorkFunction, eta, eigEn, tip_r2, Ratin, coefs, orbs=orbs, s=1.0, WF_decay=WF_decay)
-			curr0 = np.append(curr0,current0)
-			curr1 = np.append(curr1,current1)
-			curr2 = np.append(curr2,current2)
-	i = i+1
+        if (V != 0.0):
+            nV = int(abs(V/eta)+1)
+            print("Voltage: ", V, "; number of integration steps: ", nV)
+            for eta in [eta]:
+                current0 = PS.dIdV( V, WorkFunction, eta, eigEn, tip_r2, Ratin, coefs, orbs=orbs, s=1.0, px=0.0, py=0.0, pz = 0.0) 
+                WF_decay = 1 # ( tunnelling barrier changes 1:1 with applied sample bias)
+                current1 = PS.STM( V, nV, WorkFunction, eta, eigEn, tip_r2, Ratin, coefs, orbs=orbs, s=1.0, WF_decay=WF_decay)
+                WF_decay = 0 # ( tunnelling barrienr doesn't change)
+                current2 = PS.STM( V, nV, WorkFunction, eta, eigEn, tip_r2, Ratin, coefs, orbs=orbs, s=1.0, WF_decay=WF_decay)
+                curr0 = np.append(curr0,current0)
+                curr1 = np.append(curr1,current1)
+                curr2 = np.append(curr2,current2)
+    i = i+1
 
 curre=np.reshape(curr0,(len(Voltages)-1,sh[0],sh[1],sh[2]))
 # --- plotting part here, plots calculated signal:
-print " plotting "
+print(" plotting ")
 name_file='didV-7x7-5Ang.dat'
 # ploting part here:
 plt.figure( figsize=(0.2* xl , 0.2*yl/2 ) )
 for i in range(2):
-		j=i if i <=0 else i+1
-		plt.subplot(1,2,i+1)
-		plt.imshow( curre[i,0,:,:], origin='image', extent=extent , cmap='gray')
-		plt.xlabel(r' Tip_x $\AA$')
-		plt.ylabel(r' Tip_y $\AA$')
-		plt.title("Sample bias:"+namez[j]+"V")
+        j=i if i <=0 else i+1
+        plt.subplot(1,2,i+1)
+        plt.imshow( curre[i,0,:,:], origin='image', extent=extent , cmap='gray')
+        plt.xlabel(r' Tip_x $\AA$')
+        plt.ylabel(r' Tip_y $\AA$')
+        plt.title("Sample bias:"+namez[j]+"V")
 
 plt.savefig( name_file+'.png', bbox_inches='tight' )
 #plt.show()
@@ -119,17 +119,17 @@ plt.close()
 
 curre=np.reshape(curr1,(len(Voltages)-1,sh[0],sh[1],sh[2]))
 # --- plotting part here, plots calculated signal:
-print " plotting "
+print(" plotting ")
 name_file='STM_corresponding_barrier-7x7-5Ang.dat'
 # ploting part here:
 plt.figure( figsize=(0.2* xl , 0.2*yl/2 ) )
 for i in range(2):
-		j=i if i <=0 else i+1
-		plt.subplot(1,2,i+1)
-		plt.imshow( curre[i,0,:,:], origin='image', extent=extent , cmap='gray')
-		plt.xlabel(r' Tip_x $\AA$')
-		plt.ylabel(r' Tip_y $\AA$')
-		plt.title("Sample bias:"+namez[j]+"V")
+        j=i if i <=0 else i+1
+        plt.subplot(1,2,i+1)
+        plt.imshow( curre[i,0,:,:], origin='image', extent=extent , cmap='gray')
+        plt.xlabel(r' Tip_x $\AA$')
+        plt.ylabel(r' Tip_y $\AA$')
+        plt.title("Sample bias:"+namez[j]+"V")
 
 plt.savefig( name_file+'.png', bbox_inches='tight' )
 #plt.show()
@@ -137,17 +137,17 @@ plt.close()
 
 curre=np.reshape(curr2,(len(Voltages)-1,sh[0],sh[1],sh[2]))
 # --- plotting part here, plots calculated signal:
-print " plotting "
+print(" plotting ")
 name_file='STM_same_barrier-7x7-5Ang.dat'
 # ploting part here:
 plt.figure( figsize=(0.2* xl , 0.2*yl/2 ) )
 for i in range(2):
-		j=i if i <=0 else i+1
-		plt.subplot(1,2,i+1)
-		plt.imshow( curre[i,0,:,:], origin='image', extent=extent , cmap='gray')
-		plt.xlabel(r' Tip_x $\AA$')
-		plt.ylabel(r' Tip_y $\AA$')
-		plt.title("Sample bias:"+namez[j]+"V")
+        j=i if i <=0 else i+1
+        plt.subplot(1,2,i+1)
+        plt.imshow( curre[i,0,:,:], origin='image', extent=extent , cmap='gray')
+        plt.xlabel(r' Tip_x $\AA$')
+        plt.ylabel(r' Tip_y $\AA$')
+        plt.title("Sample bias:"+namez[j]+"V")
 
 plt.savefig( name_file+'.png', bbox_inches='tight' )
 #plt.show()
@@ -155,6 +155,6 @@ plt.close()
 
 # --- the end
 
-print 
-print
-print "Done"
+print() 
+print()
+print("Done")

@@ -26,21 +26,21 @@ eigEn, coefs, Ratin = RS.read_FIREBALL_all(
     lower_atoms=[], lower_coefs=[]
 );
 
-print "---------------"
-print "Ratin ", Ratin
-print "---------------"
-print "coefs ", coefs
-print "---------------"
-print "eigEn.shape ", eigEn.shape
-print "coefs.shape ", coefs.shape
-print "Ratin.shape ", Ratin.shape
+print("---------------")
+print("Ratin ", Ratin)
+print("---------------")
+print("coefs ", coefs)
+print("---------------")
+print("eigEn.shape ", eigEn.shape)
+print("coefs.shape ", coefs.shape)
+print("Ratin.shape ", Ratin.shape)
 
 atoms    = ocl.xyzq2float4( Ratin, np.ones(len(Ratin))*decay )   # 4th component per atom is decay, can be used to introduce effect of different local potential barrier
 CAOs     = ocl.CAOsp2f4   (coefs, len(atoms) )
 spectral = ocl.getSpectral( eigEn, Wf = 1.0, w=0.2 )
 
-print "---------------"
-print "CAOs", CAOs
+print("---------------")
+print("CAOs", CAOs)
         
 lvec=np.array([
     (0.0 ,0.0 ,7.0),
@@ -57,7 +57,7 @@ kargs = ocl.initArgs(atoms, CAOs, spectral, rTips)
 Gout  = ocl.run( kargs, rTips.shape[:3] )
 t1 = time.clock() - t1
 
-print " Run time %g [s] " %t1 
+print(" Run time %g [s] " %t1) 
 
 # =====================
 # =====================  Plotting
@@ -76,6 +76,6 @@ import matplotlib.pyplot as plt
 
 extent  = (lvec[0,0],lvec[0,0]+lvec[1,0],lvec[0,1],lvec[0,1]+lvec[2,1])
 '''
-	
-print "===== ALL DONE ==== "
+    
+print("===== ALL DONE ==== ")
 

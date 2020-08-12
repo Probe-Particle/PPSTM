@@ -5,7 +5,9 @@
 *.pyc
 *.pyd
 *_backup
+__pycache__
 
 *.npy
 *.xsf
 *.png
+.DS_store

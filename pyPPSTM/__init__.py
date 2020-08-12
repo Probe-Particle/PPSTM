@@ -1,3 +1,3 @@
 #!/usr/bin/python
 
-from ProbeSTM import *
+from .ProbeSTM import *

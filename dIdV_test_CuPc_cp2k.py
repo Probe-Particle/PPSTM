@@ -49,12 +49,12 @@ lower_coefs=[]	# Lowering of the hoppings
 #eigEn, coefs, Ratin  = RS.read_GPAW_all(name = 'out_LCAO_LDA.gpw', fermi=fermi, orbs = orbs, pbc=pbc,
 #					cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
 eigEn1, coefs1, Ratin  = RS.read_CP2K_all(name = 'CuPc', fermi=fermi, orbs = orbs, pbc=pbc,
-					cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin="alpha");
+                    cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin="alpha");
 eigEn2, coefs2, Ratin  = RS.read_CP2K_all(name = 'CuPc', fermi=fermi, orbs = orbs, pbc=pbc,
-					cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin="beta");
+                    cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin="beta");
 
 eigEn = np.concatenate((eigEn1, eigEn2), axis=0)
-print "eigEn: ", eigEn
+print("eigEn: ", eigEn)
 coefs = np.concatenate((coefs1, coefs2), axis=0)
 
 # --- the grid on which the STM signal is calculated; no tip_r1 - PP distored by the relaxation in the PPAFM code;  only tip_r2 - uniform grid:
@@ -79,9 +79,9 @@ sh = tip_r2.shape
 # --- specification on which voltages the STM (dI/dV ...) calculations are performed - two methods - direct specification or sequence of voltages
 
 Voltages=[-0.37766681,  0.,  1.38595747,  1.38835207,
-	   0.,  0.82385189,  1.41540019,  1.41776758]
+       0.,  0.82385189,  1.41540019,  1.41776758]
 namez=['SOMO_up','HOMO_up','LUMO1_up','LUMO2_up',
-	'HOMO_down','SOMO_down','LUMO1_down','LUMO2_down']
+    'HOMO_down','SOMO_down','LUMO1_down','LUMO2_down']
 
 #Voltages=np.arange(-1.0,+1.0+0.01,0.1) # this part is important for scans over slabs at different voltages
 #namez = []
@@ -99,26 +99,26 @@ curr0 = np.array([])
 for WorkFunction in [WorkFunction]:
     i=0;
     for V in Voltages:
-	for eta in [eta]:
-	    current0 = PS.dIdV( V, WorkFunction, eta, eigEn, tip_r2, Ratin, coefs, orbs=orbs, s=1.0, px=0.0, py=0.0, pz = 0.0)
-	    curr0 = np.append(curr0,current0)
-	i += 1
+        for eta in [eta]:
+            current0 = PS.dIdV( V, WorkFunction, eta, eigEn, tip_r2, Ratin, coefs, orbs=orbs, s=1.0, px=0.0, py=0.0, pz = 0.0)
+            curr0 = np.append(curr0,current0)
+    i += 1
 
 curre=np.reshape(curr0,(len(Voltages),sh[0],sh[1],sh[2]))
 # --- plotting part here, plots calculated signal:
-print " plotting "
+print(" plotting ")
 for zi in range(len(tip_r2)):
     name_file='didV-CuPc_spin-polerized_cp2k_height_%03dA' %(zi+1)
     # ploting part here:
     plt.figure( figsize=(0.45* xl , 0.45*yl/2 ) )
     for i in range(8):
-	plt.subplot(2,4,i+1)
-	plt.imshow( curre[i,zi,:,:], origin='image', extent=extent , cmap='gray')
-	if ((i == 0)or(i==4)):
-	    plt.ylabel(r' Tip_y $\AA$')
-	plt.title("dI/dV "+namez[i])
-	if (i>3):
-	    plt.xlabel(r' Tip_x $\AA$')
+        plt.subplot(2,4,i+1)
+        plt.imshow( curre[i,zi,:,:], origin='image', extent=extent , cmap='gray')
+        if ((i == 0)or(i==4)):
+            plt.ylabel(r' Tip_y $\AA$')
+        plt.title("dI/dV "+namez[i])
+        if (i>3):
+            plt.xlabel(r' Tip_x $\AA$')
     plt.savefig( name_file+'.png', bbox_inches='tight' )
     #plt.show()
     plt.close()
@@ -126,6 +126,6 @@ for zi in range(len(tip_r2)):
 
 # --- the end
 
-print 
-print
-print "Done"
+print() 
+print()
+print("Done")

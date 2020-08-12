@@ -40,15 +40,15 @@ lower_coefs=[]	# Lowering of the hoppings
 
 #eigEn, coefs, Ratin = RS.read_FIREBALL_all(name = path+'phik_example_', geom=path+'crazy_mol.xyz', fermi=fermi, orbs = orbs, pbc=pbc,
 #					    cut_min=cut_min, cut_max=cut_max,cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
-eigEn1, coefs1, Ratin = RS.read_AIMS_all(name = 'KS_eigenvectors_up.band_1.kpt_1.out', geom='geometry.in',fermi=fermi, orbs = orbs, pbc=pbc,
-					imaginary = False, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at,
-					lower_atoms=lower_atoms, lower_coefs=lower_coefs)
-eigEn2, coefs2, Ratin = RS.read_AIMS_all(name = 'KS_eigenvectors_dn.band_1.kpt_1.out', geom='geometry.in',fermi=fermi, orbs = orbs, pbc=pbc,
-					imaginary = False, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at,
-					lower_atoms=lower_atoms, lower_coefs=lower_coefs)
+eigEn1, coefs1, Ratin = RS.read_AIMS_all(name = "KS_eigenvectors_up.band_1.kpt_1.out", geom='geometry.in',fermi=fermi, orbs = orbs, pbc=pbc,
+                    imaginary = False, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at,
+                    lower_atoms=lower_atoms, lower_coefs=lower_coefs)
+eigEn2, coefs2, Ratin = RS.read_AIMS_all(name = "KS_eigenvectors_dn.band_1.kpt_1.out", geom='geometry.in',fermi=fermi, orbs = orbs, pbc=pbc,
+                    imaginary = False, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at,
+                    lower_atoms=lower_atoms, lower_coefs=lower_coefs)
 
 eigEn = np.concatenate((eigEn1, eigEn2), axis=0)
-print "eigEn: ", eigEn
+print("eigEn: ", eigEn)
 coefs = np.concatenate((coefs1, coefs2), axis=0)
 
 #eigEn, coefs, Ratin  = RS.read_GPAW_all(name = 'out_LCAO_LDA.gpw', fermi=fermi, orbs = orbs, pbc=pbc,
@@ -76,9 +76,9 @@ sh = tip_r2.shape
 # --- specification on which voltages the STM (dI/dV ...) calculations are performed - two methods - direct specification or sequence of voltages
 
 Voltages=[-1.86061211,-1.26292292, 0.16746031, 0.16749500,
-	  -1.26624849, 0.18127846, 0.18131269, 0.37374527]
+      -1.26624849, 0.18127846, 0.18131269, 0.37374527]
 namez=['SOMO_up','HOMO_up','LUMO1_up','LUMO2_up',
-	'HOMO_down','LUMO1_down','LUMO2_down','SOMO_down']
+    'HOMO_down','LUMO1_down','LUMO2_down','SOMO_down']
 
 #Voltages=np.arange(-1.0,+1.0+0.01,0.1) # this part is important for scans over slabs at different voltages
 #namez = []
@@ -96,26 +96,26 @@ curr0 = np.array([])
 for WorkFunction in [WorkFunction]:
     i=0;
     for V in Voltages:
-	for eta in [eta]:
-	    current0 = PS.dIdV( V, WorkFunction, eta, eigEn, tip_r2, Ratin, coefs, orbs=orbs, s=1.0, px=0.0, py=0.0, pz = 0.0)
-	    curr0 = np.append(curr0,current0)
-	i += 1
+        for eta in [eta]:
+            current0 = PS.dIdV( V, WorkFunction, eta, eigEn, tip_r2, Ratin, coefs, orbs=orbs, s=1.0, px=0.0, py=0.0, pz = 0.0)
+            curr0 = np.append(curr0,current0)
+    i += 1
 
 curre=np.reshape(curr0,(len(Voltages),sh[0],sh[1],sh[2]))
 # --- plotting part here, plots calculated signal:
-print " plotting "
+print(" plotting ")
 for zi in range(len(tip_r2)):
     name_file='didV-CuPc_spin-polerized_height_%03dA' %(zi+1)
     # ploting part here:
     plt.figure( figsize=(0.45* xl , 0.45*yl/2 ) )
     for i in range(8):
-	plt.subplot(2,4,i+1)
-	plt.imshow( curre[i,zi,:,:], origin='image', extent=extent , cmap='gray')
-	if ((i == 0)or(i==4)):
-	    plt.ylabel(r' Tip_y $\AA$')
-	plt.title("dI/dV "+namez[i])
-	if (i>3):
-	    plt.xlabel(r' Tip_x $\AA$')
+        plt.subplot(2,4,i+1)
+        plt.imshow( curre[i,zi,:,:], origin='image', extent=extent , cmap='gray')
+        if ((i == 0)or(i==4)):
+            plt.ylabel(r' Tip_y $\AA$')
+        plt.title("dI/dV "+namez[i])
+        if (i>3):
+            plt.xlabel(r' Tip_x $\AA$')
     plt.savefig( name_file+'.png', bbox_inches='tight' )
     #plt.show()
     plt.close()
@@ -123,6 +123,6 @@ for zi in range(len(tip_r2)):
 
 # --- the end
 
-print 
-print
-print "Done"
+print() 
+print()
+print("Done")

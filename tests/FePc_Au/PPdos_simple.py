@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 ##########################################################################################################################
 #                                                                                                                        #
@@ -35,10 +35,10 @@ blue_line_shell   = 'all'     # which chells to plot: 'all' = all sample orbital
 green_line_atoms  = [0]     # atoms to plot: !!! DO NOT FORGET PYTHON NUMBERING starts from 0 !!!, always use list-like structure; 'all' = -1 -- all atoms; range(2,8) = [2,3,4,5,6,7]-- means atoms: 3,4,5,6,7 and 8 #
 green_line_shell  = 'all'   # which chells to plot: 'all' = all sample orbitals, 's', 'p', 'd', 'px', 'py', 'pz', 'dxy', 'dyz', 'dyz', 'dz2', 'dxz', 'dx2y2' #
 #
-orange_line_atoms = range(1,57)   # atoms to plot: !!! DO NOT FORGET PYTHON NUMBERING starts from 0 !!!, always use list-like structure; 'all' = -1 -- all atoms; [8,9] -- means 9th and 10th atom #
+orange_line_atoms = list(range(1,57))   # atoms to plot: !!! DO NOT FORGET PYTHON NUMBERING starts from 0 !!!, always use list-like structure; 'all' = -1 -- all atoms; [8,9] -- means 9th and 10th atom #
 orange_line_shell = 'pz'    # which chells to plot: 'all' = all sample orbitals, 's', 'p', 'd', 'px', 'py', 'pz', 'dxy', 'dyz', 'dyz', 'dz2', 'dxz', 'dx2y2' #
 #
-black_line_atoms  = range(1,57)   # atoms to plot: !!! DO NOT FORGET PYTHON NUMBERING starts from 0 !!!, always use list-like structure; 'all' = -1 -- all atoms; None -- no line #
+black_line_atoms  = list(range(1,57))   # atoms to plot: !!! DO NOT FORGET PYTHON NUMBERING starts from 0 !!!, always use list-like structure; 'all' = -1 -- all atoms; None -- no line #
 black_line_shell  = 'all'   # which chells to plot: 'all' = all sample orbitals, 's', 'p', 'd', 'px', 'py', 'pz', 'dxy', 'dyz', 'dyz', 'dz2', 'dxz', 'dx2y2' #
 #
 yellow_line_atoms = None    # atoms to plot: !!! DO NOT FORGET PYTHON NUMBERING starts from 0 !!!, always use list-like structure; 'all' = -1 -- all atoms; None -- no line #
@@ -71,7 +71,7 @@ lower_atoms  = 'no-d-rescalling' # normally d-orbs are rescalled by factor of 0.
 #                                                                                                                        #
 ##########################################################################################################################
 
-print "Importing libraries"
+print("Importing libraries")
 
 import os
 import sys
@@ -90,7 +90,7 @@ from matplotlib.font_manager import FontProperties
 #    import pyPPSTM.elements as elements
 
 
-print "Libraries imported"
+print("Libraries imported")
 
 # --- some function definition --- #
 
@@ -105,7 +105,7 @@ assert( PNG or TXT ), "No output set to be True; I'm not going to do anything if
 
 # --- reading of the eigen-energies, the LCAO coefficients and geometry --- #
 
-print "Reading electronic & geometry structure files"
+print("Reading electronic & geometry structure files")
 
 cell=[[0,0],[0,0]];pbc=(0,0);lower_coefs=[];
 
@@ -117,32 +117,32 @@ elif ((dft_code == 'gpaw') or(dft_code == 'GPAW')):
 
 elif ((dft_code == 'aims') or(dft_code == 'AIMS') or (dft_code == 'FHI-AIMS')):
     if ((spin == None) or (spin == False)):
-	name = 'KS_eigenvectors.band_1.kpt_1.out'
+        name = 'KS_eigenvectors.band_1.kpt_1.out'
     elif ((spin == 'up')or(spin == 'alpha')or(spin == 'both')):
-	name = 'KS_eigenvectors_up.band_1.kpt_1.out'
+        name = 'KS_eigenvectors_up.band_1.kpt_1.out'
     elif ((spin == 'down')or(spin == 'beta')or(spin == 'dn')):
-	name = 'KS_eigenvectors_dn.band_1.kpt_1.out'
+        name = 'KS_eigenvectors_dn.band_1.kpt_1.out'
     else :
-	print "unknown spin, I'm going to sleep. Good Night"; exit()
+        print("unknown spin, I'm going to sleep. Good Night"); exit()
     eigEn, coefs, Ratin = RS.read_AIMS_all(name = files_path + name , geom= files_path + geometry_file, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
     if (spin == 'both'):
-	name = 'KS_eigenvectors_dn.band_1.kpt_1.out'
-	eigEn2, coefs2, Ratin = RS.read_AIMS_all(name = files_path + name , geom= files_path + geometry_file, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
-	#coefs2 *= -1;
+        name = 'KS_eigenvectors_dn.band_1.kpt_1.out'
+        eigEn2, coefs2, Ratin = RS.read_AIMS_all(name = files_path + name , geom= files_path + geometry_file, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
+        #coefs2 *= -1;
 
 elif ((dft_code == 'cp2k') or(dft_code == 'CP2K')):
     if ((spin == None)or(spin == False)):
-	eigEn, coefs, Ratin  = RS.read_CP2K_all(name = files_path + cp2k_name , lvs=cell, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
+        eigEn, coefs, Ratin  = RS.read_CP2K_all(name = files_path + cp2k_name , lvs=cell, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
     elif ((spin == 'up')or(spin == 'alpha')):
-	eigEn, coefs, Ratin  = RS.read_CP2K_all(name = files_path + cp2k_name , lvs=cell, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='alpha');
+        eigEn, coefs, Ratin  = RS.read_CP2K_all(name = files_path + cp2k_name , lvs=cell, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='alpha');
     elif (spin == 'both'):
-	eigEn, coefs, Ratin  = RS.read_CP2K_all(name = files_path + cp2k_name , lvs=cell, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='alpha');
-	eigEn2, coefs2, Ratin  = RS.read_CP2K_all(name = files_path + cp2k_name , lvs=cell, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='beta');
-	#coefs2 *= -1;
+        eigEn, coefs, Ratin  = RS.read_CP2K_all(name = files_path + cp2k_name , lvs=cell, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='alpha');
+        eigEn2, coefs2, Ratin  = RS.read_CP2K_all(name = files_path + cp2k_name , lvs=cell, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='beta');
+        #coefs2 *= -1;
     elif ((spin == 'down')or(spin == 'beta')or(spin == 'dn')):
-	eigEn, coefs, Ratin  = RS.read_CP2K_all(name = files_path + cp2k_name , lvs=cell, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='beta');
+        eigEn, coefs, Ratin  = RS.read_CP2K_all(name = files_path + cp2k_name , lvs=cell, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='beta');
     else :
-	print "unknown spin, I'm going to sleep. Good Night"; exit()
+        print("unknown spin, I'm going to sleep. Good Night"); exit()
 
 #print "DEBUG: eigEn.shape ", eigEn.shape
 #print "DEBUG: coefs.shape ", coefs.shape
@@ -150,13 +150,13 @@ elif ((dft_code == 'cp2k') or(dft_code == 'CP2K')):
 
 energies = np.arange(V_min,V_max,dV)
 
-print "energies prepared, coeffecients read"
+print("energies prepared, coeffecients read")
 
 # --- the PDOS calculations --- #
 
 plot = True if ( (red_line_atoms != None)or(blue_line_atoms != None)or(green_line_atoms != None)or(orange_line_atoms != None)or(black_line_atoms != None)or(yellow_line_atoms != None)or (gray_line_atoms != None) ) else False
 
-print "DEBUG: plot", plot
+print("DEBUG: plot", plot)
 
 assert plot!=False, "No lines to plot"
 
@@ -166,7 +166,7 @@ if (red_line_atoms != None) :
     atoms=red_line_atoms
     PDOS1 = SU.pPDOS(eigEn,coefs, energies, eta=eta, orbs= sample_orbs, atoms=atoms   , spherical=red_line_shell   )
     red_line_legend     = ','.join(map(str, atoms)) if len(atoms) < latomslegend else str(atoms[0])+".."+str(atoms[-1])
-    print "DEBUG: red_line_legend", red_line_legend
+    print("DEBUG: red_line_legend", red_line_legend)
 else:	#(red_line_atoms != None) :
     PDOS1 = None
 
@@ -213,7 +213,7 @@ else:	#(gray_line_atoms != None) :
     PDOS7 = None
 
 if spin=='both' :
-    print "DEBUG: printing spin down in both spins"
+    print("DEBUG: printing spin down in both spins")
 
     PDOS1d = -1*SU.pPDOS(eigEn2,coefs2, energies, eta=eta, orbs= sample_orbs, atoms=red_line_atoms   , spherical=red_line_shell   ) if (red_line_atoms != None) else None
     PDOS2d = -1*SU.pPDOS(eigEn2,coefs2, energies, eta=eta, orbs= sample_orbs, atoms=blue_line_atoms  , spherical=blue_line_shell  ) if (blue_line_atoms != None) else None
@@ -224,7 +224,7 @@ if spin=='both' :
     PDOS7d = -1*SU.pPDOS(eigEn2,coefs2, energies, eta=eta, orbs= sample_orbs, atoms=gray_line_atoms  , spherical=gray_line_shell  ) if (gray_line_atoms != None) else None
 
 else: 
-    print "DEBUG: both spins are not used"
+    print("DEBUG: both spins are not used")
     PDOS1d = PDOS2d = PDOS3d = PDOS4d = PDOS5d = PDOS6d = PDOS7d = None
 
 # --- plotting part here, plots all calculated signals --- #
@@ -270,8 +270,8 @@ if (plot and PNG) :
 
 # --- the end --- #
 
-print 
-print
-print "Done"
-print
+print() 
+print()
+print("Done")
+print()
 
