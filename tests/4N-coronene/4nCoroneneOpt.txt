@@ -1,0 +1,22 @@
+# comment can be written by hash and space afterwards 
+dft_code: fireball
+sample_orbs: sp
+spin: None
+pbc: 00
+data_format: npy
+kValue: 0.5
+qValue: 0.0
+x: [0.0, 20.0, 0.25]
+y: [0.0, 15.0, 0.25]
+z: [10.0, 12.0, 0.1]
+scan_type: v-scan
+etaValue: 0.1
+wf_decay: 0.5
+V: -0.5
+Vmax: 0.5
+dV: 0.1
+tipOrbS: 1.0
+tipOrbPxy: 0.0
+OMP_NUM_THREADS: 1.0
+tip_type: fixed
+paths: {'inputPath': './tests/4N-coronene/', 'geometry_file': 'crazy_mol.xyz', 'cp2kName': 'crazy_mol'}

@@ -1,0 +1,22 @@
+# comment can be written by hash and space afterwards 
+dft_code: aims
+sample_orbs: spd
+spin: both
+pbc: 00
+data_format: npy
+kValue: 0.24
+qValue: 0.0
+x: [-20.0, 20.0, 0.25]
+y: [-20.0, 20.0, 0.25]
+z: [13.9, 14.9, 1.0]
+scan_type: v-scan
+etaValue: 0.1
+wf_decay: 0.49999999999999994
+V: -0.5
+Vmax: 0.5
+dV: 0.1
+tipOrbS: 1.0
+tipOrbPxy: 0.0
+OMP_NUM_THREADS: 1
+tip_type: relaxed
+paths: {'inputPath': './tests/FePc_Au/', 'geometry_file': 'geom-cube.in', 'cp2kName': 'CuPc'}

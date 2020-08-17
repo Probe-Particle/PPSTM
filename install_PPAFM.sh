@@ -10,7 +10,7 @@ cd ..
 mkdir PPAFM
 cd PPAFM
 git init
-git pull https://github.com/konradkusiak97/Aalto-SIN-PPAFM-python3.git
+git pull https://github.com/ProkopHapala/ProbeParticleModel
 cd ../$directory
 ln -s ../PPAFM ./PPAFM
 ln -s ../PPAFM/pyProbeParticle pyProbeParticle
