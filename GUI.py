@@ -793,8 +793,8 @@ class Window(QMainWindow):
     def plotImage(self, plotData, height, voltage, mapType):
 
         if mapType == 'dIdV':
-            if self.myDict['scan_type'] == 'states':
-                print('Error. Change map type to STM')
+            if plotData['didv'] is None:
+                print('Error. didv does not exist.')
                 return None
             if height >= plotData['NoH_didv']:
                 print ('Error. Height out of index')
@@ -803,8 +803,8 @@ class Window(QMainWindow):
                 print ('Error. Voltage out of index')
                 return None
         elif mapType == 'STM':
-            if self.myDict['scan_type'] == 'dIdV':
-                print('Error. Change map type to dIdV')
+            if plotData['current'] is None:
+                print('Error. current does not exist.')
                 return None
             if height >= plotData['NoH_STM']:
                 print ('Error. Height out of index')
