@@ -507,27 +507,38 @@ class Window(QMainWindow):
 
         vo1 = QHBoxLayout(); controlLayout.addLayout(vo1)
 
+        l3 = QHBoxLayout(); vo1.addLayout(l3)
+
         # Map type scroll bar
-        vo1.addWidget(QLabel(       "Map type"))
-        mapType = QComboBox(); vo1.addWidget(mapType)
+        label3 = QLabel("Map type")
+        label3.setAlignment(Qt.AlignRight)
+        l3.addWidget(label3)
+
+        mapType = QComboBox(); l3.addWidget(mapType)
         mapType.addItems(['dIdV', 'STM'])
         mapType.currentIndexChanged[str].connect(self.selectMapType)
 
 
         # Adding Voltage Index number range
-        vo1.addWidget(QLabel('             Voltage Index: '))
-        self.vIndx = QSpinBox(); vo1.addWidget(self.vIndx);
+        label4 = QLabel("Voltage Index:")
+        label4.setAlignment(Qt.AlignRight)
+        l3.addWidget(label4)
+        self.vIndx = QSpinBox(); l3.addWidget(self.vIndx);
         self.vIndx.setRange(0, 10000); self.vIndx.setSingleStep(1)
         self.vIndx.valueChanged.connect(self.selectVindx)
 
         # Adding Height Index number range
-        vo1.addWidget(QLabel('             Height Index: '))
-        self.hIndx = QSpinBox(); vo1.addWidget(self.hIndx);
+        label5 = QLabel("Height Index:")
+        label5.setAlignment(Qt.AlignRight)
+        l3.addWidget(label5)
+        self.hIndx = QSpinBox(); l3.addWidget(self.hIndx);
         self.hIndx.setRange(0, 10000); self.hIndx.setSingleStep(1)
         self.hIndx.valueChanged.connect(self.selectHindx)
         
+        l3.setAlignment(Qt.AlignLeft)
 
-        show = QPushButton("Show"); vo1.addWidget(show)
+        l4 = QHBoxLayout(); vo1.addLayout(l4)
+        show = QPushButton("Show"); l4.addWidget(show)
         show.clicked.connect(self.showImage)
 
     ####### vo2 - visualizing options part 2, row 2 - save image, save data, save options, load options (buttons) #################
