@@ -3,6 +3,10 @@ dft_code: cp2k
 sample_orbs: sp
 spin: None
 pbc: 00
+lvs: None
+cut_atoms: -1
+lower_atoms: None
+lower_coefs: None
 data_format: npy
 kValue: 0.24
 qValue: 0.0

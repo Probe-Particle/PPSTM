@@ -161,6 +161,10 @@ class Window(QMainWindow):
                        'sample_orbs': 'sp',
                        'spin': None,
                        'pbc': '00',
+                       'lvs': '[[100,0],[0,100]',
+                       'cut_atoms': -1,
+                       'lower_atoms': None,
+                       'lower_coefs': None,
                        'data_format': 'xsf',
                        'kValue': 0.24,
                        'qValue': 0.0,
@@ -183,7 +187,7 @@ class Window(QMainWindow):
 
         self.string_widgets = {}
         self.num_widgets = {}
-        self.paramList = ['dft_code', 'sample_orbs', 'spin', 'pbc', 'data_format', 'kValue', 'qValue', 'x', 'y', 'z', 'scan_type', 'etaValue', 'wf_decay', 'V', 'Vmax', 'dV', 'tipOrbS', 'tipOrbPxy', 'OMP_NUM_THREADS', 'tip_type', 'paths']
+        self.paramList = ['dft_code', 'sample_orbs', 'spin', 'pbc', 'lvs', 'cut_atoms', 'lower_atoms', 'lower_coefs', 'data_format', 'kValue', 'qValue', 'x', 'y', 'z', 'scan_type', 'etaValue', 'wf_decay', 'V', 'Vmax', 'dV', 'tipOrbS', 'tipOrbPxy', 'OMP_NUM_THREADS', 'tip_type', 'paths']
         self.runClicked = False
         self.paths = None
         self.map = 'dIdV'
@@ -280,12 +284,52 @@ class Window(QMainWindow):
         nameBox.addWidget(QLabel("CP2K/GPAW name"))
         # Creating name text box
         self.name = QLineEdit(); nameBox.addWidget(self.name)
-        self.name.setText('none')
+        self.name.setText('None')
+
+        # Adding lvs text box to the layout
+        lvsBox = QVBoxLayout(); inputLayout2.addLayout(lvsBox)
+        lvsBox.addWidget(QLabel("lvs"))
+        # Creating lvs text box
+        self.lvs = QLineEdit(); lvsBox.addWidget(self.lvs)
+        self.lvs.setText('[[100,0],[0,100]]')
+
+        # Input part 3 - HBox. Third top region of the control part.
+        inputLayout3 = QHBoxLayout()
+        controlLayout.addLayout(inputLayout3)
+
+        # Cut at box
+        cutAtBox = QHBoxLayout(); inputLayout3.addLayout(cutAtBox)
+        cutAtBox.addWidget(QLabel('cut atoms:'))
+
+        # Adding cut_at 
+        self.cutAtoms = QSpinBox(); cutAtBox.addWidget(self.cutAtoms);
+        self.cutAtoms.setRange(-2, 1000); self.cutAtoms.setSingleStep(1)
+        self.cutAtoms.setValue(1)
+        self.cutAtoms.valueChanged.connect(self.selectCutAtoms)
+        self.num_widgets['cut_atoms'] = self.cutAtoms
+
+        # Lower atoms box
+        lowAtomBox = QHBoxLayout(); inputLayout3.addLayout(lowAtomBox)
+        lowAtomBox.addWidget(QLabel("lower_atoms:"))
+        # Creating lower atoms text box
+        self.lowAtoms = QLineEdit(); lowAtomBox.addWidget(self.lowAtoms)
+        self.lowAtoms.setText('None')
+        lowAtomBox.setAlignment(Qt.AlignLeft)
+
+        # Lower coefficients box
+        lowcoeffsBox = QHBoxLayout(); inputLayout3.addLayout(lowcoeffsBox)
+        lowcoeffsBox.addWidget(QLabel("lower_coeffs:"))
+        # Creating lower atoms text box
+        self.lowcoeffs = QLineEdit(); lowcoeffsBox.addWidget(self.lowcoeffs)
+        self.lowcoeffs.setText('None')
+        lowcoeffsBox.setAlignment(Qt.AlignLeft)
 
         # Button importing packages and everything
-        importButton = QPushButton("Import"); inputLayout2.addWidget(importButton)
+        importBox = QHBoxLayout(); inputLayout3.addLayout(importBox)
+        importButton = QPushButton("Import"); importBox.addWidget(importButton)
         importButton.clicked.connect(self.imported)
-
+        
+        
     #### Seperating line
         line = QFrame(); controlLayout.addWidget(line); line.setFrameShape(QFrame.HLine); line.setFrameShadow(QFrame.Sunken)
 
@@ -518,7 +562,6 @@ class Window(QMainWindow):
         mapType.addItems(['dIdV', 'STM'])
         mapType.currentIndexChanged[str].connect(self.selectMapType)
 
-
         # Adding Voltage Index number range
         label4 = QLabel("Voltage Index:")
         label4.setAlignment(Qt.AlignRight)
@@ -606,6 +649,9 @@ class Window(QMainWindow):
     def selectPbc(self, pbc):
         self.myDict['pbc'] = pbc
     
+    def selectCutAtoms(self):
+        self.myDict['cut_atoms'] = self.cutAtoms.value()
+    
     def selectFormat(self, myFormat):
         self.myDict['data_format'] = myFormat
 
@@ -678,6 +724,15 @@ class Window(QMainWindow):
             print ('Path/name/file not given')
             return 
 
+        lower_coefs = self.lowcoeffs.text()
+        lower_atoms = self.lowAtoms.text()
+
+        lvs = self.lvs.text()
+
+        self.myDict['lower_coefs'] = lower_coefs
+        self.myDict['lower_atoms'] = lower_atoms
+        self.myDict['lvs'] = lvs
+
         self.paths = {'inputPath': inputPath, 
                       'geometry_file': geometry_file,
                       'cp2kName': cp2kName,}
@@ -693,13 +748,28 @@ class Window(QMainWindow):
             print (" >> OVERWRITING SETTINGS by "+ filePath) 
             fin = open(filePath, 'r')
             for line in fin:
-                line = re.sub('\[|\]|\:|\,|\)|\(|\'|\}|\{', '', line)
-                words = line.split()
+                copiedLine = re.sub('\[|\]|\:|\,|\)|\(|\'|\}|\{', '', line)
+                words = copiedLine.split()
                 if len(words) == 0 : continue
                 if words[0][0] == '#': continue
                 if words[0] in ['x', 'y', 'z']:
                     sampleList = [float(words[1]), float(words[2]), float(words[3])]
                     self.myDict[words[0]] = sampleList
+                    self.paramList.remove(words[0])
+                    continue
+                if words[0] == 'lvs':
+                    splittedLine = line.split(':')
+                    self.myDict['lvs'] = ''.join(splittedLine[1].split())
+                    self.lvs.setText(''.join(splittedLine[1].split()))
+                    self.paramList.remove('lvs')
+                    continue
+                if words[0] == 'lower_atoms' or words[0] == 'lower_coefs':
+                    splittedLine = line.split(':')
+                    self.myDict[words[0]] = ''.join(splittedLine[1].split())
+                    if words[0] == 'lower_atoms':
+                        self.lowAtoms.setText(''.join(splittedLine[1].split()))
+                    else:
+                        self.lowcoeffs.setText(''.join(splittedLine[1].split()))
                     self.paramList.remove(words[0])
                     continue
                 if words[0] == 'paths':
@@ -724,6 +794,7 @@ class Window(QMainWindow):
                     self.myDict[words[0]] = words[1]
                     self.paramList.remove(words[0])
                     continue
+                
                 # All the other cases. Assigning values to the keys of self.myDict and trying to convert them to float. If they are not a number conv2float will just return string
                 self.myDict[words[0]] = conv2float(words[1])
                 self.paramList.remove(words[0])
@@ -734,7 +805,7 @@ class Window(QMainWindow):
                 print('Following parameters where not changed and remained default:')
                 for p in self.paramList:
                     if p == 'paths':
-                        print (p + ' = ' + str(self.paths))
+                        print (p + '(input files path, geometry file name, CP2K/GPAW) = ' + str(self.paths))
                     else:
                         print(p + ' = ' + self.myDict[p])
 

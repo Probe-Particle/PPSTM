@@ -7,10 +7,41 @@
 # Note : This type of simulations works for solid slabs or molecules on slabs (substrate) ; for freestanding molecule it can give you nonsences
 #
 # ***** System information: *****
+
+# Converting 1D and 2D string arrays to arrays of floats
+import re
+
+def conv1Darray(array1D):
+    newArray = array1D.split(',')
+    newArray[0] = newArray[0][1]
+    newArray[-1] = newArray[-1][0]
+    return list(map(float, newArray))
+
+def conv2Darray(array2d):
+    newArray = array2d.split(']')
+    numarray = []
+    for n in newArray:
+        if len(n) == 0:
+            break
+        n = re.sub('\[', '', n)
+        n = n.split(',')
+        for i in n:
+            if len(i) == 0:
+                n.remove(i)
+        numarray.append(list(map(float, n)))
+    return numarray
+        
 def importData(myDict, paths):
 
+    files_path = paths['inputPath']            # where are files fron DFT code ; rather do not use this #
+    
     # None ; [[ax,ay,0],[bx,by,0]],[0,0,cz]] or [[ax,ay],[bx,by]] ; 'input.lvs' -- files with specified cell ; in FHI-AIMS & GPAW allready specified with geometry #
-    lvs = None
+    lvs = myDict['lvs']
+    if lvs == 'None': lvs = None
+    elif lvs[0] == '[':
+        lvs = conv2Darray(lvs)
+    else:
+        lvs = files_path + lvs
 
     # E.G. 'input.xyz' , 'input.bas' , 'geometry.in'; None for GPAW #
     geometry_file = paths['geometry_file']
@@ -22,17 +53,22 @@ def importData(myDict, paths):
     cp2k_name = paths['cp2kName']  # Name used in CP2K calculations or GPAW calc #
     if cp2k_name == 'none': cp2k_name = None
     
-    cut_atoms = -1         # None = -1 -- All atoms of the sample contributes to tunelling ; 1 -- only 1st atom of the sample contributes to the tunelling ; 57 -- first 57 atoms of the sample contributes to the tunelling ; ... #
-    lower_atoms = []             # [] = None -- No atoms has lowered hopping ; be aware python numbering occurs here: [0] - means lowering of the 1st atom; [0,1,2,3] -- lowering of 1st 4 atoms ... #
-    lower_coefs = []             # [] = None -- No lowering of the hoppings  ; [0.5] -- lowering of the 1st atom hopping to 0.5                           ; [0.5,0.5,0.5,0.5] -- lowering of 1st 4 atoms to 0.5 ... #
-    
+    cut_atoms = int(myDict['cut_atoms'])         # None = -1 -- All atoms of the sample contributes to tunelling ; 1 -- only 1st atom of the sample contributes to the tunelling ; 57 -- first 57 atoms of the sample contributes to the tunelling ; ... #
+    lower_atoms = myDict['lower_atoms']             # [] = None -- No atoms has lowered hopping ; be aware python numbering occurs here: [0] - means lowering of the 1st atom; [0,1,2,3] -- lowering of 1st 4 atoms ... #
+    if lower_atoms == 'None': lower_atoms = []
+    else:
+        lower_atoms = conv1Darray(lower_atoms)
+    lower_coefs = myDict['lower_coefs']             # [] = None -- No lowering of the hoppings  ; [0.5] -- lowering of the 1st atom hopping to 0.5                           ; [0.5,0.5,0.5,0.5] -- lowering of 1st 4 atoms to 0.5 ... #
+    if lower_coefs == 'None': lower_coefs = []
+    else:
+        lower_coefs = conv1Darray(lower_coefs)
+
     # None=0.0 -- no change to the Fermi Level ; -0.1 -- shifts the Fermi Level by 0.1 eV lower ... #
     fermi = None
     # cut out all orbitals lower than  -2.5 eV bellow Rermi (should be: cut_min <= Vmin-2*eta) . taken to the Fermi Level #
     cut_min = -2.5
     # cut out all orbitals higher than -2.5 eV above  Fermi (should be: cut_max >= Vmax+2*eta) . taken to the Fermi Level #
     cut_max = +2.5
-    files_path = paths['inputPath']            # where are files fron DFT code ; rather do not use this #
     sample_orbs = myDict['sample_orbs']
     spin = myDict['spin']
     if spin == 'None': spin = None

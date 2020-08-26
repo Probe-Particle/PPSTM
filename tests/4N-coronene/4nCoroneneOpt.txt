@@ -3,6 +3,10 @@ dft_code: fireball
 sample_orbs: sp
 spin: None
 pbc: 00
+lvs: None
+cut_atoms: -1.0
+lower_atoms: None
+lower_coefs: None
 data_format: npy
 kValue: 0.5
 qValue: 0.0
