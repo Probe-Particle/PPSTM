@@ -35,13 +35,16 @@ def importData(myDict, paths):
 
     files_path = paths['inputPath']            # where are files fron DFT code ; rather do not use this #
     
-    # None ; [[ax,ay,0],[bx,by,0]],[0,0,cz]] or [[ax,ay],[bx,by]] ; 'input.lvs' -- files with specified cell ; in FHI-AIMS & GPAW allready specified with geometry #
-    lvs = myDict['lvs']
-    if lvs == 'None': lvs = None
-    elif lvs[0] == '[':
-        lvs = conv2Darray(lvs)
-    else:
-        lvs = files_path + lvs
+    try:
+        # None ; [[ax,ay,0],[bx,by,0]],[0,0,cz]] or [[ax,ay],[bx,by]] ; 'input.lvs' -- files with specified cell ; in FHI-AIMS & GPAW allready specified with geometry #
+        lvs = myDict['lvs']
+        if lvs == 'None' or len(lvs) == 0: lvs = None
+        elif lvs[0] == '[':
+            lvs = conv2Darray(lvs)
+        else:
+            lvs = files_path + lvs
+    except:
+        print('lvs input not correct')
 
     # E.G. 'input.xyz' , 'input.bas' , 'geometry.in'; None for GPAW #
     geometry_file = paths['geometry_file']
@@ -54,14 +57,22 @@ def importData(myDict, paths):
     if cp2k_name == 'none': cp2k_name = None
     
     cut_atoms = int(myDict['cut_atoms'])         # None = -1 -- All atoms of the sample contributes to tunelling ; 1 -- only 1st atom of the sample contributes to the tunelling ; 57 -- first 57 atoms of the sample contributes to the tunelling ; ... #
-    lower_atoms = myDict['lower_atoms']             # [] = None -- No atoms has lowered hopping ; be aware python numbering occurs here: [0] - means lowering of the 1st atom; [0,1,2,3] -- lowering of 1st 4 atoms ... #
-    if lower_atoms == 'None': lower_atoms = []
-    else:
-        lower_atoms = conv1Darray(lower_atoms)
-    lower_coefs = myDict['lower_coefs']             # [] = None -- No lowering of the hoppings  ; [0.5] -- lowering of the 1st atom hopping to 0.5                           ; [0.5,0.5,0.5,0.5] -- lowering of 1st 4 atoms to 0.5 ... #
-    if lower_coefs == 'None': lower_coefs = []
-    else:
-        lower_coefs = conv1Darray(lower_coefs)
+    
+    try:
+        lower_atoms = myDict['lower_atoms']             # [] = None -- No atoms has lowered hopping ; be aware python numbering occurs here: [0] - means lowering of the 1st atom; [0,1,2,3] -- lowering of 1st 4 atoms ... #
+        if lower_atoms == 'None' or len(lower_atoms) == 0: lower_atoms = []
+        else:
+            lower_atoms = list(map(int,conv1Darray(lower_atoms)))
+    except:
+        print('lower Atoms input not corrct')
+    
+    try:
+        lower_coefs = myDict['lower_coefs']             # [] = None -- No lowering of the hoppings  ; [0.5] -- lowering of the 1st atom hopping to 0.5                           ; [0.5,0.5,0.5,0.5] -- lowering of 1st 4 atoms to 0.5 ... #
+        if lower_coefs == 'None' or len(lower_coefs) == 0: lower_coefs = []
+        else:
+            lower_coefs = conv1Darray(lower_coefs)
+    except:
+        print('lower_coefs input not correct')
 
     # None=0.0 -- no change to the Fermi Level ; -0.1 -- shifts the Fermi Level by 0.1 eV lower ... #
     fermi = None
@@ -141,6 +152,7 @@ def importData(myDict, paths):
             return None
     
     return {'eigEn': eigEn, 'coefs': coefs, 'Ratin': Ratin}
+
     
 def conv2float(string):
     try:
@@ -149,7 +161,7 @@ def conv2float(string):
         return string
 
 def newPPSTM_simple(myDict, paths, importData):
-
+    
     eigEn = importData['eigEn']
     coefs = importData['coefs']
     Ratin = importData['Ratin']
@@ -242,47 +254,51 @@ def newPPSTM_simple(myDict, paths, importData):
     tc = [s, px, py, 0., 0., 0., 0.]
 
     # if (tip_orb == 's'):
-      #  tc = [s, px, py, 0., 0., 0., 0.]  # [s, px, py, pz, dz2, dxz, dyz ]
+    #  tc = [s, px, py, 0., 0., 0., 0.]  # [s, px, py, pz, dz2, dxz, dyz ]
     # elif (tip_orb == 'pxy'):
-      #  tc = [s, px, py, 0., 0., 0., 0.]  # [s, px, py, pz, dz2, dxz, dyz ]
+    #  tc = [s, px, py, 0., 0., 0., 0.]  # [s, px, py, pz, dz2, dxz, dyz ]
     # elif (tip_orb == 'spxy'):
-      #  tc = [s, px, py, 0., 0., 0., 0.]  # [s, px, py, pz, dz2, dxz, dyz ]
+    #  tc = [s, px, py, 0., 0., 0., 0.]  # [s, px, py, pz, dz2, dxz, dyz ]
     # elif (tip_orb == '5spxy'):
         # [s, px, py, pz, dz2, dxz, dyz ]
-      #  tc = [s, px, py, 0., 0., 0., 0.]
+    #  tc = [s, px, py, 0., 0., 0., 0.]
     # elif (tip_orb == '10spxy'):
-      #  tc = [s, px, py, 0., 0., 0., 0.]  # [s, px, py, pz, dz2, dxz, dyz ]
+    #  tc = [s, px, py, 0., 0., 0., 0.]  # [s, px, py, pz, dz2, dxz, dyz ]
     # elif (tip_orb == 'CO'):
-      #  tc = [s, px, py, 0., 0., 0., 0.]  # [s, px, py, pz, dz2, dxz, dyz ]
+    #  tc = [s, px, py, 0., 0., 0., 0.]  # [s, px, py, pz, dz2, dxz, dyz ]
     # elif (tip_orb == 'pz'):
-      #  tc = [s, px, py, 1., 0., 0., 0.]  # [s, px, py, pz, dz2, dxz, dyz ]
+    #  tc = [s, px, py, 1., 0., 0., 0.]  # [s, px, py, pz, dz2, dxz, dyz ]
     # elif (tip_orb == 'dz2'):
-      #  tc = [s, px, py, 0., 1., 0., 0.]  # [s, px, py, pz, dz2, dxz, dyz ]
+    #  tc = [s, px, py, 0., 1., 0., 0.]  # [s, px, py, pz, dz2, dxz, dyz ]
     # elif (tip_orb == 'dxzyz'):
-      #  tc = [s, px, py, 0., 0., 0.5, 0.5]  # [s, px, py, pz, dz2, dxz, dyz ]
+    #  tc = [s, px, py, 0., 0., 0.5, 0.5]  # [s, px, py, pz, dz2, dxz, dyz ]
     # else:
-      #  print("Don't know what kind of tip you mean. I rather going to exit."); return None
+    #  print("Don't know what kind of tip you mean. I rather going to exit."); return None
 
     # print "DEBUG: tc ", tc , " [s, px, py, pz, dz2, dxz, dyz ] "
 
     # --- the grid on which the STM signal is calculated --- #
 
     if tip_type == 'relaxed':
-        print("Importing positions of PP from the PP-AFM calculations. Path for the data:")
-        path_pos = "Q%1.2fK%1.2f/" % (Q, K)
-        print(path_pos)
-        tip_r, lvec, nDim = GU.load_vec_field(
-            os.path.join(paths['inputPath'], path_pos+'PPpos'), data_format=data_format)
-        extent = (lvec[0, 0], lvec[0, 0]+lvec[1, 0],
-                lvec[0, 1], lvec[0, 1]+lvec[2, 1])
-        # print "DEBUG: extent", extent
-        print("PP postions imported")
-        dx = lvec[1, 0]/(nDim[2]-1); dy = lvec[2, 1] / \
-                        (nDim[1]-1); dz = lvec[3, 2]/(nDim[0]-1);
-        tip_r0 = RS.mkSpaceGrid(lvec[0, 0], lvec[0, 0]+lvec[1, 0], dx, lvec[0, 1],
-                                lvec[0, 1]+lvec[2, 1], dy, lvec[0, 2], lvec[0, 2]+lvec[3, 2], dz)
-        # print "DEBUG: dx, dy, dz", dx, dy, dz
-        # print "DEBUG: tip_r.shape, tip_r0.shape", tip_r.shape, tip_r0.shape
+        try:
+            print("Importing positions of PP from the PP-AFM calculations. Path for the data:")
+            path_pos = "Q%1.2fK%1.2f/" % (Q, K)
+            print(path_pos)
+            tip_r, lvec, nDim = GU.load_vec_field(
+                os.path.join(paths['inputPath'], path_pos+'PPpos'), data_format=data_format)
+            extent = (lvec[0, 0], lvec[0, 0]+lvec[1, 0],
+                    lvec[0, 1], lvec[0, 1]+lvec[2, 1])
+            # print "DEBUG: extent", extent
+            print("PP postions imported")
+            dx = lvec[1, 0]/(nDim[2]-1); dy = lvec[2, 1] / \
+                            (nDim[1]-1); dz = lvec[3, 2]/(nDim[0]-1);
+            tip_r0 = RS.mkSpaceGrid(lvec[0, 0], lvec[0, 0]+lvec[1, 0], dx, lvec[0, 1],
+                                    lvec[0, 1]+lvec[2, 1], dy, lvec[0, 2], lvec[0, 2]+lvec[3, 2], dz)
+            # print "DEBUG: dx, dy, dz", dx, dy, dz
+            # print "DEBUG: tip_r.shape, tip_r0.shape", tip_r.shape, tip_r0.shape
+        except:
+            print('Relaxed scan not possible. Firstly you neeed to install PPAFM code and run < ./run_test to create pre-calculated positions.')
+            return None
     else:
         print("Priparing the scan grid for fixed scan")
         extent = (x[0], x[1], y[0], y[1])
@@ -385,3 +401,4 @@ def newPPSTM_simple(myDict, paths, importData):
     # print "DEBUG: NoH", NoH
     
     # --- the end --- #
+

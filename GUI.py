@@ -304,7 +304,7 @@ class Window(QMainWindow):
         # Adding cut_at 
         self.cutAtoms = QSpinBox(); cutAtBox.addWidget(self.cutAtoms);
         self.cutAtoms.setRange(-2, 1000); self.cutAtoms.setSingleStep(1)
-        self.cutAtoms.setValue(1)
+        self.cutAtoms.setValue(-1)
         self.cutAtoms.valueChanged.connect(self.selectCutAtoms)
         self.num_widgets['cut_atoms'] = self.cutAtoms
 
