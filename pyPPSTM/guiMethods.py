@@ -12,9 +12,8 @@
 import re
 
 def conv1Darray(array1D):
+    array1D = re.sub('\[|\]', '', array1D)
     newArray = array1D.split(',')
-    newArray[0] = newArray[0][1:]
-    newArray[-1] = newArray[-1][:-1]
     return list(map(float, newArray))
 
 def conv2Darray(array2d):
