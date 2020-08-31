@@ -5,12 +5,13 @@ Normall STM simulations using [Chen's approximattion](https://journals.aps.org/p
 
 - BEWARE - after repairing misteake in d-orbitals the results for FePc are different. We are investigating it.
 
-* currently developed Python3/C++ version of the PPSTM code; 
-  * Part of the code is depending on the ProbeParticleModel developed by Prokop Hapala and co. (https://github.com/ProkopHapala/ProbeParticleModel)
+* currently developed Python3/C++ version of the PPSTM code:
+  * works in python3(.7 and higher), matplotlib, cpp>=4.4.8 (look at wiki instruction for problems with MAC [compilation](https://github.com/ondrejkrejci/PPSTM/wiki#compilation-and-overview)), PyQt5 (for [GUI](https://github.com/ondrejkrejci/PPSTM/wiki#GUI-for-PPSTM-code) ),for some parts [ASE](https://wiki.fysik.dtu.dk/ase/) and [GPAW](https://wiki.fysik.dtu.dk/gpaw/) are imporatant;
+  * Part of the code regarding simulations with tilting tips is depending on the ProbeParticleModel developed by Prokop Hapala and co. (https://github.com/ProkopHapala/ProbeParticleModel), you can easilly install it throug ```install_PPAFM.sh``` script.
 
-works in python3(.8), matplotlib, cpp>=4.4.8 (look at wiki instruction for problems with MAC compilation), (for some parts ASE and GPAW are imporatant);
+For easy introduction to this code and its functionalities, try [Graphic User Interface (GUI)](https://github.com/ondrejkrejci/PPSTM/wiki#GUI-for-PPSTM-code) or [PPSTM_simple.py](https://github.com/ondrejkrejci/PPSTM/wiki#ppstm_simplepy) script.
 
-Documentation is at http://nanosurf.fzu.cz/wiki/doku.php?id=probe_particle_stm and here at Wiki: https://github.com/ondrejkrejci/PPSTM/wiki .
+Documentation is here at [wiki](https://github.com/ondrejkrejci/PPSTM/wiki) and older documentation is at http://nanosurf.fzu.cz/wiki/doku.php?id=probe_particle_stm .
 
 It can also simulate IETS images of molecules, if the imaging mechanism is driven by the amplitude of the IETS peak.
 
