@@ -191,7 +191,7 @@ elif ((dft_code == 'aims') or(dft_code == 'AIMS') or (dft_code == 'FHI-AIMS')):
         name = 'KS_eigenvectors_dn.band_1.kpt_1.out'
     else :
         print("unknown spin, I'm going to sleep. Good Night"); exit()
-        eigEn, coefs, Ratin = RS.read_AIMS_all(name = files_path + name , geom= files_path + geometry_file, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
+    eigEn, coefs, Ratin = RS.read_AIMS_all(name = files_path + name , geom= files_path + geometry_file, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
     if (spin == 'both'):
         eigEn1 = eigEn.copy(); coefs1 = coefs.copy(); del eigEn, coefs ;
         name = 'KS_eigenvectors_dn.band_1.kpt_1.out'

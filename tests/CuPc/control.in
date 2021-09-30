@@ -36,6 +36,7 @@
 
   output eigenvectors
   output band 0 0 0 0.5 0.5 0.0 2 G K
+      KS_method lapack_fast # for mpi-version (mpi.scalapack): The error message with HDF5 is not true in the aims output; use this keywords instead of recompilation #
   #exx_band_structure_version 1 ## for hybrid functionals only ##
 
 ################################################################################

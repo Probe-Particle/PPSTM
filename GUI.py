@@ -358,7 +358,7 @@ class Window(QMainWindow):
         # Adding Q number range
         grl1.addWidget(QLabel('             Q: '))
         self.q = QDoubleSpinBox(); grl1.addWidget(self.q);
-        self.q.setRange(0.0, 2.0); self.q.setSingleStep(0.05)
+        self.q.setRange(-2.0, 2.0); self.q.setSingleStep(0.05)
         self.q.valueChanged.connect(self.selectQ)
         self.num_widgets['qValue'] = self.q
         
