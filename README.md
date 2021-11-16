@@ -11,7 +11,7 @@ Normall STM simulations using [Chen's approximattion](https://journals.aps.org/p
 
 For easy introduction to this code and its functionalities, try [Graphic User Interface (GUI)](https://github.com/Probe-Particle/PPSTM/wiki#GUI-for-PPSTM-code) or [PPSTM_simple.py](https://github.com/Probe-Particle/PPSTM/wiki#ppstm_simplepy) script.
 
-Documentation is here at [wiki](https://github.com/Probe-Particle/PPSTM/wiki).
+**Documentation is here at [Wiki](https://github.com/Probe-Particle/PPSTM/wiki).**
 
 It can also simulate IETS images of molecules, if the imaging mechanism is driven by the amplitude of the IETS peak.
 
