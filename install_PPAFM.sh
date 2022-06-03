@@ -9,8 +9,9 @@ directory=${PWD##*/}
 cd ..
 mkdir PPAFM
 cd PPAFM
-git init
-git pull https://github.com/ProkopHapala/ProbeParticleModel
+#git init
+#git pull https://github.com/ProkopHapala/ProbeParticleModel
+git clone https://github.com/ProkopHapala/ProbeParticleModel -b OpenCL_py3 ./
 cd ../$directory
 ln -s ../PPAFM ./PPAFM
 ln -s ../PPAFM/pyProbeParticle pyProbeParticle
