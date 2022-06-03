@@ -11,3 +11,5 @@ __pycache__
 *.xsf
 *.png
 .DS_store
+PPAFM
+pyProbeParticle
