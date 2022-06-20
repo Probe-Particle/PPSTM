@@ -319,28 +319,28 @@ extern "C"{
  //printf("inside a function sp\n");
 	if ( const_orb == 4  ){ //sp orbitals of sample
 		if (tip_coes[0] > 0){
-			printf("calculating s orb. on a tip sp\n");
+			//printf("calculating s orb. on a tip sp\n");
 			#pragma omp parallel for
 			for (int s=0; s<Npoints; s++){
 			 cur[s] += tip_coes[0]*dIdVspsp_vec<ssp>( R[s], NoAt, NoOrb, const_orb, V, eta, eig, Ratin, coesin);
 			}
 		}
 		if (tip_coes[1] > 0){
-			printf("calculating py orb. on a tip sp\n");
+			//printf("calculating py orb. on a tip sp\n");
 			#pragma omp parallel for
 			for (int s=0; s<Npoints; s++){
 			 cur[s] += tip_coes[1]*dIdVspsp_vec<pysp>( R[s], NoAt, NoOrb, const_orb, V, eta, eig, Ratin, coesin);
 			}
 		}
 		if (tip_coes[2] > 0){
-			printf("calculating pz orb. on a tip sp\n");
+			//printf("calculating pz orb. on a tip sp\n");
 			#pragma omp parallel for
 			for (int s=0; s<Npoints; s++){
 			 cur[s] += tip_coes[2]*dIdVspsp_vec<pzsp>( R[s], NoAt, NoOrb, const_orb, V, eta, eig, Ratin, coesin);
 			}
 		}
 		if (tip_coes[3] > 0){
-			printf("calculating px orb. on a tip sp\n");
+			//printf("calculating px orb. on a tip sp\n");
 			#pragma omp parallel for
 			for (int s=0; s<Npoints; s++){
 			 cur[s] += tip_coes[3]*dIdVspsp_vec<pxsp>( R[s], NoAt, NoOrb, const_orb, V, eta, eig, Ratin, coesin);

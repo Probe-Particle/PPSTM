@@ -236,7 +236,7 @@ def before_C( eig, R, Rat, coes, orb_t):
         #print "len(coes)", len(coes)
         #print "len(coes[0])", len(coes[0])
         assert (NoOrb == len(coes)*len(coes[0])/(orb_t*NoAt)), "Different eigennumbers, than basis"	
-    print("We're going to C++")
+    #print("We're going to C++")
     return NoAt, NoOrb, Npoints, cur_1d, sh;
 
 
@@ -281,10 +281,10 @@ array4d = np.ctypeslib.ndpointer(dtype=np.double, ndim=4, flags='CONTIGUOUS')
 lib.proc_dIdVspdspd.argtypes = [ c_int, c_int, c_int, c_int, c_double, c_double, c_double, array1d, array4d, array2d, array2d, array1d, array1d ]
 lib.proc_dIdVspdspd.restype  = None
 def dIdV_sp_sp( V, WF, eta ,eig, R, Rat, coes, tip_coes, orb_t):
-    print("Entering the dI/dV ( sp(d)-sp(d) ) procedure")
+    #print("Entering the dI/dV ( sp(d)-sp(d) ) procedure")
     NoAt, NoOrb, Npoints, cur_1d, sh = before_C( eig, R, Rat, coes, orb_t)
     lib.proc_dIdVspdspd( orb_t, NoAt, NoOrb, Npoints, V, WF, eta, eig, R.copy(), Rat, coes, tip_coes, cur_1d)
-    print("We're back in Python")
+    #print("We're back in Python")
     return cur_1d.reshape((sh[0],sh[1],sh[2])).copy();
 
 # void proc_dIdVspsp_tilt( int NoAt, int NoOrb, int Npoints, double V, double WF, double eta, double len_R, double al, double* eig, double* R_, double* R0_, double* Rat_, double* coesin, double* tip_coes, double* cur)
