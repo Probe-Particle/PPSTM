@@ -39,7 +39,7 @@ def initArgs(atoms, CAOs, Spectral, rTips ):
     nMOs        = np.int32( len(CAOs) )  
     print("initArgs nAtoms, nMOs", nAtoms, nMOs)
     mf          = cl.mem_flags
-    cl_Gout     = cl.Buffer(ctx, mf.WRITE_ONLY                   , rTips.nbytes/4     )
+    cl_Gout     = cl.Buffer(ctx, mf.WRITE_ONLY                   , rTips.nbytes//4     )
     cl_atoms    = cl.Buffer(ctx, mf.READ_ONLY  | mf.COPY_HOST_PTR, hostbuf=atoms      )
     cl_CAOs     = cl.Buffer(ctx, mf.READ_ONLY  | mf.COPY_HOST_PTR, hostbuf=CAOs       )
     cl_Spectral = cl.Buffer(ctx, mf.READ_ONLY  | mf.COPY_HOST_PTR, hostbuf=Spectral   )
