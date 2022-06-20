@@ -1,11 +1,15 @@
 import os
 import sys
+import time
 
 import numpy as np
 import h5py
 
+from pyProbeParticle.fieldOCL import atoms2float4
+
 from . import ProbeSTM as PS
-from . import ReadSTM as RS
+from . import ReadSTM  as RS
+from . import OCL      as ocl 
 
 #root = os.path.abspath('../PPAFM/')
 #ocl_path = "/u/79/kurkil1/unix/work/PPAFM_ocl"
@@ -53,6 +57,7 @@ class STMulator():
         tip_stiffness: Array of lenght 4. [N/m] (x,y,z,R). stiffness of harmonic springs anchoring probe-particle to the metalic tip-apex 
         relax_params: Array of lenght 4. (dt,damp, .., ..). parameters of relaxation, in the moment just dt and damp are used
         return_afm: boolean. Return afm scan of molecule also (default: False)
+        timings: boolean. Print timing information. (default: False)
     """
 
     def __init__(self,
@@ -64,7 +69,7 @@ class STMulator():
         tip_orb             = 's',
         sample_orb          = 'sp',
         scan_window         = ((2.0, 2.0, 9.0), (18.0, 18.0, 10.0)),
-        scan_dim            = (128, 128, 10),
+        scan_dim            = (128, 128, 20),
         tip_type            = "relaxed",
         lvec                = None,
         pix_per_angstrom    = 10,
@@ -74,7 +79,8 @@ class STMulator():
         tip_r0              = np.array([0.0, 0.0, 3.0]),
         tip_stiffness       = [0.25, 0.25, 0.0,     30.0],
         relax_params        = [0.5,  0.1,  0.1*0.2, 0.1*5.0],
-        return_afm          = False
+        return_afm          = False,
+        timings             = False
     ):
         assert scan_type in ['didv', 'STM'], "Scan type must be either didv or STM"
         assert tip_type in ['fixed', 'relaxed'], "Tip type must be either fixed or relaxed"
@@ -116,9 +122,10 @@ class STMulator():
         if self.tip_type == 'relaxed':
             self._init_afmulator()
             #self.afmulator = AFMulator(scan_dim=self.scan_dim, scan_window=self.scan_window)
-     
 
-    def eval(self, xyz, Zs, qs, eigs, coefs):
+        self.timings = timings
+
+    def eval(self, xyz, Zs, qs, eigs, coefs, REAs=None):
         """
         Prepare and evaluate STM and AFM scan.
         Arguments:
@@ -127,21 +134,40 @@ class STMulator():
             qs: np.ndarray(N). Point charges of each atom
             eigs: np.ndarray. Eigenenergies of the system
             coefs: np.ndarray. KS coefficients of the system
+            REAs: np.ndarray of shape (num_atoms, 4). Lennard Jones interaction parameters. Calculated automatically if None.
         Returns:
             if return_afm==True:
                 tuple of np.ndarrays. STM/didv and AFM images
             else:
                 np.ndarray. STM/didv image
         """
-        if self.tip_type == 'relaxed':
-            x_afm = self.afmulator(xyz, Zs, qs)
-            paths = self.afmulator.scanner.downloadPaths()
-            self.tip_xyz = paths.astype(np.float64).transpose(1, 0, 2, 3)
 
+        if REAs is None:
+            self.REAs = PP.getAtomsREA(self.iZPP, Zs, self.afmulator.typeParams, alphaFac=-1.0)
+        else:
+            self.REAs = REAs
+
+        if self.tip_type == 'relaxed':
+            if self.timings: afm_start=time.time()
+            x_afm = self.afmulator(xyz, Zs, qs, REAs=self.REAs)
+            if self.timings: print(f"AFM time: {time.time()-afm_start:.2f} s")
+            if self.timings: down_start=time.time()
+            paths = self.afmulator.scanner.downloadPaths()
+            self.tip_xyz = paths.astype(np.float64)#.transpose(1, 0, 2, 3)
+            if self.timings: print(f"Tip download time: {time.time()-down_start:.2f} s")
+
+        i_min = (eigs < -2.5).sum()
+        i_max = (eigs < 2.5).sum()
+
+        eigs = eigs[i_min:i_max]
+        coefs = coefs[i_min:i_max, :]
+
+        if self.timings: stm_start=time.time()
         x = self._evalSTM(xyz, eigs, coefs)
-        
+        if self.timings: print(f"STM time: {time.time()-stm_start:.2f} s")
+      
         if self.return_afm:
-            out = x, x_afm
+            out = x[:,:,::2], x_afm[:,:,:-1]
         else:
             out = x
         return out
@@ -179,6 +205,14 @@ class STMulator():
                      *self.tip_orb_coefs)
             x = PS.dIdV(*kargs)
         return x 
+
+    def ocl_stm(self, xyz, qs, coefs, eigs):
+        atoms = ocl.xyzq2float4(xyzs=xyz, qs=qs)
+        CAOs = ocl.CAOsp2f4(coefs, xyz.shape[0])
+        spectral = ocl.getSpectral(eigs, Wf=self.work_function, w=self.bias_voltage)
+        kargs = ocl.initArgs(atoms, CAOs, spectral, self.tip_xyz)
+        x = ocl.run(kargs, self.tip_xyz.shape[:3])
+        return x
         
     def _get_tip_orb_coefs(self):
         """Get tip orbital coefficients."""
@@ -226,7 +260,7 @@ class STMulator():
                                    tipR0=self.tip_r0,
                                    tipStiffness=self.tip_stiffness)
 
-    def __call__(self, xyz, Zs, qs, eigs, coefs):
+    def __call__(self, xyz, Zs, qs, eigs, coefs, REAs=None):
         """
         Make object callable.
         Arguments:
@@ -235,5 +269,6 @@ class STMulator():
             qs: np.ndarray(N). Point charges of each atom
             eigs: np.ndarray. Eigenenergies of the system
             coefs: np.ndarray. KS coefficients of the system
+            REAs: np.ndarray of shape (num_atoms, 4). Lennard Jones interaction parameters. Calculated automatically if None.
         """
-        return self.eval(xyz, Zs, qs, eigs, coefs)
+        return self.eval(xyz, Zs, qs, eigs, coefs, REAs)
