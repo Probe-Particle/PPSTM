@@ -85,8 +85,8 @@ class STMgenerator():
 
                 # Run afm + stm, tip relaxing done internally
                 x_stm, x_afm = self.stmulator(self.xyz, self.Zs, self.qs, eigs, coefs, REAs=self.REAs)
-                X1s.append(x_stm.astype(np.float16))
-                X2s.append(x_afm.astype(np.float16))
+                X1s.append([x_stm.astype(np.float16)])
+                X2s.append([x_afm.astype(np.float16)])
 
                 self.xyz[:, [1,0]] = self.xyz[:, [0,1]]
 
