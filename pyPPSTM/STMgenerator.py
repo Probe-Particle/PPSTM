@@ -146,7 +146,7 @@ class STMgenerator():
             xyz = g['xyz']
             lattice = np.array(xyz.attrs['lattice'])
             xyz = np.array(xyz)
-            Zs = np.array(g['Zs'])
+            Zs = np.array(g['Z'])
             qs = np.array(g['qs'])
         return eigs, coefs, xyz, qs, Zs, lattice
 
