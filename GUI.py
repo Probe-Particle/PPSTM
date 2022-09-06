@@ -581,7 +581,11 @@ class Window(QMainWindow):
         l3.setAlignment(Qt.AlignLeft)
 
         l4 = QHBoxLayout(); vo1.addLayout(l4)
-        show = QPushButton("Show"); l4.addWidget(show)
+        self.plotatoms_box = QCheckBox("Plot atoms"); l4.addWidget(self.plotatoms_box)
+        self.plotatoms_box.setChecked(True)
+
+        l5 = QHBoxLayout(); vo1.addLayout(l5)
+        show = QPushButton("Show"); l5.addWidget(show)
         show.clicked.connect(self.showImage)
 
     ####### vo2 - visualizing options part 2, row 2 - save image, save data, save options, load options (buttons) #################
@@ -902,16 +906,16 @@ class Window(QMainWindow):
         if mapType == 'dIdV':
         # ploting part here:
             plt.figure( figsize=(0.5 * plotData['lvec'][1,0] , 0.5 * plotData['lvec'][2,1] ) )
-            plt.imshow(plotData['didv'][voltage,height,:,:], origin='image', extent=plotData['extent'] , cmap='gray')
-            self.plotGeom()
+            plt.imshow(plotData['didv'][voltage,height,:,:], origin='lower', extent=plotData['extent'] , cmap='gray')
+            if self.plotatoms_box.isChecked(): self.plotGeom()
             plt.xlabel(r' Tip_x $\AA$')
             plt.ylabel(r' Tip_y $\AA$')
             plt.title("dIdV:"+name_plot)
         else:
         # ploting part here:
             plt.figure( figsize=(0.5 * plotData['lvec'][1,0] , 0.5 * plotData['lvec'][2,1] ) )
-            plt.imshow(plotData['current'][voltage,height,:,:], origin='image', extent=plotData['extent'] , cmap='gray')
-            self.plotGeom()
+            plt.imshow(plotData['current'][voltage,height,:,:], origin='lower', extent=plotData['extent'] , cmap='gray')
+            if self.plotatoms_box.isChecked(): self.plotGeom()
             plt.xlabel(r' Tip_x $\AA$')
             plt.ylabel(r' Tip_y $\AA$')
             plt.title("STM:"+name_plot)
