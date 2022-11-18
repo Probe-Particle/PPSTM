@@ -5,8 +5,6 @@ import time
 import numpy as np
 import h5py
 
-from pyProbeParticle.fieldOCL import atoms2float4
-
 from . import ProbeSTM as PS
 from . import ReadSTM  as RS
 from . import OCL      as ocl 
@@ -16,12 +14,7 @@ from . import OCL      as ocl
 #sys.path.append(ocl_path)
 
 import pyProbeParticle as PP
-from pyProbeParticle.AFMulatorOCL_Simple import AFMulator
-
-import pyProbeParticle.HighLevel as PPH
-import pyProbeParticle.GridUtils as GU
-import pyProbeParticle.core as PPC
-
+from pyProbeParticle.ocl.AFMulator import AFMulator
 
 class STMulator():
     """
