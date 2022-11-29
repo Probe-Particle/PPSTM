@@ -85,8 +85,8 @@ class STMgenerator():
 
                 # Run afm + stm, tip relaxing done internally
                 x_stm, x_afm = self.stmulator(self.xyz, self.Zs, self.qs, eigs, coefs, REAs=self.REAs)
-                X1s.append([x_stm.astype(np.float16)])
-                X2s.append([x_afm.astype(np.float16)])
+                X1s.append([x_stm])
+                X2s.append([x_afm])
 
                 self.xyz[:, [1,0]] = self.xyz[:, [0,1]]
 
@@ -96,7 +96,7 @@ class STMgenerator():
                 # Calculate each aux map
                 for ia, auxmap in enumerate(self.auxmaps):
                     xyzqs = np.concatenate([self.xyz, self.qs[:,None]], axis=1)
-                    Ys[ia].append(auxmap(xyzqs, self.Zs).astype(np.float16))
+                    Ys[ia].append(auxmap(xyzqs, self.Zs))
 
                 if self.timings: print(f'Sample {i} runtime [s]: {time.time() - sample_start}')
                 self.counter += 1
