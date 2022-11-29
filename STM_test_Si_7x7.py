@@ -88,7 +88,7 @@ plt.figure( figsize=(0.4* xl , 0.4*yl/2 ) )
 ni=21; nn=2;
 for i in range(ni):
         plt.subplot(3,7,i+1)
-        plt.imshow( dIdV0[i*nn,0,:,:], origin='image', extent=extent , cmap='gray')
+        plt.imshow( dIdV0[i*nn,0,:,:], origin='lower', extent=extent , cmap='gray')
         if np.mod(i,7)==0 :
             plt.ylabel(r' Tip_y $\AA$')
         if i >= 14:
@@ -106,7 +106,7 @@ name_file='didV-7x7-5Ang_test'
 plt.figure( figsize=(0.4* xl , 0.4*yl/2 ) )
 for i in range(ni):
         plt.subplot(3,7,i+1)
-        plt.imshow( dIdV1[i*nn,0,:,:], origin='image', extent=extent , cmap='gray')
+        plt.imshow( dIdV1[i*nn,0,:,:], origin='lower', extent=extent , cmap='gray')
         if np.mod(i,7)==0 :
             plt.ylabel(r' Tip_y $\AA$')
         if i >= 14:
@@ -124,7 +124,7 @@ name_file='STM-7x7-5Ang_no_changes_in_WF'
 plt.figure( figsize=(0.4* xl , 0.4*yl/2 ) )
 for i in range(ni):
         plt.subplot(3,7,i+1)
-        plt.imshow( STM0[i*nn,0,:,:], origin='image', extent=extent , cmap='gray')
+        plt.imshow( STM0[i*nn,0,:,:], origin='lower', extent=extent , cmap='gray')
         if np.mod(i,7)==0 :
             plt.ylabel(r' Tip_y $\AA$')
         if i >= 14:
@@ -142,7 +142,7 @@ name_file='STM-7x7-5Ang_WF_changes_w_V'
 plt.figure( figsize=(0.4* xl , 0.4*yl/2 ) )
 for i in range(ni):
         plt.subplot(3,7,i+1)
-        plt.imshow( STM1[i*nn,0,:,:], origin='image', extent=extent , cmap='gray')
+        plt.imshow( STM1[i*nn,0,:,:], origin='lower', extent=extent , cmap='gray')
         if np.mod(i,7)==0 :
             plt.ylabel(r' Tip_y $\AA$')
         if i >= 14:

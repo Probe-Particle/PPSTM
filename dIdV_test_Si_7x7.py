@@ -108,7 +108,7 @@ plt.figure( figsize=(0.2* xl , 0.2*yl/2 ) )
 for i in range(2):
         j=i if i <=0 else i+1
         plt.subplot(1,2,i+1)
-        plt.imshow( curre[i,0,:,:], origin='image', extent=extent , cmap='gray')
+        plt.imshow( curre[i,0,:,:], origin='lower', extent=extent , cmap='gray')
         plt.xlabel(r' Tip_x $\AA$')
         plt.ylabel(r' Tip_y $\AA$')
         plt.title("Sample bias:"+namez[j]+"V")
@@ -126,7 +126,7 @@ plt.figure( figsize=(0.2* xl , 0.2*yl/2 ) )
 for i in range(2):
         j=i if i <=0 else i+1
         plt.subplot(1,2,i+1)
-        plt.imshow( curre[i,0,:,:], origin='image', extent=extent , cmap='gray')
+        plt.imshow( curre[i,0,:,:], origin='lower', extent=extent , cmap='gray')
         plt.xlabel(r' Tip_x $\AA$')
         plt.ylabel(r' Tip_y $\AA$')
         plt.title("Sample bias:"+namez[j]+"V")
@@ -144,7 +144,7 @@ plt.figure( figsize=(0.2* xl , 0.2*yl/2 ) )
 for i in range(2):
         j=i if i <=0 else i+1
         plt.subplot(1,2,i+1)
-        plt.imshow( curre[i,0,:,:], origin='image', extent=extent , cmap='gray')
+        plt.imshow( curre[i,0,:,:], origin='lower', extent=extent , cmap='gray')
         plt.xlabel(r' Tip_x $\AA$')
         plt.ylabel(r' Tip_y $\AA$')
         plt.title("Sample bias:"+namez[j]+"V")

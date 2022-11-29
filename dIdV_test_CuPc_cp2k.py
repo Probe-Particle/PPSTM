@@ -113,7 +113,7 @@ for zi in range(len(tip_r2)):
     plt.figure( figsize=(0.45* xl , 0.45*yl/2 ) )
     for i in range(8):
         plt.subplot(2,4,i+1)
-        plt.imshow( curre[i,zi,:,:], origin='image', extent=extent , cmap='gray')
+        plt.imshow( curre[i,zi,:,:], origin='lower', extent=extent , cmap='gray')
         if ((i == 0)or(i==4)):
             plt.ylabel(r' Tip_y $\AA$')
         plt.title("dI/dV "+namez[i])
