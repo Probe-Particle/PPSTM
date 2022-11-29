@@ -149,8 +149,8 @@ class STMulator():
             self.tip_xyz = paths.astype(np.float64)#.transpose(1, 0, 2, 3)
             if self.timings: print(f"Tip download time: {time.time()-down_start:.2f} s")
 
-        i_min = (eigs < -2.5).sum()
-        i_max = (eigs < 2.5).sum()
+        i_min = (eigs < -5.0).sum()
+        i_max = (eigs < 5.0).sum()
 
         eigs = eigs[i_min:i_max]
         coefs = coefs[i_min:i_max, :]
