@@ -301,7 +301,7 @@ if PNG :
             if didv_b :
                 # ploting part here:
                 plt.figure( figsize=(0.5 * lvec[1,0] , 0.5 * lvec[2,1] ) )
-                plt.imshow(didv[vv,k,:,:], origin='image', extent=extent , cmap='gray')
+                plt.imshow(didv[vv,k,:,:], origin='lower', extent=extent , cmap='gray')
                 plotGeom(atoms=geom_plot)
                 plt.xlabel(r' Tip_x $\AA$')
                 plt.ylabel(r' Tip_y $\AA$')
@@ -311,7 +311,7 @@ if PNG :
             if STM_b :
                 # ploting part here:
                 plt.figure( figsize=(0.5 * lvec[1,0] , 0.5 * lvec[2,1] ) )
-                plt.imshow(current[vv,k,:,:], origin='image', extent=extent , cmap='gray')
+                plt.imshow(current[vv,k,:,:], origin='lower', extent=extent , cmap='gray')
                 plotGeom(atoms=geom_plot)
                 plt.xlabel(r' Tip_x $\AA$')
                 plt.ylabel(r' Tip_y $\AA$')

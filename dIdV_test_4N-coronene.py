@@ -116,55 +116,55 @@ for WorkFunction in [WorkFunction]:
                 # ploting part here:
                 plt.figure( figsize=(1.5* xl , 1.5*yl/2 ) )
                 plt.subplot(2,4,1)
-                plt.imshow( dff, origin='image', extent=extent , cmap='gray')
+                plt.imshow( dff, origin='lower', extent=extent , cmap='gray')
                 plt.xlabel(r' Tip_x $\AA$')
                 plt.ylabel(r' Tip_y $\AA$')
                 plt.title(name_plot_df)
                 
                 # ploting part here:
                 plt.subplot(2,4,2)
-                plt.imshow( curr0, origin='image', extent=extent, cmap='gray' )
+                plt.imshow( curr0, origin='lower', extent=extent, cmap='gray' )
                 plt.xlabel(r' Tip_x $\AA$')
                 plt.ylabel(r' Tip_y $\AA$')
                 plt.title(name_plot0)
                 
                 # ploting part here:
                 plt.subplot(2,4,3)
-                plt.imshow( curr1, origin='image', extent=extent, cmap='gray' )
+                plt.imshow( curr1, origin='lower', extent=extent, cmap='gray' )
                 plt.xlabel(r' Tip_x $\AA$')
                 plt.ylabel(r' Tip_y $\AA$')
                 plt.title(name_plot1)
                 
                 # ploting part here:
                 plt.subplot(2,4,4)
-                plt.imshow( curr2, origin='image', extent=extent, cmap='gray' )
+                plt.imshow( curr2, origin='lower', extent=extent, cmap='gray' )
                 plt.xlabel(r' Tip_x $\AA$')
                 plt.ylabel(r' Tip_y $\AA$')
                 plt.title(name_plot2)
                 
                 plt.subplot(2,4,5)
-                plt.imshow( curr3, origin='image', extent=extent , cmap='gray')
+                plt.imshow( curr3, origin='lower', extent=extent , cmap='gray')
                 plt.xlabel(r' Tip_x $\AA$')
                 plt.ylabel(r' Tip_y $\AA$')
                 plt.title(name_plot3)
                 
                 # ploting part here:
                 plt.subplot(2,4,6)
-                plt.imshow( curr4, origin='image', extent=extent, cmap='gray' )
+                plt.imshow( curr4, origin='lower', extent=extent, cmap='gray' )
                 plt.xlabel(r' Tip_x $\AA$')
                 plt.ylabel(r' Tip_y $\AA$')
                 plt.title(name_plot4)
                 
                 # ploting part here:
                 plt.subplot(2,4,7)
-                plt.imshow( curr5, origin='image', extent=extent, cmap='gray' )
+                plt.imshow( curr5, origin='lower', extent=extent, cmap='gray' )
                 plt.xlabel(r' Tip_x $\AA$')
                 plt.ylabel(r' Tip_y $\AA$')
                 plt.title(name_plot5)
                 
                 # ploting part here:
                 plt.subplot(2,4,8)
-                plt.imshow( curr6, origin='image', extent=extent, cmap='gray' )
+                plt.imshow( curr6, origin='lower', extent=extent, cmap='gray' )
                 plt.xlabel(r' Tip_x $\AA$')
                 plt.ylabel(r' Tip_y $\AA$')
                 plt.title(name_plot6)

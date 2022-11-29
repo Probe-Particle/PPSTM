@@ -203,57 +203,57 @@ for WorkFunction in [WorkFunction]:
                 plt.figure( figsize=(3./3* xl , 3./3*yl ) )
 
                 plt.subplot(4,3,1)
-                plt.imshow(  curs[k,:,:,0], origin='image', extent=extent, cmap='gray' )
+                plt.imshow(  curs[k,:,:,0], origin='lower', extent=extent, cmap='gray' )
                 plt.ylabel(r' Tip_y $\AA$; eta =1.00 eV')
                 plt.title(name_plot0)
 
                 plt.subplot(4,3,2)
-                plt.imshow(  curp[k,:,:,0], origin='image', extent=extent, cmap='gray' )
+                plt.imshow(  curp[k,:,:,0], origin='lower', extent=extent, cmap='gray' )
                 plt.title(name_plot1)
 
                 plt.subplot(4,3,3)
-                plt.imshow(  0.15*curs[k,:,:,0]+curp[k,:,:,0], origin='image', extent=extent, cmap='gray' )
+                plt.imshow(  0.15*curs[k,:,:,0]+curp[k,:,:,0], origin='lower', extent=extent, cmap='gray' )
                 plt.title(name_plot2)
 
                 plt.subplot(4,3,4)
-                plt.imshow(  ietss[k,:,:,0], origin='image', extent=extent, cmap='gray' )
+                plt.imshow(  ietss[k,:,:,0], origin='lower', extent=extent, cmap='gray' )
                 plt.ylabel(r' Tip_y $\AA$; eta =1.00 eV')
                 plt.title(name_plot3)
 
                 plt.subplot(4,3,5)
-                plt.imshow(  ietsp[k,:,:,0], origin='image', extent=extent, cmap='gray' )
+                plt.imshow(  ietsp[k,:,:,0], origin='lower', extent=extent, cmap='gray' )
                 plt.title(name_plot4)
 
                 plt.subplot(4,3,6)
-                plt.imshow(  0.15*ietss[k,:,:,0]+ietsp[k,:,:,0], origin='image', extent=extent, cmap='gray' )
+                plt.imshow(  0.15*ietss[k,:,:,0]+ietsp[k,:,:,0], origin='lower', extent=extent, cmap='gray' )
                 plt.title(name_plot5)
 
                 plt.subplot(4,3,7)
-                plt.imshow(  IETSs[k,:,:,0], origin='image', extent=extent, cmap='gray' )
+                plt.imshow(  IETSs[k,:,:,0], origin='lower', extent=extent, cmap='gray' )
                 plt.ylabel(r' Tip_y $\AA$; eta =1.00 eV')
                 plt.title(name_plot6)
 
                 plt.subplot(4,3,8)
-                plt.imshow(  IETSp[k,:,:,0], origin='image', extent=extent, cmap='gray' )
+                plt.imshow(  IETSp[k,:,:,0], origin='lower', extent=extent, cmap='gray' )
                 plt.title(name_plot7)
 
                 plt.subplot(4,3,9)
-                plt.imshow(  0.15*IETSs[k,:,:,0]+IETSp[k,:,:,0], origin='image', extent=extent, cmap='gray' )
+                plt.imshow(  0.15*IETSs[k,:,:,0]+IETSp[k,:,:,0], origin='lower', extent=extent, cmap='gray' )
                 plt.title(name_plot8)
 
                 plt.subplot(4,3,10)
-                plt.imshow(  df[k,:,:], origin='image', extent=extent, cmap='gray' )
+                plt.imshow(  df[k,:,:], origin='lower', extent=extent, cmap='gray' )
                 plt.ylabel(r' Tip_y $\AA$;PP-AFM code')
                 plt.title(name_plot9)
                 plt.xlabel(r' Tip_x $\AA$')
 
                 plt.subplot(4,3,11)
-                plt.imshow(  iets_afm[k,:,:,2], origin='image', extent=extent, cmap='gray' )
+                plt.imshow(  iets_afm[k,:,:,2], origin='lower', extent=extent, cmap='gray' )
                 plt.title(name_plot10)
                 plt.xlabel(r' Tip_x $\AA$')
 
                 plt.subplot(4,3,12)
-                plt.imshow(  denomin1[k,:,:], origin='image', extent=extent, cmap='gray' )
+                plt.imshow(  denomin1[k,:,:], origin='lower', extent=extent, cmap='gray' )
                 plt.title(name_plot11)
                 plt.xlabel(r' Tip_x $\AA$')
 
@@ -274,16 +274,16 @@ for WorkFunction in [WorkFunction]:
                 plt.figure( figsize=(xl , 4./3*yl ) )
             
                 plt.subplot(1,3,1)
-                plt.imshow(  curs[k,:,:,0] - o_curs[k,:,:,0], origin='image', extent=extent, cmap='gray' )
+                plt.imshow(  curs[k,:,:,0] - o_curs[k,:,:,0], origin='lower', extent=extent, cmap='gray' )
                 plt.ylabel(r' Tip_y $\AA$; eta =1.0 eV')
                 plt.xlabel(r' Tip_x $\AA$')
 
                 plt.subplot(1,3,2)
-                plt.imshow(  curp[k,:,:,0] - o_curp[k,:,:,0], origin='image', extent=extent, cmap='gray' )
+                plt.imshow(  curp[k,:,:,0] - o_curp[k,:,:,0], origin='lower', extent=extent, cmap='gray' )
                 plt.xlabel(r' Tip_x $\AA$')
 
                 plt.subplot(1,3,3)
-                plt.imshow(  0.15*curs[k,:,:,0]+curp[k,:,:,0] - (0.15*o_curs[k,:,:,0]+o_curp[k,:,:,0]), origin='image', extent=extent, cmap='gray' )
+                plt.imshow(  0.15*curs[k,:,:,0]+curp[k,:,:,0] - (0.15*o_curs[k,:,:,0]+o_curp[k,:,:,0]), origin='lower', extent=extent, cmap='gray' )
                 plt.xlabel(r' Tip_x $\AA$')
 
                 plt.savefig( 'd2IdV2_'+namez_der[i]+"_fermi_"+str(fermi)+'_%03d.png' %(k+ki) , bbox_inches='tight' )

@@ -100,28 +100,28 @@ for V in Voltages:
         # ploting part here:
         plt.figure( figsize=(1.5* xl , 1.5*yl/4 ) )
         plt.subplot(1,4,1)
-        plt.imshow( dff, origin='image', extent=extent , cmap='gray')
+        plt.imshow( dff, origin='lower', extent=extent , cmap='gray')
         plt.xlabel(r' Tip_x $\AA$')
         plt.ylabel(r' Tip_y $\AA$')
         plt.title(name_plot_df)
     
         # ploting part here:
         plt.subplot(1,4,2)
-        plt.imshow( curr0, origin='image', extent=extent, cmap='gray' )
+        plt.imshow( curr0, origin='lower', extent=extent, cmap='gray' )
         plt.xlabel(r' Tip_x $\AA$')
         plt.ylabel(r' Tip_y $\AA$')
         plt.title(name_plot0)
     
         # ploting part here:
         plt.subplot(1,4,3)
-        plt.imshow( curr1, origin='image', extent=extent, cmap='gray' )
+        plt.imshow( curr1, origin='lower', extent=extent, cmap='gray' )
         plt.xlabel(r' Tip_x $\AA$')
         plt.ylabel(r' Tip_y $\AA$')
         plt.title(name_plot1)
     
         # ploting part here:
         plt.subplot(1,4,4)
-        plt.imshow( curr2, origin='image', extent=extent, cmap='gray' )
+        plt.imshow( curr2, origin='lower', extent=extent, cmap='gray' )
         plt.xlabel(r' Tip_x $\AA$')
         plt.ylabel(r' Tip_y $\AA$')
         plt.title(name_plot2)
