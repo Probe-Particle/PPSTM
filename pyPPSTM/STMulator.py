@@ -13,8 +13,8 @@ from . import OCL      as ocl
 #ocl_path = "/u/79/kurkil1/unix/work/PPAFM_ocl"
 #sys.path.append(ocl_path)
 
-import pyProbeParticle as PP
-from pyProbeParticle.ocl.AFMulator import AFMulator
+import ppafm as PP
+from ppafm.ocl.AFMulator import AFMulator
 
 class STMulator():
     """
