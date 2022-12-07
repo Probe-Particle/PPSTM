@@ -4,13 +4,8 @@
 # !!! git & internet needed !!!
 # This script will download for you ProbeParticleModel,
 # it is necessary for smulations with tilting tip
+# This script downloads the old master branch of the PPAFM code
 
-directory=${PWD##*/}
-cd ..
-mkdir PPAFM
-cd PPAFM
-git init
-git pull https://github.com/ProkopHapala/ProbeParticleModel
-cd ../$directory
+git clone -b master_backup git@github.com:Probe-Particle/ProbeParticleModel.git ../PPAFM 
 ln -s ../PPAFM ./PPAFM
-ln -s ../PPAFM/pyProbeParticle pyProbeParticle
+ln -s ../PPAFM/pyProbeParticle ./pyProbeParticle
