@@ -12,9 +12,9 @@ echo "Now the tests:"
 which python3
 
 echo "test for the PP-STM code:"
-python3 PPSTM/PPAFM/generateLJFF.py -i crazy_mol.xyz --npy
-python3 PPSTM/PPAFM/relaxed_scan.py --pos --npy
-python3 PPSTM/PPAFM/plot_results.py --pos --df --save_df --npy
+ppafm-generate-ljff -i crazy_mol.xyz -f npy
+ppafm-relaxed-scan --pos -f npy
+ppafm-plot-results --pos --df --save_df -f npy
 python3 PPSTM/dIdV_test_4N-coronene.py
 python3 PPSTM/dIdV_test_4N-coronene_cp2k.py
 python3 PPdos_simple.py

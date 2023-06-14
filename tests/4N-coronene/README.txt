@@ -1,12 +1,13 @@
 #HOW TO RUN PPSTM simulations:
 #See doc, or:
+Relaxed scans require installation of PPAFM (version =< 0.2.0a3) with 
+pip install ppafm==0.2.0a3
 
-
-python PPSTM/PPAFM/generateLJFF.py -i crazy_mol.xyz --npy # see params.ini &/or AFM documentation for initial settings
+ppafm-generate-ljff -i crazy_mol.xyz -f npy # see params.ini &/or AFM documentation for initial settings
 # now LJ Force-field is made
 
-python PPSTM/PPAFM/relaxed_scan.py --pos --npy # AFM scan with CO tip, positions of PP saved in Q*.**K*.**/PPpos_?.npy
-python PPSTM/PPAFM/plot_results.py --pos --df --save_df --npy # save figures of PP positions; figures of df and save df into Q*.**K*.**/Amp*.**/df.pny file 
+ppafm-relaxed-scan --pos -f npy # AFM scan with CO tip, positions of PP saved in Q*.**K*.**/PPpos_?.npy
+ppafm-plot-results --pos --df --save_df -f npy # save figures of PP positions; figures of df and save df into Q*.**K*.**/Amp*.**/df.pny file 
 
 # Now all AFM files are made; in the minimalistic mode only first two commands are needed. But it is always good to check, whether one is
 # in proper height, by means of looking at xy and df, before running dI/dV or even STM, which in case of slab calculations can last long time
