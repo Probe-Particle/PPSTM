@@ -3,7 +3,7 @@
 import os
 import numpy as np
 
-#import pyProbeParticle.GridUtils as GU # --- not needed at all for the rigid tip scans
+#import ppafm.io as io # --- not needed at all for the rigid tip scans
 import pyPPSTM                   as PS
 import pyPPSTM.ReadSTM           as RS
 

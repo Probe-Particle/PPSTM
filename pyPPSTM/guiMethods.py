@@ -283,7 +283,7 @@ def newPPSTM_simple(myDict, paths, importData):
             print("Importing positions of PP from the PP-AFM calculations. Path for the data:")
             path_pos = "Q%1.2fK%1.2f/" % (Q, K)
             print(path_pos)
-            tip_r, lvec, nDim = GU.load_vec_field(
+            tip_r, lvec, nDim = io.load_vec_field(
                 os.path.join(paths['inputPath'], path_pos+'PPpos'), data_format=data_format)
             extent = (lvec[0, 0], lvec[0, 0]+lvec[1, 0],
                     lvec[0, 1], lvec[0, 1]+lvec[2, 1])

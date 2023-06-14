@@ -91,7 +91,7 @@ matplotlib.use('Agg') # Force matplotlib to not use any Xwindows backend. ## !!!
 import matplotlib.pyplot as plt
 if (XSF or NPY or (tip_type == 'relaxed') or (tip_type == 'r' )):
     print("For XSF or NPY outputs or tip_type = relaxed you have to have installed PPAFM in your PPSTM directory ")
-    import pyProbeParticle.GridUtils as GU
+    import ppafm.io as io
 if (plot_atoms):
     import pyPPSTM.basUtils as Bu
     import pyPPSTM.elements as elements
@@ -143,7 +143,7 @@ if ((tip_type =='relaxed') or (tip_type == 'r')):
     print("Importing positions of PP from the PP-AFM calculations. Path for the data:")
     path_pos="Q%1.2fK%1.2f/" %(Q,K)
     print(path_pos)
-    tip_r, lvec, nDim = GU.load_vec_field( path_pos+'PPpos' ,data_format=data_format)
+    tip_r, lvec, nDim = io.load_vec_field( path_pos+'PPpos' ,data_format=data_format)
     extent = (lvec[0,0],lvec[0,0]+lvec[1,0],lvec[0,1],lvec[0,1]+lvec[2,1])
     #print "DEBUG: extent", extent
     print("PP postions imported")
@@ -356,14 +356,14 @@ if WSxM :
 
 if XSF :
     print("writing XSF files")
-    xsf_head = Bu.At2XSF(geom_plot) if plot_atoms else GU.XSF_HEAD_DEFAULT
+    xsf_head = Bu.At2XSF(geom_plot) if plot_atoms else io.XSF_HEAD_DEFAULT
     for vv in range(NoV):
         if didv_b :
             name_file =  'didv_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction-Voltages[vv]*WF_decay)+"_eta_"+str(eta)+'.xsf'
-            GU.saveXSF(name_file, didv[vv], lvec, head=xsf_head )
+            io.saveXSF(name_file, didv[vv], lvec, head=xsf_head )
         if STM_b :
             name_file =  'STM_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)+'.xsf'
-            GU.saveXSF(name_file, current[vv], lvec, head=xsf_head )
+            io.saveXSF(name_file, current[vv], lvec, head=xsf_head )
     print("XSF files written")
 
 if NPY :
@@ -371,10 +371,10 @@ if NPY :
     for vv in range(NoV):
         if didv_b :
             name_file =  'didv_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction-Voltages[vv]*WF_decay)+"_eta_"+str(eta)
-            GU.saveNpy(name_file, didv[vv], lvec)#, head=XSF_HEAD_DEFAULT )
+            io.saveNpy(name_file, didv[vv], lvec)#, head=XSF_HEAD_DEFAULT )
         if STM_b :
             name_file =  'STM_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)
-            GU.saveNpy(name_file, current[vv], lvec)#, head=XSF_HEAD_DEFAULT )
+            io.saveNpy(name_file, current[vv], lvec)#, head=XSF_HEAD_DEFAULT )
     print("npy files written")
 
 # --- the end --- #
