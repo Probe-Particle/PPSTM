@@ -69,13 +69,13 @@ class MplCanvas(FigureCanvasQTAgg):
                 print("writing XSF files")
                 geom_plot = self.parent.plotData['geom_plot']
                 lvec = self.parent.plotData['lvec']
-                xsf_head = Bu.At2XSF(geom_plot) #if plot_atoms else io.XSF_HEAD_DEFAULT
+                xsf_head = Bu.At2XSF(geom_plot) #if plot_atoms else GU.XSF_HEAD_DEFAULT
                 if mapType == 'dIdV':
                     didv = self.parent.plotData['didv']
-                    io.saveXSF(fileName, didv[vv], lvec, head=xsf_head )
+                    GU.saveXSF(fileName, didv[vv], lvec, head=xsf_head )
                 elif mapType == 'STM':
                     current = self.parent.plotData['current']
-                    io.saveXSF(fileName, current[vv], lvec, head=xsf_head )
+                    GU.saveXSF(fileName, current[vv], lvec, head=xsf_head )
                 print("XSF files written")
 
             elif fext == '(*.npy)':
@@ -85,10 +85,10 @@ class MplCanvas(FigureCanvasQTAgg):
                 lvec = self.parent.plotData['lvec']
                 if mapType == 'dIdV':
                     didv = self.parent.plotData['didv']
-                    io.saveNpy(fileName, didv[vv], lvec)#, head=XSF_HEAD_DEFAULT )
+                    GU.saveNpy(fileName, didv[vv], lvec)#, head=XSF_HEAD_DEFAULT )
                 elif mapType == 'STM':
                     current = self.parent.plotData['current']
-                    io.saveNpy(fileName, current[vv], lvec)#, head=XSF_HEAD_DEFAULT )
+                    GU.saveNpy(fileName, current[vv], lvec)#, head=XSF_HEAD_DEFAULT )
                 print("npy files written")
 
             else:
