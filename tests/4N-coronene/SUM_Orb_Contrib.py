@@ -106,10 +106,10 @@ for i in range(len(Voltages)):
         name_file1 =  'didv_'+namez[i]+"_tip_"+tip_type+"-"+tip_orb1+"_WF_"+str(WorkFunction-Voltages[i]*WF_decay)+"_eta_"+str(eta) # WorkFunction gets higher with lower (higher negative) sample bias
         name_file2 =  'didv_'+namez[i]+"_tip_"+tip_type+"-"+tip_orb2+"_WF_"+str(WorkFunction-Voltages[i]*WF_decay)+"_eta_"+str(eta)
         #print ("DEBUG: name_file1", name_file1)
-        tmp_dIdV1, lvec1, nDim1 = io.load_scal_field( files_path+name_file1 ,data_format=data_format)
+        tmp_dIdV1, lvec1, nDim1, atomic_info_or_head = io.load_scal_field( files_path+name_file1 ,data_format=data_format)
         didv1 =  np.array([tmp_dIdV1]) if i == 0 else np.append(didv1, np.array([tmp_dIdV1]),axis=0)
         #print "DEBUG: name_file2", name_file2
-        tmp_dIdV2, lvec2, nDim2 = io.load_scal_field( files_path+name_file2 ,data_format=data_format)
+        tmp_dIdV2, lvec2, nDim2, atomic_info_or_head = io.load_scal_field( files_path+name_file2 ,data_format=data_format)
         didv2 =  np.array([tmp_dIdV2]) if i == 0 else np.append(didv2, np.array([tmp_dIdV2]),axis=0)
         assert np.array(lvec1).all() == np.array(lvec2).all(), "lvec1 != lvec2 control your input files"; assert np.array(nDim2).all() == np.array(nDim2).all(), "nDim1 != nDim2 control your input files"
         print("dIdV for V:",namez[i]," imported")
@@ -119,10 +119,10 @@ for i in range(len(Voltages)):
         name_file1 =  'STM_'+namez[i]+"_tip_"+tip_type+"-"+tip_orb1+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)
         name_file2 =  'STM_'+namez[i]+"_tip_"+tip_type+"-"+tip_orb2+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)
         #print "DEBUG: name_file1", name_file1
-        tmp_stm1, lvec1, nDim1 = io.load_scal_field( files_path+name_file1 ,data_format=data_format)
+        tmp_stm1, lvec1, nDim1, atomic_info_or_head = io.load_scal_field( files_path+name_file1 ,data_format=data_format)
         current1 =  np.array([tmp_stm1]) if i == 0 else np.append(current1, np.array([tmp_stm1]),axis=0)
         #print "DEBUG: name_file2", name_file2
-        tmp_stm2, lvec2, nDim2 = io.load_scal_field( files_path+name_file2 ,data_format=data_format)
+        tmp_stm2, lvec2, nDim2, atomic_info_or_head = io.load_scal_field( files_path+name_file2 ,data_format=data_format)
         current2 =  np.array([tmp_stm2]) if i == 0 else np.append(current2, np.array([tmp_stm2]),axis=0)
         assert np.array(lvec1).all() == np.array(lvec2).all(), "lvec1 != lvec2 control your input files"; assert np.array(nDim2).all() == np.array(nDim2).all(), "nDim1 != nDim2 control your input files"
         print("STM for V:",namez[i]," imported")
