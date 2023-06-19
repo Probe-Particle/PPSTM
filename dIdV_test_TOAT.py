@@ -3,7 +3,7 @@
 import os
 import numpy as np
 
-import pyProbeParticle.GridUtils as GU
+import ppafm.io as io
 import pyPPSTM                   as PS
 import pyPPSTM.ReadSTM           as RS
 
@@ -51,7 +51,7 @@ eigEn, coefs, Ratin  = RS.read_CP2K_all(name = 'TOAT', fermi=fermi, orbs = orbs,
 
 # --- the grid on which the STM signal is calculated; no tip_r1 - PP distored by the relaxation in the PPAFM code;  only tip_r2 - uniform grid:
 
-tip_r1, lvec, nDim = GU.load_vec_field( path_pos+'PPpos' ,data_format=data_format)
+tip_r1, lvec, nDim, atomic_info_or_head = io.load_vec_field( path_pos+'PPpos' ,data_format=data_format)
 
 dz=0.1
 dx=dy =0.1
@@ -74,7 +74,7 @@ namez=['HOMO-3-2','HOMO-1','HOMO','LUMO++1']
 
 # --- downloading the df data
 
-df, lvec2, nDim2 = GU.load_scal_field( path_df+'df' ,data_format=data_format)
+df, lvec2, nDim2, atomic_info_or_head = io.load_scal_field( path_df+'df' ,data_format=data_format)
 
 # --- the Main Loop - for different WorkFunction (exponential z-decay of current), sample bias Voltages & eta - lorentzian FWHM
 

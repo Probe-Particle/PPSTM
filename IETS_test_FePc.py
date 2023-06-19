@@ -60,11 +60,11 @@ coefs = np.concatenate((coefs1, coefs2), axis=0)
 
 # --- the grid on which the STM signal is calculated; tip_r1 - PP distored by the relaxation in the PPAFM code; tip_r2 - uniform grid:
 
-tip_r1, lvec, nDim = GU.load_vec_field( path_pos+'PPpos' ,data_format=data_format)
-eigenEner, lvec, nDim = GU.load_vec_field( path_pos+'eigvalKs' ,data_format=data_format)
-eigenVec1, lvec, nDim = GU.load_vec_field( path_pos+'eigvecK1' ,data_format=data_format)
-eigenVec2, lvec, nDim = GU.load_vec_field( path_pos+'eigvecK2' ,data_format=data_format)
-eigenVec3, lvec, nDim = GU.load_vec_field( path_pos+'eigvecK3' ,data_format=data_format)
+tip_r1, lvec, nDim = io.load_vec_field( path_pos+'PPpos' ,data_format=data_format)
+eigenEner, lvec, nDim = io.load_vec_field( path_pos+'eigvalKs' ,data_format=data_format)
+eigenVec1, lvec, nDim = io.load_vec_field( path_pos+'eigvecK1' ,data_format=data_format)
+eigenVec2, lvec, nDim = io.load_vec_field( path_pos+'eigvecK2' ,data_format=data_format)
+eigenVec3, lvec, nDim = io.load_vec_field( path_pos+'eigvecK3' ,data_format=data_format)
 
 dz=0.1
 dx=dy =0.1
@@ -93,7 +93,7 @@ eigenVec3 = eigenVec3[ddown:upp+1]
 
 # --- downloading the df data
 
-df, lvec2, nDim2 = GU.load_scal_field( path_df+'df' ,data_format=data_format)
+df, lvec2, nDim2 = io.load_scal_field( path_df+'df' ,data_format=data_format)
 df = df [ddown:upp+1]
 for ii in range(ddown,upp+1):
     tmp=np.loadtxt(path_pos+'IETS_%03d.xyz' % (ii),skiprows=4) 
@@ -157,27 +157,27 @@ for WorkFunction in [WorkFunction]:
             print("saving, V:",V)
             j=0;
             for eta in [1.0]:
-                GU.save_scal_field( path_pos+'curs'+namez[i], curs[:,:,:,j], lvec1, data_format=data_format )
-                GU.save_scal_field( path_pos+'curp'+namez[i], curp[:,:,:,j], lvec1, data_format=data_format )
-                GU.save_scal_field( path_pos+'ietss'+namez[i], ietss[:,:,:,j], lvec1, data_format=data_format )
-                GU.save_scal_field( path_pos+'ietsp'+namez[i], ietsp[:,:,:,j], lvec1, data_format=data_format )
-                GU.save_scal_field( path_pos+'IETSs'+namez[i], IETSs[:,:,:,j], lvec1, data_format=data_format )
-                GU.save_scal_field( path_pos+'IETSp'+namez[i], IETSp[:,:,:,j], lvec1, data_format=data_format )
+                io.save_scal_field( path_pos+'curs'+namez[i], curs[:,:,:,j], lvec1, data_format=data_format )
+                io.save_scal_field( path_pos+'curp'+namez[i], curp[:,:,:,j], lvec1, data_format=data_format )
+                io.save_scal_field( path_pos+'ietss'+namez[i], ietss[:,:,:,j], lvec1, data_format=data_format )
+                io.save_scal_field( path_pos+'ietsp'+namez[i], ietsp[:,:,:,j], lvec1, data_format=data_format )
+                io.save_scal_field( path_pos+'IETSs'+namez[i], IETSs[:,:,:,j], lvec1, data_format=data_format )
+                io.save_scal_field( path_pos+'IETSp'+namez[i], IETSp[:,:,:,j], lvec1, data_format=data_format )
             j+=1
 
         # --- plotting part here, plots all calculated signals:
         if wsxm:
             print(" plotting wsxm")
             for eta in [1.0]:
-            #import pyProbeParticle.GridUtils as GU
+            #import ppafm.io as io
                 print(" printing current into WSxM files :")
-                GU.saveWSxM_3D(path_pos+"current_eta_"+str(eta)+"_"+str(ki)+"+" , 0.15*curs[:,:,:,0]+curp[:,:,:,0] , extent , slices=None)
+                io.saveWSxM_3D(path_pos+"current_eta_"+str(eta)+"_"+str(ki)+"+" , 0.15*curs[:,:,:,0]+curp[:,:,:,0] , extent , slices=None)
 
                 print(" printing IETS-stm into WSxM files :")
-                GU.saveWSxM_3D(path_pos+"IETS-stm_part_eta_"+str(eta)+"_"+str(ki)+"+" , 0.15*ietss[:,:,:,0]+ietsp[:,:,:,0] , extent , slices=None)
+                io.saveWSxM_3D(path_pos+"IETS-stm_part_eta_"+str(eta)+"_"+str(ki)+"+" , 0.15*ietss[:,:,:,0]+ietsp[:,:,:,0] , extent , slices=None)
 
                 print(" printing IETS_amplitude into WSxM files :")
-                GU.saveWSxM_3D(path_pos+"IETS_amplitude_eta_"+str(eta)+"_"+str(ki)+"+" , 0.15*IETSs[:,:,:,0]+IETSp[:,:,:,0] , extent , slices=None)
+                io.saveWSxM_3D(path_pos+"IETS_amplitude_eta_"+str(eta)+"_"+str(ki)+"+" , 0.15*IETSs[:,:,:,0]+IETSp[:,:,:,0] , extent , slices=None)
 
             
         if Plot_iets:

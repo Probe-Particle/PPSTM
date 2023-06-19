@@ -3,7 +3,7 @@
 import os
 import numpy as np
 
-#import pyProbeParticle.GridUtils as GU
+#import ppafm.io as io
 #import pyPPSTM                   as PS
 import pyPPSTM.ReadSTM           as RS
 import pyPPSTM.PreSTMutils       as SU

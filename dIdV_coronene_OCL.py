@@ -5,7 +5,7 @@ import numpy as np
 import sys
 sys.path.append('./')
 
-import pyProbeParticle.GridUtils as GU
+import ppafm.io as io
 import pyPPSTM.ReadSTM           as RS
 import pyPPSTM.OCL               as ocl
 
@@ -67,7 +67,7 @@ Ftmp = np.zeros(rTips.shape[:3]);
 Ftmp[:,:,:] = Gout[:,:,:]
 #Ftmp[:,:,:] = rTips[:,:,:,0]
 
-GU.saveXSF(path+"G_s_sp_ocl.xsf", Ftmp, lvec )
+io.saveXSF(path+"G_s_sp_ocl.xsf", Ftmp, lvec )
 
 '''
 import matplotlib
