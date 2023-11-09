@@ -3,6 +3,7 @@
 import os
 import numpy as np
 
+import ppafm.io as io
 import pyPPSTM.GridUtils as GU
 import pyPPSTM                   as PS
 import pyPPSTM.ReadSTM           as RS
@@ -60,11 +61,11 @@ coefs = np.concatenate((coefs1, coefs2), axis=0)
 
 # --- the grid on which the STM signal is calculated; tip_r1 - PP distored by the relaxation in the PPAFM code; tip_r2 - uniform grid:
 
-tip_r1, lvec, nDim = io.load_vec_field( path_pos+'PPpos' ,data_format=data_format)
-eigenEner, lvec, nDim = io.load_vec_field( path_pos+'eigvalKs' ,data_format=data_format)
-eigenVec1, lvec, nDim = io.load_vec_field( path_pos+'eigvecK1' ,data_format=data_format)
-eigenVec2, lvec, nDim = io.load_vec_field( path_pos+'eigvecK2' ,data_format=data_format)
-eigenVec3, lvec, nDim = io.load_vec_field( path_pos+'eigvecK3' ,data_format=data_format)
+tip_r1, lvec, nDim, atomic_info_or_head = io.load_vec_field( path_pos+'PPpos' ,data_format=data_format)
+eigenEner, lvec, nDim, atomic_info_or_head = io.load_vec_field( path_pos+'eigvalKs' ,data_format=data_format)
+eigenVec1, lvec, nDim, atomic_info_or_head = io.load_vec_field( path_pos+'eigvecK1' ,data_format=data_format)
+eigenVec2, lvec, nDim, atomic_info_or_head = io.load_vec_field( path_pos+'eigvecK2' ,data_format=data_format)
+eigenVec3, lvec, nDim, atomic_info_or_head = io.load_vec_field( path_pos+'eigvecK3' ,data_format=data_format)
 
 dz=0.1
 dx=dy =0.1
@@ -93,7 +94,7 @@ eigenVec3 = eigenVec3[ddown:upp+1]
 
 # --- downloading the df data
 
-df, lvec2, nDim2 = io.load_scal_field( path_df+'df' ,data_format=data_format)
+df, lvec2, nDim2, atomic_info_or_head = io.load_scal_field( path_df+'df' ,data_format=data_format)
 df = df [ddown:upp+1]
 for ii in range(ddown,upp+1):
     tmp=np.loadtxt(path_pos+'IETS_%03d.xyz' % (ii),skiprows=4) 

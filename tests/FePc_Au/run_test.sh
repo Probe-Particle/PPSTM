@@ -10,7 +10,7 @@ echo $OMP_NUM_THREADS
 echo "Now the tests:"
 
 echo "test for the PP-STM code: IETS"
-ppafm-generate-ljff -i geom-cube.xyz -f npy
+ppafm-generate-ljff -i geom-cube.in -f npy
 ppafm-relaxed-scan --pos -f npy --vib 3
 ppafm-plot-results --pos --df --iets 16 0.0015 0.001 -f npy --WSxM --save_df
 
