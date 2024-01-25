@@ -1,4 +1,4 @@
-B#!/bin/bash
+#!/bin/bash
 
 ########################################################################
 #                                                                      #
@@ -9,7 +9,7 @@ B#!/bin/bash
 #                                                                      #
 ########################################################################
 
-wget 
+wget https://zenodo.org/records/10563098/files/Fig_4_STM_data.tar.gz
 tar -xzvf Fig_4_STM_data.tar.gz
 ppafm-generate-ljff -i cube_001_hartree_potential.cube
 ppafm-generate-elff -i cube_001_hartree_potential.cube
