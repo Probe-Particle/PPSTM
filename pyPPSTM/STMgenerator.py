@@ -6,7 +6,7 @@ import time
 import numpy as np
 import h5py
 
-import pyProbeParticle as PPU
+import ppafm
 
 class STMgenerator():
     """
@@ -163,7 +163,7 @@ class STMgenerator():
         Set correct distance from scan region for the current molecule.
         '''
         RvdwPP = self.stmulator.afmulator.typeParams[self.stmulator.afmulator.iZPP-1][0]
-        self.REAs = PPU.getAtomsREA(self.stmulator.iZPP, self.Zs, self.stmulator.afmulator.typeParams, alphaFac=-1.0)
+        self.REAs = ppafm.getAtomsREA(self.stmulator.iZPP, self.Zs, self.stmulator.afmulator.typeParams, alphaFac=-1.0)
         Rvdw = self.REAs[:,0] - RvdwPP
         zs = self.xyz[:,2]
         imax = np.argmax(zs + Rvdw)

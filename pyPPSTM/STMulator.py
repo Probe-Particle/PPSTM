@@ -14,7 +14,7 @@ from . import OCL      as ocl
 #sys.path.append(ocl_path)
 
 import ppafm as PP
-from ppafm.ocl.AFMulator import AFMulator
+import ppafm.ocl.AFMulator as afm
 
 class STMulator():
     """
@@ -149,8 +149,15 @@ class STMulator():
             self.tip_xyz = paths.astype(np.float64)#.transpose(1, 0, 2, 3)
             if self.timings: print(f"Tip download time: {time.time()-down_start:.2f} s")
 
-        i_min = (eigs < -5.0).sum()
-        i_max = (eigs < 5.0).sum()
+
+        # if scan at HOMO -> shift HOMO energy to zero i.e. substract largest negative energy
+        #homo = np.where(eigs<0, eigs, -np.inf).max()
+        #lumo = np.where(eigs>0, eigs, np.inf).min()
+        #print(homo, lumo)
+        #eigs = eigs - lumo 
+
+        i_min = (eigs < -2.5).sum()
+        i_max = (eigs < 2.5).sum()
 
         eigs = eigs[i_min:i_max]
         coefs = coefs[i_min:i_max, :]
@@ -243,7 +250,7 @@ class STMulator():
 
     def _init_afmulator(self):
         """Initializes the AFM simulator using same parameters as the STM simulator."""
-        self.afmulator = AFMulator(scan_dim=self.scan_dim, 
+        self.afmulator = afm.AFMulator(scan_dim=self.scan_dim, 
                                    scan_window=self.scan_window,
                                    lvec=self.lvec,
                                    pixPerAngstrome=self.pix_per_angstrom,
