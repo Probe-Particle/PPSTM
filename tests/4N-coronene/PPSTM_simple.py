@@ -10,7 +10,7 @@
 #
 # ***** System information: *****
 #
-ppstm_path = './PPSTM/'      # path (absolute or relative) to your PPSTM code #
+ppstm_path = '../../'      # path (absolute or relative) to your PPSTM code #
 #
 ncpu       = 1               # number of cpu cores for OMP paralelization: ncpu = 1 -- serial compilation & calculations; iff ncpu > 1, then OMP paralel recompilation is used and C++ calculations are running on more cores #
 #
