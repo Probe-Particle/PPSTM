@@ -3,6 +3,7 @@ Code simulating various various STM techniques, especially for [tilting tips](ht
 This is implementation of efficient and simple model for simulation of High-resolution scanning tunneling microscopy (STM).
 Normall STM simulations using [Chen's approximattion](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.42.8841) is part of the code as well
 
+- BEWARE - latest numpy is probably causing problems within the code, the we have noticed problem with trying to run examples with periodic boundary conditions recently.
 - BEWARE - after repairing misteake in d-orbitals the results for FePc are different. We are investigating it.
 
 * currently developed Python3/C++ version of the PPSTM code:
