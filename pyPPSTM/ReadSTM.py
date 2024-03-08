@@ -125,7 +125,7 @@ def for_PBC(atoms,lvs):
     Apply PBC onto the geometry
     '''
     if (pbc_ != ((0,0)or(0.,0.))):
-        assert (lvs != (None or []) ), "Lattice vectors (cell) not specified"
+        assert lvs is not None and lvs.size != 0, "Lattice vectors (cell) not specified"
         print("Applying PBC")
         if (pbc_ == (0.5,0.5)):
             atoms = bU.multCell( atoms, lvs, m=(2,2,1) )
