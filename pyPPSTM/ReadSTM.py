@@ -583,7 +583,7 @@ def read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), imaginary = False, cut
             elif func.endwith("fx3") or func.endwith("fx2y") or func.endwith("fx2z") or func.endwith("fxy2") or func.endwith("fxyz") or func.endwith("fxz2") or func.endwith("fy3") or func.endwith("fy2z") or func.endwith("fyz2") or func.endwith("fz3"):
                 continue
             else:
-                raise Exception
+                raise ValueError(f"Expected s, p, d, or f orbital, got {func}")
 
     # lowering tunneling for predefined atoms
     # lowering over atoms and applying PBC
