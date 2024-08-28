@@ -14,5 +14,6 @@ python3 PPSTM/dIdV_test_CuPc.py
 python3 PPSTM/dIdV_test_CuPc_cp2k.py
 python3 PPdos_simple.py
 python3 PPSTM_simple.py
+python3 PPSTM_simple_aims_fixed_npy.py
 echo "Now all things made, before submiting pleas run clean.sh"
 

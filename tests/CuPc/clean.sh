@@ -3,7 +3,9 @@
 echo "Removing calculated Figures"
 rm didV-*.png
 echo "Removing outputs of PPSTM_simple, if any"
+rm STM_*.npz
 rm STM_*.png
+rm didv_*.npz
 rm didv_*.png
 rm didv_*tip_*WF_*eta_*.xsf
 rm STM_*tip_*WF_*eta_*.xsf
