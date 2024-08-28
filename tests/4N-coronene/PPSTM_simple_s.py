@@ -69,7 +69,7 @@ PNG = False
 # WSXM: True / False -- write ".xyz" WSxM files (2D constant height) #
 WSxM = False
 XSF = True                  # True / False -- write ".xsf" files with 3D stucks of data . For this option you have to have "installed" PPAFM in your PPSTM directory #
-NPY = False                 # True / False -- write ".npy" numpy binary files with 3D stucks of data . For this option you have to have "installed" PPAFM in your PPSTM directory #
+NPY = True                 # True / False -- write ".npy" numpy binary files with 3D stucks of data . For this option you have to have "installed" PPAFM in your PPSTM directory #
 # plot_atoms: True / False -- plot geometry (position of atoms into the PNG images and into the XSF files). You have to have your geometry, which you want to plot in input_plot.xyz. This doesn't change the name of the output files #
 plot_atoms = True
 #
