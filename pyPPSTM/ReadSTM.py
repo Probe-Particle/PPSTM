@@ -580,7 +580,17 @@ def read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), imaginary = False, cut
             elif func.endswith("dy2"):
                 if (orbs =='spd'):
                     coef[ii,iatom,8] -= evecs[j,i]  # coef[,,8] = dx2 - dy2
-            elif func.endwith("fx3") or func.endwith("fx2y") or func.endwith("fx2z") or func.endwith("fxy2") or func.endwith("fxyz") or func.endwith("fxz2") or func.endwith("fy3") or func.endwith("fy2z") or func.endwith("fyz2") or func.endwith("fz3"):
+            elif (func.endswith("fx3") or
+                  func.endswith("fx2y") or
+                  func.endswith("fx2z") or
+                  func.endswith("fxy2") or
+                  func.endswith("fxyz") or
+                  func.endswith("fxz2") or
+                  func.endswith("fy3") or
+                  func.endswith("fy2z") or
+                  func.endswith("fyz2") or
+                  func.endswith("fz3")
+            ):
                 continue
             else:
                 raise ValueError(f"Expected s, p, d, or f orbital, got {func}")
