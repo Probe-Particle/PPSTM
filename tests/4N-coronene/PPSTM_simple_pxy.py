@@ -69,7 +69,7 @@ PNG = False
 # WSXM: True / False -- write ".xyz" WSxM files (2D constant height) #
 WSxM = False
 XSF = True                  # True / False -- write ".xsf" files with 3D stucks of data . For this option you have to have "installed" PPAFM in your PPSTM directory #
-NPY = False                 # True / False -- write ".npy" numpy binary files with 3D stucks of data . For this option you have to have "installed" PPAFM in your PPSTM directory #
+NPY = True                 # True / False -- write ".npy" numpy binary files with 3D stucks of data . For this option you have to have "installed" PPAFM in your PPSTM directory #
 # plot_atoms: True / False -- plot geometry (position of atoms into the PNG images and into the XSF files). You have to have your geometry, which you want to plot in input_plot.xyz. This doesn't change the name of the output files #
 plot_atoms = True
 #
@@ -188,6 +188,7 @@ else:
                            y[1], y[2], z[0], z[1], z[2])
     lvec = np.array([[x[0], y[0], z[0]], [x[1]-x[0], 0., 0.],
                     [0., y[1]-y[0], 0.], [0., 0., z[1]-z[0]]])
+    atomic_info_or_head = (None, None)
     # print "DEBUG: extent", extent
     # print "DEBUG: lvec", lvec
     tip_r0 = tip_r
@@ -419,10 +420,10 @@ if NPY :
     for vv in range(NoV):
         if didv_b :
             name_file =  'didv_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction-Voltages[vv]*WF_decay)+"_eta_"+str(eta)
-            io.saveNpy(name_file, didv[vv], lvec)#, head=XSF_HEAD_DEFAULT )
+            io.saveNpy(name_file, didv[vv], lvec, atomic_info=atomic_info_or_head)
         if STM_b :
             name_file =  'STM_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)
-            io.saveNpy(name_file, current[vv], lvec)#, head=XSF_HEAD_DEFAULT )
+            io.saveNpy(name_file, current[vv], lvec, atomic_info=atomic_info_or_head)
     print("npy files written")
 
 # --- the end --- #

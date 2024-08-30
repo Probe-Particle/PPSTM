@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 ##########################################################################################################################
 #                                                                                                                        #
@@ -12,31 +12,31 @@
 #
 ppstm_path = './PPSTM/'      # path (absolute or relative) to your PPSTM code #
 #
-ncpu       = 7               # number of cpu cores for OMP paralelization: ncpu = 1 -- serial compilation & calculations; iff ncpu > 1, then OMP paralel recompilation is used and C++ calculations are running on more cores #
+ncpu       = 4               # number of cpu cores for OMP paralelization: ncpu = 1 -- serial compilation & calculations; iff ncpu > 1, then OMP paralel recompilation is used and C++ calculations are running on more cores #
 #
 # ***** Main informations ******
 #
 scan_type     = 'v-scan'     # 'didv'='dIdV''='didv-single' -- only dIdV for one voltage = V ; 'v-scan'='V-scan'='Voltage-scan' -- both STM & dIdV scan - V .. Vmax; 'STM'='STM-single' -- STM for one Voltage = V, use V-scan rather #
-tip_type      = 'fixed'      # 'fixed'='f' -- for stiff/metal tip apexes ; 'relaxed'='r' -- for flexible tip apexes (precalculated by PP-AFM) . For this option you have to have "installed" PPAFM in your PPSTM directory #
+tip_type      = 'fixed'    # 'fixed'='f' -- for stiff/metal tip apexes ; 'relaxed'='r' -- for flexible tip apexes (precalculated by PP-AFM) . For this option you have to have "installed" PPAFM in your PPSTM directory #
 V             = -0.5         # !!!! V = Vmin for SCAN !!!! #
 V_max         = +0.5         # V = V_min >= -2.0 V ; V_max <= 2.0 V (othervise changes in the later code needed) #
 dV            =  0.1         # voltage step , dV <= 0.1 V #
 eta           =  0.1         # Lorentzian width of states in energy scale: typically 0.1; can be in range of 0.3-0.05 eV in some cases (low amount of layers ...) even up to 1.0 eV #
 WF_decay      =  0.5         # 0.0 <= WF_decay <= 1.0 ; How fast WorkFunction tunnelling barrier is changing with Voltage : (WF = WF_0 + V*WF_decay) -- 0.0 no change ; 1.0 - the same change as voltage #
 tip_orb       = 's'          # 's' ; 'pxy' -- px & py ; 'spxy' -- 50% s & 50% pxy ; '5spxy' -- 5% s & 95% pxy ; '10spxy' -- 10% s & 90% pxy ; 'CO' -- 13% s & 87% pxy (PRL 119, 166001 (2017)) ; 'pz' ; For sample_orbs = 'sp' , possible 'dz2' and 'dxzyz' -- dxz & dyz #
-sample_orbs   = 'spd'        # orbitals of the sample 'sp' (light atoms only, faster) or 'spd' (all atoms) #
-dft_code      = 'fireball'   # 'fireball'='Fireball'='FIREBALL' ; 'aims'='AIMS'='FHI-AIMS' ; 'cp2k'='CP2K' ; 'gpaw'='GPAW' #
-geometry_file = 'input.xyz'  # E.G. 'input.xyz' , 'input.bas' , 'geometry.in'; None for GPAW #
-pbc           = (1.,1.)      # (0,0) = None = False -- only original geometry ; (0.5,0.5) -- 2x2 cell ; (1,1) -- 3x3 cell (around original) ; (2,2) -- 5x5 cell (around original) ... #
-lvs           = 'input.lvs'  # None ; [[ax,ay,0],[bx,by,0]],[0,0,cz]] or [[ax,ay],[bx,by]] ; 'input.lvs' -- files with specified cell ; in FHI-AIMS & GPAW allready specified with geometry #
-spin          =  None        # None=False ; for FHI-AIMS & CP2K: None -- spin-unpolarized/spin-restricted calc. ;  'both' , 'up'='alpha' or 'down" (last 3 are for spin-polarizes or spin-unrestricted calculations) #
-cp2k_name     = 'CuPc'       # Name used in CP2K calculations or GPAW calc #
+sample_orbs   = 'sp'        # orbitals of the sample 'sp' (light atoms only, faster) or 'spd' (all atoms) #
+dft_code      = 'aims'       # 'fireball'='Fireball'='FIREBALL' ; 'aims'='AIMS'='FHI-AIMS' ; 'cp2k'='CP2K' ; 'gpaw'='GPAW' #
+geometry_file = 'geometry.in'   # E.G. 'input.xyz' , 'input.bas' , 'geometry.in'; None for GPAW #
+pbc           = (1,1)        # (0,0) = None = False -- only original geometry ; (0.5,0.5) -- 2x2 cell ; (1,1) -- 3x3 cell (around original) ; (2,2) -- 5x5 cell (around original) ... #
+lvs           = None # None ; [[ax,ay,0],[bx,by,0]],[0,0,cz]] or [[ax,ay],[bx,by]] ; 'input.lvs' -- files with specified cell ; in FHI-AIMS & GPAW allready specified with geometry #
+spin          = 'both'       # None=False ; for FHI-AIMS & CP2K: None -- spin-unpolarized/spin-restricted calc. ;  'both' , 'up'='alpha' or 'down" (last 3 are for spin-polarizes or spin-unrestricted calculations) #
+cp2k_name     = None       # Name used in CP2K calculations or GPAW calc #
 #
 # ***** Informations for x,y,z tip_type = 'fixed' ******
 #
-x = [  0.0, 50.0, 0.25 ]     # [xmin, xmax, dx] #
-y = [-25.0, 25.0, 0.25 ]     # [ymin, ymax, dy] #
-z = [ 13.9, 14.9, 1.0  ]     # !!!! z-starts from zero - normally zmin >= 3-4 Ang above heighest atoms !!!! [zmin, zmax, dz] ; for single height scan use : [z, z, 1.0] #
+x = [-20.0, 20.0, 0.25 ]     # [xmin, xmax, dx] #
+y = [-20.0, 20.0, 0.25 ]     # [ymin, ymax, dy] #
+z = [  4.0,  5.0, 1.0  ]     # !!!! z-starts from zero - normally zmin >= 3-4 Ang above heighest atoms !!!! [zmin, zmax, dz] ; for single height scan use : [z, z, 1.0] #
 #
 # ***** Informations for PP positions, tip_type = 'relaxed' ******
 #
@@ -46,15 +46,15 @@ data_format = 'npy'          # 'xsf'='XSF' ; 'npy'='NPY' ; -- format in which PP
 #
 # *****Output options ******
 #
-PNG  = True                  # True / False -- plot "png" images (2D constant height) #
+PNG  = False                  # True / False -- plot "png" images (2D constant height) #
 WSxM = False                 # True / False -- write ".xyz" WSxM files (2D constant height) #
 XSF  = False                 # True / False -- write ".xsf" files with 3D stucks of data . For this option you have to have "installed" PPAFM in your PPSTM directory #
-NPY  = False                 # True / False -- write ".npy" numpy binary files with 3D stucks of data . For this option you have to have "installed" PPAFM in your PPSTM directory #
+NPY  = True                 # True / False -- write ".npy" numpy binary files with 3D stucks of data . For this option you have to have "installed" PPAFM in your PPSTM directory #
 plot_atoms = True            # True / False -- plot geometry (position of atoms into the PNG images and into the XSF files). You have to have your geometry, which you want to plot in input_plot.xyz. This doesn't change the name of the output files #
 #
 # ***** Advanced options ******
 #
-cut_atoms   = 18             # None = -1 -- All atoms of the sample contributes to tunelling ; 1 -- only 1st atom of the sample contributes to the tunelling ; 57 -- first 57 atoms of the sample contributes to the tunelling ; ... #
+cut_atoms   = None           # None = -1 -- All atoms of the sample contributes to tunelling ; 1 -- only 1st atom of the sample contributes to the tunelling ; 57 -- first 57 atoms of the sample contributes to the tunelling ; ... #
 lower_atoms = []             # [] = None -- No atoms has lowered hopping ; be aware python numbering occurs here: [0] - means lowering of the 1st atom; [0,1,2,3] -- lowering of 1st 4 atoms ... #
 lower_coefs = []             # [] = None -- No lowering of the hoppings  ; [0.5] -- lowering of the 1st atom hopping to 0.5                           ; [0.5,0.5,0.5,0.5] -- lowering of 1st 4 atoms to 0.5 ... #
 #
@@ -193,6 +193,8 @@ elif ((dft_code == 'aims') or(dft_code == 'AIMS') or (dft_code == 'FHI-AIMS')):
     else :
         print("unknown spin, I'm going to sleep. Good Night"); exit()
     eigEn, coefs, Ratin = RS.read_AIMS_all(name = files_path + name , geom= files_path + geometry_file, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
+    print("Ratin from reading:", Ratin)
+    print("Ratin from reading shape:", Ratin.shape)
     if (spin == 'both'):
         eigEn1 = eigEn.copy(); coefs1 = coefs.copy(); del eigEn, coefs ;
         name = 'KS_eigenvectors_dn.band_1.kpt_1.out'
@@ -243,8 +245,8 @@ elif ( (scan_type == 'states') or (scan_type == 'STATES') ):
             fst = False
         else :
             didv =np.append(didv, [PS.dIdV( isi,    WorkFunction, eta, eigEn, tip_r, Ratin, coefs, orbs=sample_orbs, s=tc[0], px =tc[1], py=tc[2], pz=tc[3], dz2=tc[4], dxz=tc[5], dyz=tc[6] ) ], axis =0)
-        #print "DEBUG: didv.shape ", didv.shape
-        didv_b = True; states_b = True; WF_decay= 0.0;
+    #print "DEBUG: didv.shape ", didv.shape
+    didv_b = True; states_b = True; WF_decay= 0.0;
 elif ( (scan_type == 'STM') or (scan_type == 'STM-single') ):
     nV = abs(V/dV)+1
     #print "DEBUG: V, nV:", V, nV
@@ -337,7 +339,7 @@ if WSxM :
                 print("", file=f)
                 np.savetxt(f, out_curr)
                 f.close()
-            #
+        #
             if STM_b :
                 name_file =  'STM_'+namez[vv]+"_tip_"+tip_type+"-"+tip_orb+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)+'_%03d.xyz' %k 
                 tmp_curr=current[vv,k,:,:].flatten()
