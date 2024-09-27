@@ -3,7 +3,7 @@
 import os
 import numpy as np
 import sys
-sys.path.append('./')
+sys.path.append('../../')
 
 import ppafm.io as io
 import pyPPSTM.ReadSTM           as RS
