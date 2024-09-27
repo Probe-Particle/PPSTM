@@ -12,6 +12,8 @@ from . import cpp_utils
 
 import time
 
+from typing import Tuple
+
 # this library has functions for reading STM coefficients and make a grid for non-relaxed 3D scan
 
 # global variables:
@@ -684,4 +686,148 @@ def read_cp2k_MO_file(fn, spin):
     # done
     return labels, evals, occs, evecs, fermi_energy
 
-############## END OF LIBRARY ##################################
+
+def read_dft(
+    config: dict
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Reads DFT input using the configuration dictionary.
+
+    Args:
+        config (dict): Configuration dictionary.
+
+    Returns:
+        Tuple[np.ndarray, np.ndarray, np.ndarray]: Eigenvalues, coefficients, and atomic positions.
+    """
+
+    input_params = config['input']
+    scan_params = config['scan']
+    advanced_params = config['advanced']
+
+    path = input_params["path"]
+    geometry_file = input_params["geometry_file"]
+    dft_code = input_params["dft_code"]
+    cp2k_name = input_params["cp2k_name"]
+    spin = input_params["spin"]
+
+    common_params = {
+        'fermi': advanced_params['fermi'],
+        'pbc': input_params['pbc'],
+        'orbs': scan_params['sample_orbs'],
+        'cut_min': advanced_params['cut_min'],
+        'cut_max': advanced_params['cut_max'],
+        'cut_at': advanced_params['cut_atoms'],
+        'lower_atoms': advanced_params['lower_atoms'],
+        'lower_coefs': advanced_params['lower_coefs']
+    }
+
+    if input_params['dft_code'].lower() in ('fireball', 'cp2k'):
+        lvs = input_params['lvs']
+        pbc = input_params['pbc']
+        if isinstance(lvs, (list, tuple, np.ndarray)):
+            cell = np.array(
+                [
+                    [lvs[0][0], lvs[0][1], 0.0],
+                    [lvs[1][0], lvs[1][1], 0.0],
+                    [0.0,       0.0,      99.9]
+                ]
+            ) if (len(lvs) == 2) else lvs
+        elif isinstance(lvs, (str)):
+            cell = np.loadtxt(lvs)
+        elif pbc == [0, 0]:
+            cell = np.zeros((3,3))
+        else:
+            raise ValueError("pbc requested, but lvs not specified")
+
+    if ((dft_code == 'fireball') or(dft_code == 'Fireball') or (dft_code == 'FIREBALL')):
+        eigEn, coefs, Ratin = read_FIREBALL_all(
+            name=path+'phik_0001_',
+            geom=path+geometry_file,
+            lvs=cell,
+            **common_params
+        )
+
+    elif ((dft_code == 'gpaw') or(dft_code == 'GPAW')):
+        eigEn, coefs, Ratin = read_GPAW_all(
+            name=path+cp2k_name+'.gpw',
+            **common_params
+        )
+
+    elif ((dft_code == 'aims') or(dft_code == 'AIMS') or (dft_code == 'FHI-AIMS')):
+        if ((spin == None) or (spin == False)):
+            name = 'KS_eigenvectors.band_1.kpt_1.out'
+        elif spin in ['up', 'alpha']:
+            name = 'KS_eigenvectors_up.band_1.kpt_1.out'
+        elif spin in ['down', 'beta', 'dn']:
+            name = 'KS_eigenvectors_dn.band_1.kpt_1.out'
+        elif spin == 'both':
+            name_up = 'KS_eigenvectors_up.band_1.kpt_1.out'
+            name_dn = 'KS_eigenvectors_dn.band_1.kpt_1.out'
+        else :
+            raise ValueError(f"Unknown spin: {spin}")
+        
+        if spin != 'both':
+            eigEn, coefs, Ratin = read_AIMS_all(
+                name=path+name,
+                geom=path+geometry_file,
+                **common_params
+            )
+        else:
+            eigEn1, coefs1, Ratin = read_AIMS_all(
+                name=path+name_up,
+                geom=path+geometry_file,
+                **common_params
+            )
+            eigEn2, coefs2, Ratin = read_AIMS_all(
+                name=path+name_dn,
+                geom=path+geometry_file,
+                **common_params
+            )
+            eigEn = np.concatenate((eigEn1, eigEn2), axis=0)
+            coefs = np.concatenate((coefs1, coefs2), axis=0)
+
+    elif ((dft_code == 'cp2k') or(dft_code == 'CP2K')):
+        if ((spin == None)or(spin == False)):
+            eigEn, coefs, Ratin  = read_CP2K_all(
+                name = path + cp2k_name ,
+                lvs=cell,
+                **common_params
+            )
+        elif ((spin == 'up')or(spin == 'alpha')):
+            eigEn, coefs, Ratin  = read_CP2K_all(
+                name=path+cp2k_name,
+                lvs=cell,
+                spin='alpha',
+                **common_params
+            )
+        elif (spin == 'both'):
+            eigEn1, coefs1, Ratin  = read_CP2K_all(
+                name=path+cp2k_name,
+                lvs=cell,
+                spin='alpha',
+                **common_params
+            )
+            eigEn2, coefs2, Ratin  = read_CP2K_all(
+                name = path + cp2k_name ,
+                lvs=cell,
+                spin='beta',
+                **common_params
+            )
+            eigEn = np.concatenate((eigEn1, eigEn2), axis=0)
+            coefs = np.concatenate((coefs1, coefs2), axis=0)
+        elif ((spin == 'down')or(spin == 'beta')or(spin == 'dn')):
+            eigEn, coefs, Ratin  = read_CP2K_all(
+                name=path+cp2k_name,
+                lvs=cell,
+                spin='beta',
+                **common_params
+            )
+        else :
+            raise ValueError(f"Unknown spin: {spin}")
+        
+    else:
+        raise ValueError(f"Unknown DFT code: {dft_code}")
+    
+    return eigEn, coefs, Ratin
+
+    ############## END OF LIBRARY ##################################
