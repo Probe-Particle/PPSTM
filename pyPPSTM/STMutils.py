@@ -101,8 +101,6 @@ def get_tip_positions(config: dict):
             path_pos+'PPpos',
             data_format=data_format
         )
-        print("-----")
-        print(f"lvec type ----- {type(lvec)}")
 
         extent = (
             lvec[0,0], lvec[0,0]+lvec[1,0],

@@ -48,7 +48,6 @@ def main(config: dict):
         atomic_head_or_info
     ) = STMutils.get_tip_positions(config)
     print(f"Tip positions read for a {config['scan']['tip_type']} scan.")
-    print(f'lvec: {lvec.shape} - {lvec.dtype}')
 
     # Run STM scan
     current, didv = STMutils.run_stm_scan(
