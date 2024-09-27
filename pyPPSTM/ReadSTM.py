@@ -201,18 +201,16 @@ def to_fermi(eig, fermi, orig_fermi=0.0):
     eig -= fermi
     return eig;
 
-def cut_eigenenergies(eig):
+def cut_eigenenergies(eig, cut_min, cut_max):
     '''
     Removes eigenstates (molecular orbitals) that are far from the energy important for scanning
-    '''	
-    j = 1
-    global n_min_ , n_max_
-    for i in eig:
-        n_min_ = j if (i < cut_min_ ) else n_min_
-        n_max_ = j if (i < cut_max_ ) else n_max_
-        j += 1
-    assert (n_min_ < n_max_), "no orbitals left for dI/dV"
-    return eig[n_min_:n_max_];
+    '''
+    global n_min_, n_max_
+    n_min_ = sum(eig < cut_min)
+    n_max_ = sum(eig < cut_max)
+
+    mask = (eig > cut_min) & (eig < cut_max)
+    return eig[mask]
 
 # procedure for handling the coefficients:
 
@@ -307,7 +305,7 @@ def	read_AIMS_all(name = 'KS_eigenvectors.band_1.kpt_1.out', geom='geometry.in',
         eig[i] = float(pre_eig[i])
     del pre_eig, tmp;
     eig = to_fermi(eig, fermi, orig_fermi=0.0)
-    eig = cut_eigenenergies(eig)
+    eig = cut_eigenenergies(eig, cut_min, cut_max)
     print("eigenenergies read")
     # ****** TO BE REMOVED ********
     """
@@ -399,7 +397,7 @@ def	read_GPAW_all(name = 'OUTPUT.gpw', fermi = None, orbs = 'sp', pbc=(1,1), ima
     eig = calc.get_eigenvalues(kpt=0, spin=0, broadcast=True)
     at_num = slab.get_atomic_numbers()
     eig = to_fermi(eig, fermi, orig_fermi=calc.get_fermi_level())
-    eig = cut_eigenenergies(eig)
+    eig = cut_eigenenergies(eig, cut_min, cut_max)
     print("eigen-energies read")
     # obtaining the LCAO coefficients (automatically removed unwanted states - molecular orbitals - and atoms)
     coef = np.zeros((n_max_-n_min_,num_at_,Ynum_))
@@ -475,7 +473,7 @@ def	read_FIREBALL_all(name = 'phi_' , geom='answer.bas', fermi=None, orbs = 'sp'
     assert (len(eig)==n_bands), "number of bands wrongly specified"
     eig = to_fermi(eig, fermi, orig_fermi=float(pre_eig[2]))
     del pre_eig;
-    eig = cut_eigenenergies(eig)
+    eig = cut_eigenenergies(eig, cut_min, cut_max)
     print("eigen-energies read")
 
     print(" loading the LCAO coefficients")
@@ -540,7 +538,7 @@ def read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), imaginary = False, cut
 
     # select relevant MOs
     eig = to_fermi(eig, fermi, orig_fermi=fermi_energy)
-    eig = cut_eigenenergies(eig)
+    eig = cut_eigenenergies(eig, cut_min, cut_max)
 
     # copy coefficients of relevant MOs
     coef = np.zeros((n_max_-n_min_,num_at_,Ynum_))
