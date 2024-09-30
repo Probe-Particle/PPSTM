@@ -162,8 +162,8 @@ def save_npy(config, current, didv, voltages, names, lvec, atomic_info_or_head):
 
     for vv in range(nV):
         if didv is not None:
-            name_file = f'didv_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function-voltages[vv]*wf_decay}_eta_{eta:.1f}.npy'
+            name_file = f'didv_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function-voltages[vv]*wf_decay}_eta_{eta:.1f}'
             io.saveNpy(name_file, didv[vv], lvec, atomic_info=atomic_info_or_head)
         if current is not None:
-            name_file = f'STM_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function:.1f}_WF_decay_{wf_decay:.1f}_eta_{eta:.1f}.npy'
+            name_file = f'STM_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function:.1f}_WF_decay_{wf_decay:.1f}_eta_{eta:.1f}'
             io.saveNpy(name_file, current[vv], lvec, atomic_info=atomic_info_or_head)
