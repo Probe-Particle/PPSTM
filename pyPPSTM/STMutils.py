@@ -123,21 +123,24 @@ def get_tip_positions(config: dict):
             sw[0,0], sw[1,0],
             sw[0,1], sw[1,1],
         )
+        dx = (sw[1,0]-sw[0,0])/scan_dim[0]
+        dy = (sw[1,1]-sw[0,1])/scan_dim[1]
+        dz = (sw[1,2]-sw[0,2])/scan_dim[2]
         tip_r = RS.mkSpaceGrid(
-            sw[0,0], sw[1,0], scan_dim[0],
-            sw[0,1], sw[1,1], scan_dim[1],
-            sw[0,2], sw[1,2], scan_dim[2]
+            sw[0,0], sw[1,0], dx,
+            sw[0,1], sw[1,1], dy,
+            sw[0,2], sw[1,2], dz
         )
         lvec = np.asarray([
-            sw[0,0], sw[0,1], sw[0,2],
-            sw[1,0]-sw[0,0], 0., 0.,
-            0., sw[1,1]-sw[0,1], 0.,
-            0., 0., sw[1,2]-sw[0,2]
+            [sw[0,0], sw[0,1], sw[0,2]],
+            [sw[1,0]-sw[0,0], 0., 0.],
+            [0., sw[1,1]-sw[0,1], 0.],
+            [0., 0., sw[1,2]-sw[0,2]]
         ])
         tip_r0 = tip_r
 
         if config['output']['plot_atoms']:
-            atoms, ndim, lvec = BU.loadAtoms(
+            atoms, _, _ = BU.loadAtoms(
                 os.path.join(
                     config['input']['path'],
                     'input_plot.xyz'
