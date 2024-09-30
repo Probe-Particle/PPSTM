@@ -1,5 +1,5 @@
 #!/bin/bash
-OMP=1	# 0 = 'False' , 1 = 'True'
+OMP=0	# 0 = 'False' , 1 = 'True'
 if [ $OMP -eq 1 ]
 then
     export OMP_NUM_THREADS=8
@@ -10,8 +10,8 @@ echo $OMP_NUM_THREADS
 echo "Now the tests:"
 
 echo "test for the PP-STM code on the example of spin-polarized CuPc molecule, precalculated by FHI-AIMS & CP2K:"
-python3 PPSTM/dIdV_test_CuPc.py
-python3 PPSTM/dIdV_test_CuPc_cp2k.py
+python3 dIdV_test_CuPc.py
+python3 dIdV_test_CuPc_cp2k.py
 python3 PPdos_simple.py
 python3 ../../ppstm_run.py cupc.toml
 python3 ../../ppstm_run.py cupc-aims-fixed-npy.toml
