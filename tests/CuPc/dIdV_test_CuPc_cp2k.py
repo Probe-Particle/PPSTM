@@ -4,6 +4,8 @@ import os
 import numpy as np
 
 #import ppafm.io as io
+import sys
+sys.path.append('../../')
 import pyPPSTM                   as PS
 import pyPPSTM.ReadSTM           as RS
 
@@ -26,9 +28,9 @@ lvs = None      # automatically taken from geometry.in (however not needed since
 WorkFunction = 5.0 #more or less standart.
 fermi=None	# the Fermi from AIMS automatically 0 -- None means no shift!!! All energies are relative to Fermi !!!!
 orbs= 'spd'	# 'sp' & 'spd' works now
-cut_min=-1.87	# To cut-out all the orbitals axcept for the wanted once
-cut_max=+0.38	# (HOMO,SOMO,LUMO1,LUMO2); their energies are at Voltages
-cut_at=57	# All atoms of the molecule (MetalPc - 57 atoms, H2Pc - 58, NoPc - 56)
+cut_min=-0.4	# To cut-out all the orbitals axcept for the wanted once
+cut_max=+1.42	# (HOMO,SOMO,LUMO1,LUMO2); their energies are at Voltages
+cut_at=-1	# All atoms of the molecule (MetalPc - 57 atoms, H2Pc - 58, NoPc - 56)
 eta = 1E-6	# very very low, to pronounce the single orbitals only
 # --- these two not needed now (no STM in this script)
 #WF_decay=1.0	# for STM only - how fast the exponential decay fall, with the applied bias ( if 1 - 1:1 correspondence with bias; if 0, it doesn't change)
@@ -40,19 +42,22 @@ lower_coefs=[]	# Lowering of the hoppings
 
 #eigEn, coefs, Ratin = RS.read_FIREBALL_all(name = path+'phik_example_', geom=path+'crazy_mol.xyz', fermi=fermi, orbs = orbs, pbc=pbc,
 #					    cut_min=cut_min, cut_max=cut_max,cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
-eigEn1, coefs1, Ratin = RS.read_AIMS_all(name = "KS_eigenvectors_up.band_1.kpt_1.out", geom='geometry.in',fermi=fermi, orbs = orbs, pbc=pbc,
-                    imaginary = False, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at,
-                    lower_atoms=lower_atoms, lower_coefs=lower_coefs)
-eigEn2, coefs2, Ratin = RS.read_AIMS_all(name = "KS_eigenvectors_dn.band_1.kpt_1.out", geom='geometry.in',fermi=fermi, orbs = orbs, pbc=pbc,
-                    imaginary = False, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at,
-                    lower_atoms=lower_atoms, lower_coefs=lower_coefs)
+#eigEn1, coefs1, Ratin = RS.read_AIMS_all(name = 'KS_eigenvectors_up.band_1.kpt_1.out', geom='geometry.in',fermi=fermi, orbs = orbs, pbc=pbc,
+#					imaginary = False, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at,
+#					lower_atoms=lower_atoms, lower_coefs=lower_coefs)
+#eigEn2, coefs2, Ratin = RS.read_AIMS_all(name = 'KS_eigenvectors_dn.band_1.kpt_1.out', geom='geometry.in',fermi=fermi, orbs = orbs, pbc=pbc,
+#					imaginary = False, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at,
+#					lower_atoms=lower_atoms, lower_coefs=lower_coefs)
+#eigEn, coefs, Ratin  = RS.read_GPAW_all(name = 'out_LCAO_LDA.gpw', fermi=fermi, orbs = orbs, pbc=pbc,
+#					cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
+eigEn1, coefs1, Ratin  = RS.read_CP2K_all(name = 'CuPc', fermi=fermi, orbs = orbs, pbc=pbc,
+                    cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin="alpha");
+eigEn2, coefs2, Ratin  = RS.read_CP2K_all(name = 'CuPc', fermi=fermi, orbs = orbs, pbc=pbc,
+                    cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin="beta");
 
 eigEn = np.concatenate((eigEn1, eigEn2), axis=0)
 print("eigEn: ", eigEn)
 coefs = np.concatenate((coefs1, coefs2), axis=0)
-
-#eigEn, coefs, Ratin  = RS.read_GPAW_all(name = 'out_LCAO_LDA.gpw', fermi=fermi, orbs = orbs, pbc=pbc,
-#					cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
 
 # --- the grid on which the STM signal is calculated; no tip_r1 - PP distored by the relaxation in the PPAFM code;  only tip_r2 - uniform grid:
 
@@ -75,10 +80,10 @@ sh = tip_r2.shape
 
 # --- specification on which voltages the STM (dI/dV ...) calculations are performed - two methods - direct specification or sequence of voltages
 
-Voltages=[-1.86061211,-1.26292292, 0.16746031, 0.16749500,
-      -1.26624849, 0.18127846, 0.18131269, 0.37374527]
+Voltages=[-0.37766681,  0.,  1.38595747,  1.38835207,
+       0.,  0.82385189,  1.41540019,  1.41776758]
 namez=['SOMO_up','HOMO_up','LUMO1_up','LUMO2_up',
-    'HOMO_down','LUMO1_down','LUMO2_down','SOMO_down']
+    'HOMO_down','SOMO_down','LUMO1_down','LUMO2_down']
 
 #Voltages=np.arange(-1.0,+1.0+0.01,0.1) # this part is important for scans over slabs at different voltages
 #namez = []
@@ -105,7 +110,7 @@ curre=np.reshape(curr0,(len(Voltages),sh[0],sh[1],sh[2]))
 # --- plotting part here, plots calculated signal:
 print(" plotting ")
 for zi in range(len(tip_r2)):
-    name_file='didV-CuPc_spin-polerized_height_%03dA' %(zi+1)
+    name_file='didV-CuPc_spin-polerized_cp2k_height_%03dA' %(zi+1)
     # ploting part here:
     plt.figure( figsize=(0.45* xl , 0.45*yl/2 ) )
     for i in range(8):

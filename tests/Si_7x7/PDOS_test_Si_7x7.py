@@ -5,6 +5,8 @@ import numpy as np
 
 #import ppafm.io as io
 #import pyPPSTM                   as PS
+import sys
+sys.path.append('../../')
 import pyPPSTM.ReadSTM           as RS
 import pyPPSTM.PreSTMutils       as SU
 

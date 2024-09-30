@@ -4,6 +4,8 @@ import os
 import numpy as np
 
 import ppafm.io as io
+import sys
+sys.path.append('../../')
 import pyPPSTM                   as PS
 import pyPPSTM.ReadSTM           as RS
 

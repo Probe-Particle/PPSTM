@@ -1,0 +1,43 @@
+title = "Default configuration"
+
+
+[scan]
+scan_type       = 'v-scan'
+tip_type        = 'fixed'
+scan_window     = [[-3, -3, 12.7], [15, 15, 13.7]]
+scan_dim        = [180, 180, 10]
+V               = -0.5
+V_max           = +0.5
+dV              =  0.1
+eta             =  0.1
+tip_orb         = 's'
+sample_orbs     = 'sp'
+
+[input]
+path            = './'
+dft_code        = 'cp2k'
+geometry_file   = 'TOAT.xyz'
+pbc             = [0, 0]
+lvs             = false
+spin            = false
+cp2k_name       = 'TOAT'
+Q               = -0.10
+K               = 0.24
+data_format     = 'xsf'
+
+[advanced]
+cut_atoms       = 18
+lower_atoms     = []
+lower_coefs     = []
+work_function   = 5.0
+work_function_decay =  0.5
+fermi           = 0.0
+cut_min         = -2.5
+cut_max         = 2.5
+
+[output]
+plot_atoms      = true
+PNG             = true
+WSxM            = false
+NPY             = false
+XSF             = false
