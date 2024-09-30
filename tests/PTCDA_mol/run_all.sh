@@ -16,5 +16,5 @@ ppafm-generate-elff -i cube_001_hartree_potential.cube
 ppafm-relaxed-scan --pos
 python3 xsf2xyz.py
 sed -i '2d' input_plot.xyz # the xyz reader in PPSTM does not like non-empty 2nd line of the xyz file #
-python3 PPSTM_homo.py
-python3 PPSTM_lumo.py
+python3 ../../ppstm_run.py ptcda-homo.toml
+python3 ../../ppstm_run.py ptcda-lumo.toml
