@@ -1,0 +1,43 @@
+title = "Default configuration"
+
+
+[scan]
+scan_type       = 'dIdV'
+tip_type        = 'fixed'
+scan_window     = [[-5, -5, -5], [15, 15, 5]]
+scan_dim        = [100, 100, 50]
+V               = +0.0
+V_max           = +0.0
+dV              =  0.1
+eta             =  10.0
+tip_orb         = 's'
+sample_orbs     = 'spd'
+
+[input]
+path            = './'
+dft_code        = 'fireball'
+geometry_file   = 'input_plot.xyz'
+pbc             = [0, 0]
+lvs             = false
+spin            = false
+cp2k_name       = 'None'
+Q               = 0.0
+K               = 0.24
+data_format     = 'npy'
+
+[advanced]
+cut_atoms       = -1
+lower_atoms     = []
+lower_coefs     = []
+work_function   = 5.0
+work_function_decay =  0.5
+fermi           = 0.0
+cut_min         = -2.5
+cut_max         = 2.5
+
+[output]
+plot_atoms      = true
+PNG             = true
+WSxM            = false
+NPY             = false
+XSF             = true

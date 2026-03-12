@@ -10,7 +10,7 @@
 #
 # ***** System information: *****
 #
-ppstm_path = './PPSTM/'      # path (absolute or relative) to your PPSTM code #
+ppstm_path = '../../'      # path (absolute or relative) to your PPSTM code #
 #
 # ***** Main informations ******
 #

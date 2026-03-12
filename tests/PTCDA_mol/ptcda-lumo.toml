@@ -1,0 +1,43 @@
+title = "Default configuration"
+
+
+[scan]
+scan_type       = 'dIdV'
+tip_type        = 'relaxed'
+scan_window     = [[0, 0, 10], [20, 15, 12]]
+scan_dim        = [80, 60, 20]
+V               = +0.787647
+V_max           = +0.788647
+dV              =  0.787647
+eta             =  0.001
+tip_orb         = 'CO'
+sample_orbs     = 'sp'
+
+[input]
+path            = './'
+dft_code        = 'aims'
+geometry_file   = 'geometry.in'
+pbc             = [0, 0]
+lvs             = false
+spin            = false
+cp2k_name       = 'None'
+Q               = -0.10
+K               = 0.24
+data_format     = 'xsf'
+
+[advanced]
+cut_atoms       = -1
+lower_atoms     = []
+lower_coefs     = []
+work_function   = 5.0
+work_function_decay =  0.5
+fermi           = -0.309023
+cut_min         = -2.5
+cut_max         = 2.5
+
+[output]
+plot_atoms      = true
+PNG             = true
+WSxM            = false
+NPY             = false
+XSF             = false

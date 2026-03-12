@@ -4,6 +4,8 @@ import os
 import numpy as np
 
 #import ppafm.io as io # --- not needed at all for the rigid tip scans
+import sys
+sys.path.append('../../')
 import pyPPSTM                   as PS
 import pyPPSTM.ReadSTM           as RS
 

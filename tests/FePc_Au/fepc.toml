@@ -1,0 +1,43 @@
+title = "Default configuration"
+
+
+[scan]
+scan_type       = 'v-scan'
+tip_type        = 'relaxed'
+scan_window     = [[-20, -20, 4], [20, 20, 5]]
+scan_dim        = [160, 160, 2]
+V               = -0.5
+V_max           = +0.5
+dV              =  0.1
+eta             =  0.1
+tip_orb         = 's'
+sample_orbs     = 'spd'
+
+[input]
+path            = './'
+dft_code        = 'aims'
+geometry_file   = 'geom-cube.in'
+pbc             = [0, 0]
+lvs             = false
+spin            = 'both'
+cp2k_name       = 'crazy_mol'
+Q               = 0.0
+K               = 0.24
+data_format     = 'npy'
+
+[advanced]
+cut_atoms       = 57
+lower_atoms     = []
+lower_coefs     = []
+work_function   = 5.0
+work_function_decay =  0.5
+fermi           = 0.0
+cut_min         = -2.5
+cut_max         = 2.5
+
+[output]
+plot_atoms      = true
+PNG             = true
+WSxM            = false
+NPY             = false
+XSF             = false
