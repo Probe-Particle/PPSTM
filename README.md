@@ -1,3 +1,5 @@
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Probe-Particle/PPSTM)
+
 # PPSTM (Probe Particle STM)
 Code simulating various various STM techniques, especially for [tilting tips](https://pubs.acs.org/doi/10.1021/ja204624g) (depending on [ProkopHapala/ProbeParticleModel](https://github.com/ProkopHapala/ProbeParticleModel) )
 This is implementation of efficient and simple model for simulation of High-resolution scanning tunneling microscopy (STM).
@@ -12,9 +14,15 @@ Normall STM simulations using [Chen's approximattion](https://journals.aps.org/p
 
 For easy introduction to this code and its functionalities, try [Graphic User Interface (GUI)](https://github.com/Probe-Particle/PPSTM/wiki#GUI-for-PPSTM-code) or [PPSTM_simple.py](https://github.com/Probe-Particle/PPSTM/wiki#ppstm_simplepy) script.
 
+### Documentation
+
 **Documentation is here at [Wiki](https://github.com/Probe-Particle/PPSTM/wiki).**
 
 It can also simulate IETS images of molecules, if the imaging mechanism is driven by the amplitude of the IETS peak.
+
+#### Auto-Generated Documentation
+
+* [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Probe-Particle/PPSTM)
 
 ### References (should be always cited)
 * [Ondrej Krejčí, Prokop Hapala, Martin Ondráček, and Pavel Jelínek, Principles and simulations of high-resolution STM imaging with a flexible tip apex, Phys. Rev. B 95, 045407 – Published 6 January 2017 ](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.95.045407) 
