@@ -14,6 +14,8 @@ Normall STM simulations using [Chen's approximattion](https://journals.aps.org/p
 
 For easy introduction to this code and its functionalities, try [Graphic User Interface (GUI)](https://github.com/Probe-Particle/PPSTM/wiki#GUI-for-PPSTM-code) or [PPSTM_simple.py](https://github.com/Probe-Particle/PPSTM/wiki#ppstm_simplepy) script.
 
+Constant current simulations are now available through `const_cur_tutorial.ipynb` jupyter notebook from an npz or xsf. There is also former [Mathematica notebook](https://github.com/Probe-Particle/MathematicaForPPSTM/blob/master/PPSTM_contant_current_XSF_view.nb) which works only with xsf.
+
 ### Documentation
 
 **Documentation is here at [Wiki](https://github.com/Probe-Particle/PPSTM/wiki).**
