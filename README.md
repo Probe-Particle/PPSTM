@@ -26,6 +26,22 @@ It can also simulate IETS images of molecules, if the imaging mechanism is drive
 
 * [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Probe-Particle/PPSTM)
 
+### Setup
+Ensure you have [Conda](https://conda.io) installed.
+
+Choose the environment that best fits your needs:
+- **Full Environment (ppstm):**
+   ```bash
+   conda env create -f environment.yml
+   conda activate ppstm
+   ```
+
+- **Minimal Environment (ppstm-min):**
+   ```bash
+   conda env create -f environment_min.yml
+   conda activate ppstm-min
+   ```
+
 ### References (should be always cited)
 * [Ondrej Krejčí, Prokop Hapala, Martin Ondráček, and Pavel Jelínek, Principles and simulations of high-resolution STM imaging with a flexible tip apex, Phys. Rev. B 95, 045407 – Published 6 January 2017 ](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.95.045407) 
 
