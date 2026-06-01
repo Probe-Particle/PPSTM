@@ -6,6 +6,7 @@
 *.pyd
 *_backup
 __pycache__
+*.idea
 
 *.npy
 *.xsf
