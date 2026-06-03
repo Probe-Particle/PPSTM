@@ -36,6 +36,12 @@ Choose the environment that best fits your needs:
    conda activate ppstm
    ```
 
+- **Dev Environment (ppstm-dev):**
+   ```bash
+   conda env create -f environment_dev.yml
+   conda activate ppstm-dev
+   ```
+
 - **Minimal Environment (ppstm-min):**
    ```bash
    conda env create -f environment_min.yml

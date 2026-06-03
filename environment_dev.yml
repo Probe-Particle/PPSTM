@@ -1,4 +1,4 @@
-name: ppstm
+name: ppstm-dev
 
 channels:
   - conda-forge
@@ -11,9 +11,15 @@ dependencies:
   - scipy=1.17.1
   - matplotlib=3.10.9
   - tomli=2.4.1
+  - pytest=9.0.3
+  - pytest-cov=7.1.0  # optional
   - ase=3.28.0  # optional
   - gpaw=25.7.0  # optional
   - pyopencl=2026.1.1  # optional
+  - scipy-stubs=1.17.1.5  # optional
+  - pandas=3.0.3  # optional
+  - pandas-stubs=3.0.3.260530  # optional
+  - seaborn=0.13.2  # optional
   - pip=26.1.2  # optional
   - pip:
     - ppafm==0.4.0  # optional
