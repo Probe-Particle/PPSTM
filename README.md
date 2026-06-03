@@ -34,12 +34,14 @@ Choose the environment that best fits your needs:
    ```bash
    conda env create -f environment.yml
    conda activate ppstm
+   python -m ipykernel install --user --name=ppstm
    ```
 
 - **Dev Environment (ppstm-dev):**
    ```bash
    conda env create -f environment_dev.yml
    conda activate ppstm-dev
+   python -m ipykernel install --user --name=ppstm-dev
    ```
 
 - **Minimal Environment (ppstm-min):**

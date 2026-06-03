@@ -20,6 +20,7 @@ dependencies:
   - pandas=3.0.3  # optional
   - pandas-stubs=3.0.3.260530  # optional
   - seaborn=0.13.2  # optional
+  - jupyter=1.1.1  # optional
   - pip=26.1.2  # optional
   - pip:
     - ppafm==0.4.0  # optional

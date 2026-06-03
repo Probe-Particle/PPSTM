@@ -14,6 +14,7 @@ dependencies:
   - ase=3.28.0  # optional
   - gpaw=25.7.0  # optional
   - pyopencl=2026.1.1  # optional
+  - jupyter=1.1.1  # optional
   - pip=26.1.2  # optional
   - pip:
     - ppafm==0.4.0  # optional
