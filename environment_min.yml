@@ -5,7 +5,8 @@ channels:
   - defaults
 
 dependencies:
-  - gcc=15.2.0
+  - gxx=15.2.0
+  - make=4.4.1
   - python=3.14.5
   - numpy=2.4.6
   - scipy=1.17.1
