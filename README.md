@@ -52,6 +52,12 @@ Choose the environment that best fits your needs:
 
 *Note: macOS support is currently experimental and may have limited functionality.*
 
+### Tests
+When the `ppstm-dev` environment is activated, you can run the test suite:
+```bash
+pytest tests
+```
+
 ### References (should be always cited)
 * [Ondrej Krejčí, Prokop Hapala, Martin Ondráček, and Pavel Jelínek, Principles and simulations of high-resolution STM imaging with a flexible tip apex, Phys. Rev. B 95, 045407 – Published 6 January 2017 ](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.95.045407) 
 
