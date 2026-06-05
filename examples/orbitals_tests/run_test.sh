@@ -14,6 +14,7 @@ python3 ../../ppstm_run.py pxy_spd.toml
 python3 ../../ppstm_run.py pz_spd.toml
 python3 ../../ppstm_run.py dz2_sp.toml
 python3 ../../ppstm_run.py dxyz_sp.toml
-
+python3 ../../ppstm_run.py s_spy.toml
+python3 ../../ppstm_run.py high_wf.toml
 
 echo "Now all things made, before submiting, please run clean.sh!"
