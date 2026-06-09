@@ -1,4 +1,6 @@
 import numpy as np
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 
 from pyPPSTM import elements
@@ -49,12 +51,17 @@ def get_number_of_voltages_and_heights(config, current, didv):
 
     return nV, nH
 
-def plot_png(config, current, didv, voltages, names, lvec, extent, geom_plot):
+def plot_png(config, current, didv, voltages, names, lvec, extent, geom_plot,
+             save_dir: Path = Path(".")):
     tip_type = config['scan']['tip_type']
     tip_orb = config['scan']['tip_orb']
     eta = config['scan']['eta']
     work_function = config['advanced']['work_function']
-    wf_decay = config['advanced']['work_function_decay']
+
+    if config['scan']['scan_type'] in ['STM', 'STM-single', 'v-scan', 'V-scan', 'Voltage-scan']:
+        wf_decay = config['advanced']['work_function_decay']
+    else:
+        wf_decay = 0.
 
     nV, nH = get_number_of_voltages_and_heights(config, current, didv)
     for vv in range(nV):
@@ -70,7 +77,7 @@ def plot_png(config, current, didv, voltages, names, lvec, extent, geom_plot):
                 plt.ylabel(r' Tip_y $\AA$')
                 plt.title("dIdV:"+name_plot)
                 save_name = f'didv_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function-voltages[vv]*wf_decay}_eta_{eta:.1f}_{k:03d}.png'
-                plt.savefig(save_name, bbox_inches='tight')
+                plt.savefig(save_dir.joinpath(save_name), bbox_inches='tight')
                 plt.close()
             if current is not None:
                 # ploting part here:
@@ -81,7 +88,7 @@ def plot_png(config, current, didv, voltages, names, lvec, extent, geom_plot):
                 plt.ylabel(r' Tip_y $\AA$')
                 plt.title("STM:"+name_plot)
                 save_name = f'STM_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function:.1f}_WF_decay_{wf_decay:.1f}_eta_{eta:.1f}_{k:03d}.png'
-                plt.savefig(save_name, bbox_inches='tight')
+                plt.savefig(save_dir.joinpath(save_name), bbox_inches='tight')
                 plt.close()
 
 def plot_wsxm(config, current, didv, voltages, names, tip_r0):
