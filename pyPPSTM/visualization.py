@@ -91,14 +91,19 @@ def plot_png(config, current, didv, voltages, names, lvec, extent, geom_plot,
                 plt.savefig(save_dir.joinpath(save_name), bbox_inches='tight')
                 plt.close()
 
-def plot_wsxm(config, current, didv, voltages, names, tip_r0):
+def plot_wsxm(config, current, didv, voltages, names, tip_r0,
+             save_dir: Path = Path(".")):
     tip_type = config['scan']['tip_type']
     tip_orb = config['scan']['tip_orb']
     eta = config['scan']['eta']
     work_function = config['advanced']['work_function']
-    wf_decay = config['advanced']['work_function_decay']
-    nV, nH = get_number_of_voltages_and_heights(config, current, didv)
 
+    if config['scan']['scan_type'] in ['STM', 'STM-single', 'v-scan', 'V-scan', 'Voltage-scan']:
+        wf_decay = config['advanced']['work_function_decay']
+    else:
+        wf_decay = 0.
+
+    nV, nH = get_number_of_voltages_and_heights(config, current, didv)
     for vv in range(nV):
         for k in range(nH):
             if didv is not None:
@@ -108,7 +113,7 @@ def plot_wsxm(config, current, didv, voltages, names, tip_r0):
                 out_curr[:,0]=tip_r0[k,:,:,0].flatten()
                 out_curr[:,1]=tip_r0[k,:,:,1].flatten()
                 out_curr[:,2]=tmp_curr.copy()
-                f=open(name_file,'w')
+                f=open(save_dir.joinpath(name_file),'w')
                 print("WSxM file copyright Nanotec Electronica", file=f)
                 print("WSxM ASCII XYZ file; obtained from dIdV code by Krejci et al.", file=f)
                 print("X[A]  Y[A]  Z[A]", file=f)
@@ -123,7 +128,7 @@ def plot_wsxm(config, current, didv, voltages, names, tip_r0):
                 out_curr[:,0]=tip_r0[k,:,:,0].flatten()
                 out_curr[:,1]=tip_r0[k,:,:,1].flatten()
                 out_curr[:,2]=tmp_curr.copy()
-                f=open(name_file,'w')
+                f=open(save_dir.joinpath(name_file),'w')
                 print("WSxM file copyright Nanotec Electronica", file=f)
                 print("WSxM ASCII XYZ file; obtained from dIdV code by Krejci et al.", file=f)
                 print("X[A]  Y[A]  Z[A]", file=f)
