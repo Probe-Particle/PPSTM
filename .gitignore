@@ -11,4 +11,5 @@ __pycache__
 *.npy
 *.xsf
 *.png
+*.vesta
 .DS_store
