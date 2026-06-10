@@ -15,7 +15,7 @@ class TestSaveNpz(_TestSaveData):
     _FILENAME_EXTENSION = "npz"
 
     def _save(self, scan_type: str, save_dir: Path, current: Optional = None, didv: Optional = None):
-        visualization.save_npy(self._config(scan_type),
+        visualization.save_npz(self._config(scan_type),
                                current=current,
                                didv=didv,
                                voltages=self._VOLTAGES,

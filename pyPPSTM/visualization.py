@@ -164,7 +164,7 @@ def save_xsf(config, current, didv, voltages, names, geom_plot, lvec,
             name_file = f'STM_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function:.1f}_WF_decay_{wf_decay:.1f}_eta_{eta:.1f}.xsf'
             io.saveXSF(save_dir.joinpath(name_file), current[vv], lvec, head=xsf_head )
 
-def save_npy(config, current, didv, voltages, names, lvec, atomic_info_or_head,
+def save_npz(config, current, didv, voltages, names, lvec, atomic_info_or_head,
              save_dir: Path = Path(".")):
     try:
         import ppafm.io as io
