@@ -164,7 +164,8 @@ def save_xsf(config, current, didv, voltages, names, geom_plot, lvec,
             name_file = f'STM_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function:.1f}_WF_decay_{wf_decay:.1f}_eta_{eta:.1f}.xsf'
             io.saveXSF(save_dir.joinpath(name_file), current[vv], lvec, head=xsf_head )
 
-def save_npy(config, current, didv, voltages, names, lvec, atomic_info_or_head):
+def save_npy(config, current, didv, voltages, names, lvec, atomic_info_or_head,
+             save_dir: Path = Path(".")):
     try:
         import ppafm.io as io
     except ImportError:
@@ -173,14 +174,18 @@ def save_npy(config, current, didv, voltages, names, lvec, atomic_info_or_head):
     tip_orb = config['scan']['tip_orb']
     eta = config['scan']['eta']
     work_function = config['advanced']['work_function']
-    wf_decay = config['advanced']['work_function_decay']
+
+    if config['scan']['scan_type'] in ['STM', 'STM-single', 'v-scan', 'V-scan', 'Voltage-scan']:
+        wf_decay = config['advanced']['work_function_decay']
+    else:
+        wf_decay = 0.
 
     nV, nH = get_number_of_voltages_and_heights(config, current, didv)
 
     for vv in range(nV):
         if didv is not None:
             name_file = f'didv_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function-voltages[vv]*wf_decay}_eta_{eta:.1f}'
-            io.saveNpy(name_file, didv[vv], lvec, atomic_info=atomic_info_or_head)
+            io.saveNpy(str(save_dir.joinpath(name_file)), didv[vv], lvec, atomic_info=atomic_info_or_head)
         if current is not None:
             name_file = f'STM_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function:.1f}_WF_decay_{wf_decay:.1f}_eta_{eta:.1f}'
-            io.saveNpy(name_file, current[vv], lvec, atomic_info=atomic_info_or_head)
+            io.saveNpy(str(save_dir.joinpath(name_file)), current[vv], lvec, atomic_info=atomic_info_or_head)
