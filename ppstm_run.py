@@ -73,7 +73,7 @@ def main(config: dict):
         visualization.save_xsf(config, current, didv, voltages, names, geom_plot, lvec)
         print(f"XSF output complete.")
     if config['output']['NPY']:
-        visualization.save_npy(config, current, didv, voltages, names, lvec, atomic_head_or_info)
+        visualization.save_npz(config, current, didv, voltages, names, lvec, atomic_head_or_info)
         print(f"NPY output complete.")
 
     print(f"Output finished, exiting.")

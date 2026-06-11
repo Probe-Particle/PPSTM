@@ -1,4 +1,6 @@
 import numpy as np
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 
 from pyPPSTM import elements
@@ -49,12 +51,17 @@ def get_number_of_voltages_and_heights(config, current, didv):
 
     return nV, nH
 
-def plot_png(config, current, didv, voltages, names, lvec, extent, geom_plot):
+def plot_png(config, current, didv, voltages, names, lvec, extent, geom_plot,
+             save_dir: Path = Path(".")):
     tip_type = config['scan']['tip_type']
     tip_orb = config['scan']['tip_orb']
     eta = config['scan']['eta']
     work_function = config['advanced']['work_function']
-    wf_decay = config['advanced']['work_function_decay']
+
+    if config['scan']['scan_type'] in ['STM', 'STM-single', 'v-scan', 'V-scan', 'Voltage-scan']:
+        wf_decay = config['advanced']['work_function_decay']
+    else:
+        wf_decay = 0.
 
     nV, nH = get_number_of_voltages_and_heights(config, current, didv)
     for vv in range(nV):
@@ -70,7 +77,7 @@ def plot_png(config, current, didv, voltages, names, lvec, extent, geom_plot):
                 plt.ylabel(r' Tip_y $\AA$')
                 plt.title("dIdV:"+name_plot)
                 save_name = f'didv_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function-voltages[vv]*wf_decay}_eta_{eta:.1f}_{k:03d}.png'
-                plt.savefig(save_name, bbox_inches='tight')
+                plt.savefig(save_dir.joinpath(save_name), bbox_inches='tight')
                 plt.close()
             if current is not None:
                 # ploting part here:
@@ -81,17 +88,22 @@ def plot_png(config, current, didv, voltages, names, lvec, extent, geom_plot):
                 plt.ylabel(r' Tip_y $\AA$')
                 plt.title("STM:"+name_plot)
                 save_name = f'STM_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function:.1f}_WF_decay_{wf_decay:.1f}_eta_{eta:.1f}_{k:03d}.png'
-                plt.savefig(save_name, bbox_inches='tight')
+                plt.savefig(save_dir.joinpath(save_name), bbox_inches='tight')
                 plt.close()
 
-def plot_wsxm(config, current, didv, voltages, names, tip_r0):
+def plot_wsxm(config, current, didv, voltages, names, tip_r0,
+             save_dir: Path = Path(".")):
     tip_type = config['scan']['tip_type']
     tip_orb = config['scan']['tip_orb']
     eta = config['scan']['eta']
     work_function = config['advanced']['work_function']
-    wf_decay = config['advanced']['work_function_decay']
-    nV, nH = get_number_of_voltages_and_heights(config, current, didv)
 
+    if config['scan']['scan_type'] in ['STM', 'STM-single', 'v-scan', 'V-scan', 'Voltage-scan']:
+        wf_decay = config['advanced']['work_function_decay']
+    else:
+        wf_decay = 0.
+
+    nV, nH = get_number_of_voltages_and_heights(config, current, didv)
     for vv in range(nV):
         for k in range(nH):
             if didv is not None:
@@ -101,7 +113,7 @@ def plot_wsxm(config, current, didv, voltages, names, tip_r0):
                 out_curr[:,0]=tip_r0[k,:,:,0].flatten()
                 out_curr[:,1]=tip_r0[k,:,:,1].flatten()
                 out_curr[:,2]=tmp_curr.copy()
-                f=open(name_file,'w')
+                f=open(save_dir.joinpath(name_file),'w')
                 print("WSxM file copyright Nanotec Electronica", file=f)
                 print("WSxM ASCII XYZ file; obtained from dIdV code by Krejci et al.", file=f)
                 print("X[A]  Y[A]  Z[A]", file=f)
@@ -116,7 +128,7 @@ def plot_wsxm(config, current, didv, voltages, names, tip_r0):
                 out_curr[:,0]=tip_r0[k,:,:,0].flatten()
                 out_curr[:,1]=tip_r0[k,:,:,1].flatten()
                 out_curr[:,2]=tmp_curr.copy()
-                f=open(name_file,'w')
+                f=open(save_dir.joinpath(name_file),'w')
                 print("WSxM file copyright Nanotec Electronica", file=f)
                 print("WSxM ASCII XYZ file; obtained from dIdV code by Krejci et al.", file=f)
                 print("X[A]  Y[A]  Z[A]", file=f)
@@ -124,7 +136,8 @@ def plot_wsxm(config, current, didv, voltages, names, tip_r0):
                 np.savetxt(f, out_curr)
                 f.close()
 
-def save_xsf(config, current, didv, voltages, names, geom_plot, lvec):
+def save_xsf(config, current, didv, voltages, names, geom_plot, lvec,
+             save_dir: Path = Path(".")):
     try:
         import ppafm.io as io
     except ImportError:
@@ -134,7 +147,11 @@ def save_xsf(config, current, didv, voltages, names, geom_plot, lvec):
     tip_orb = config['scan']['tip_orb']
     eta = config['scan']['eta']
     work_function = config['advanced']['work_function']
-    wf_decay = config['advanced']['work_function_decay']
+
+    if config['scan']['scan_type'] in ['STM', 'STM-single', 'v-scan', 'V-scan', 'Voltage-scan']:
+        wf_decay = config['advanced']['work_function_decay']
+    else:
+        wf_decay = 0.
 
     xsf_head = Bu.At2XSF(geom_plot) if geom_plot is not None else io.XSF_HEAD_DEFAULT
     nV, nH = get_number_of_voltages_and_heights(config, current, didv)
@@ -142,12 +159,13 @@ def save_xsf(config, current, didv, voltages, names, geom_plot, lvec):
     for vv in range(nV):
         if didv is not None:
             name_file = f'didv_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function-voltages[vv]*wf_decay}_eta_{eta:.1f}.xsf'
-            io.saveXSF(name_file, didv[vv], lvec, head=xsf_head )
+            io.saveXSF(save_dir.joinpath(name_file), didv[vv], lvec, head=xsf_head )
         if current is not None:
             name_file = f'STM_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function:.1f}_WF_decay_{wf_decay:.1f}_eta_{eta:.1f}.xsf'
-            io.saveXSF(name_file, current[vv], lvec, head=xsf_head )
+            io.saveXSF(save_dir.joinpath(name_file), current[vv], lvec, head=xsf_head )
 
-def save_npy(config, current, didv, voltages, names, lvec, atomic_info_or_head):
+def save_npz(config, current, didv, voltages, names, lvec, atomic_info_or_head,
+             save_dir: Path = Path(".")):
     try:
         import ppafm.io as io
     except ImportError:
@@ -156,14 +174,18 @@ def save_npy(config, current, didv, voltages, names, lvec, atomic_info_or_head):
     tip_orb = config['scan']['tip_orb']
     eta = config['scan']['eta']
     work_function = config['advanced']['work_function']
-    wf_decay = config['advanced']['work_function_decay']
+
+    if config['scan']['scan_type'] in ['STM', 'STM-single', 'v-scan', 'V-scan', 'Voltage-scan']:
+        wf_decay = config['advanced']['work_function_decay']
+    else:
+        wf_decay = 0.
 
     nV, nH = get_number_of_voltages_and_heights(config, current, didv)
 
     for vv in range(nV):
         if didv is not None:
             name_file = f'didv_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function-voltages[vv]*wf_decay}_eta_{eta:.1f}'
-            io.saveNpy(name_file, didv[vv], lvec, atomic_info=atomic_info_or_head)
+            io.saveNpy(str(save_dir.joinpath(name_file)), didv[vv], lvec, atomic_info=atomic_info_or_head)
         if current is not None:
             name_file = f'STM_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function:.1f}_WF_decay_{wf_decay:.1f}_eta_{eta:.1f}'
-            io.saveNpy(name_file, current[vv], lvec, atomic_info=atomic_info_or_head)
+            io.saveNpy(str(save_dir.joinpath(name_file)), current[vv], lvec, atomic_info=atomic_info_or_head)
