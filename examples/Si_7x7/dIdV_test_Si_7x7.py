@@ -1,3 +1,5 @@
+"""PP-STM code on Si(111) 7x7 reconstruction - single STM calc -- +- 0.5 V"""
+
 #!/usr/bin/python
 
 import os

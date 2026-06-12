@@ -1,3 +1,5 @@
+"""PP-STM code plotting DOS of Si(111) 7x7 reconstruction"""
+
 #!/usr/bin/python
 
 import os
