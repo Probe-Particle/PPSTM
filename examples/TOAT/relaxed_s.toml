@@ -1,0 +1,40 @@
+title = "TOAT-relaxed-s"
+
+
+[scan]
+scan_type       = 'states'
+tip_type        = 'relaxed'
+V               = -2.5
+V_max           = 2.5
+dV              = 0.0  # unused in states scans
+eta             = 0.0000001
+tip_orb         = 's'
+sample_orbs     = 'sp'
+
+[input]
+path            = './'
+dft_code        = 'cp2k'
+geometry_file   = ''  # unused in cp2k dft
+pbc             = [0, 0]
+lvs             = false
+spin            = false
+cp2k_name       = 'TOAT'
+Q               = 0.00
+K               = 0.50
+data_format     = 'npy'
+
+[advanced]
+cut_atoms       = -1
+lower_atoms     = [22, 23, 24]
+lower_coefs     = [0.75, 0.75, 0.75]
+work_function   = 5.0
+fermi           = 0.0
+cut_min         = -2.6
+cut_max         = 2.6
+
+[output]
+plot_atoms      = true
+PNG             = true
+WSxM            = false
+NPY             = false
+XSF             = false

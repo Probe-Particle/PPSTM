@@ -1,4 +1,4 @@
-title = "Default configuration"
+title = "TOAT-fixed"
 
 
 [scan]
@@ -7,28 +7,25 @@ tip_type        = 'fixed'
 scan_window     = [[-3, -3, 12.7], [15, 15, 13.7]]
 scan_dim        = [180, 180, 10]
 V               = -0.5
-V_max           = +0.5
-dV              =  0.1
-eta             =  0.1
+V_max           = 0.5
+dV              = 0.1
+eta             = 0.1
 tip_orb         = 's'
 sample_orbs     = 'sp'
 
 [input]
 path            = './'
 dft_code        = 'cp2k'
-geometry_file   = 'TOAT.xyz'
+geometry_file   = ''  # unused in cp2k dft
 pbc             = [0, 0]
 lvs             = false
 spin            = false
 cp2k_name       = 'TOAT'
-Q               = -0.10
-K               = 0.24
-data_format     = 'xsf'
 
 [advanced]
-cut_atoms       = 18
-lower_atoms     = []
-lower_coefs     = []
+cut_atoms       = -1
+lower_atoms     = [22, 23, 24]
+lower_coefs     = [0.75, 0.75, 0.75]
 work_function   = 5.0
 work_function_decay =  0.5
 fermi           = 0.0
