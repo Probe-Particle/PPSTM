@@ -1,0 +1,41 @@
+title = "Si-7x7-fixed-opencl"
+
+
+[scan]
+scan_type       = 'v-scan'
+tip_type        = 'fixed'
+scan_window     = [[-2.0, -15.0, 8.7], [48.0, 15.0, 9.7]]
+scan_dim        = [250, 150, 5]
+V               = -2.0
+V_max           = 2.0
+dV              = 0.1
+eta             = 0.1
+tip_orb         = 's'
+sample_orbs     = 'spd'
+
+[input]
+path            = '../../examples/Si_7x7/'
+dft_code        = 'fireball'
+geometry_file   = '../../examples/Si_7x7/input.xyz'
+pbc             = [1.0, 1.0]
+lvs             = '../../examples/Si_7x7/input.lvs'
+spin            = false
+cp2k_name       = ''  # unused in fireball dft
+
+[advanced]
+cut_atoms       = 18
+lower_atoms     = []
+lower_coefs     = []
+work_function   = 5.0
+work_function_decay = 0.0
+fermi           = 0.0
+cut_min         = -2.5
+cut_max         = 2.5
+didv_backend    = 'opencl'
+
+[output]
+plot_atoms      = false
+PNG             = false
+WSxM            = false
+NPY             = false
+XSF             = false
