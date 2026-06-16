@@ -82,6 +82,49 @@ pytest --cov=pyPPSTM --cov-report html:coverage tests
 ```
 Open `coverage/index.html` in your browser to explore the results interactively.
 
+### Benchmarking
+
+The benchmark scripts measure `dI/dV` runtime for the Si(111) 7x7 example using
+the configuration files in `benchmarks/si_7x7`. 
+Each scan is executed with different `dI/dV` backends, with or without work-function decay, and 
+timing results are written to CSV files in the same directory.
+
+#### Local benchmarks
+
+To locally run the C++ backend with 8 threads, the NumPy, PyOpenCL, and PyTorch backends:
+
+```bash
+cd benchmarks/si_7x7
+conda activate ppstm-dev
+sh benchmark_didv_local.sh
+```
+
+#### Slurm CPU benchmarks
+
+To run the C++ backend with 4 or 8 threads on a Slurm cluster with Intel Xeon E5-2680 v3 CPUs:
+
+```bash
+cd benchmarks/si_7x7
+sbatch benchmark_didv_cpp_4threads_intel_xeon_e5_2680v3_slurm.sh
+sbatch benchmark_didv_cpp_8threads_intel_xeon_e5_2680v3_slurm.sh
+```
+
+Slurm output is written to:
+
+- `benchmark_didv_cpp_4threads_intel_xeon_e5_2680v3.out`
+- `benchmark_didv_cpp_8threads_intel_xeon_e5_2680v3.out`
+
+#### Slurm GPU benchmarks
+
+To run the PyOpenCL and PyTorch backends on a Slurm cluster with NVIDIA A100 GPUs:
+
+```bash
+cd benchmarks/si_7x7
+sbatch benchmark_didv_nvidia_a100_slurm.sh
+```
+
+Slurm output is written to `benchmark_didv_nvidia_a100.out`.
+
 ### References (should be always cited)
 * [Ondrej Krejčí, Prokop Hapala, Martin Ondráček, and Pavel Jelínek, Principles and simulations of high-resolution STM imaging with a flexible tip apex, Phys. Rev. B 95, 045407 – Published 6 January 2017 ](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.95.045407) 
 
