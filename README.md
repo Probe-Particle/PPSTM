@@ -60,10 +60,11 @@ Choose the environment that best fits your needs:
 *Note: macOS support is currently experimental and may have limited functionality.*
 
 ### Tests
-When the `ppstm-dev` environment is activated, you can run the test suite:
+After activating the `ppstm-dev` environment, you can run the test suite with:
 ```bash
-pytest tests
+pytest tests -v
 ```
+This runs all tests in verbose mode.
 
 #### Test Coverage
 Measure code coverage to identify untested code paths.
