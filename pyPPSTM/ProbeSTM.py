@@ -7,10 +7,7 @@ from   scipy.ndimage import uniform_filter
 from   ctypes import c_int, c_double, c_char_p
 import ctypes
 
-from . import basUtils as bU
-from . import elements
-
-from . import cpp_utils
+from pyPPSTM import cpp_utils
 
 #important constants:
 
