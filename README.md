@@ -39,7 +39,7 @@ Choose the environment that best fits your needs:
 
 - **Dev Environment (ppstm-dev):**
    ```bash
-   conda env create -f environment_dev.yml
+   conda env create -f environment_dev_gpu_intel.yml
    conda activate ppstm-dev
    python -m ipykernel install --user --name=ppstm-dev
    ```
