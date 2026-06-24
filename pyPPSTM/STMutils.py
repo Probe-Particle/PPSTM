@@ -177,6 +177,8 @@ def run_stm_scan(
     V_max = config['scan']['V_max']
     dV = config['scan']['dV']
 
+    didv_backend = config['advanced']['didv_backend'] if 'didv_backend' in config['advanced'] else PS.DidvBackend.CPP
+
     scan_type = config['scan']['scan_type']
     didv_args = {
         'WF': config['advanced']['work_function'],
@@ -186,6 +188,7 @@ def run_stm_scan(
         'Rat': atoms,
         'coes': coefs,
         'orbs': config['scan']['sample_orbs'],
+        'backend': didv_backend,
     }
     tip_coefficients = get_tip_coefficients(config['scan']['tip_orb'])
     

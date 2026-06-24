@@ -2,10 +2,16 @@
 
 import os
 import sys
+from enum import StrEnum
+
 import numpy as np
 from   scipy.ndimage import uniform_filter
 from   ctypes import c_int, c_double, c_char_p
 import ctypes
+
+from pyPPSTM.probe_stm_opencl import ProbeSTMOpenCLParallel
+from pyPPSTM.probe_stm_numpy import ProbeStmNumpy
+from pyPPSTM.probe_stm_pytorch import ProbeStmPytorch
 
 from pyPPSTM import cpp_utils
 
@@ -41,8 +47,14 @@ def standart_check(orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxy=0.0, dxz=0.0, 
     orb_t = 4 if (orbs=='sp') else 9
     return tip, orb_t;
 
+class DidvBackend(StrEnum):
+    CPP = "c++"
+    OPENCL = "opencl"
+    NUMPY = "numpy"
+    PYTORCH = "pytorch"
 
-def dIdV( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxy=0.0, dxz=0.0, dyz=0.0, dz2=0.0):
+def dIdV( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxy=0.0, dxz=0.0, dyz=0.0, dz2=0.0,
+          backend: DidvBackend = DidvBackend.CPP):
     '''
     dIdV( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=1.0, px =0.0, py=0.0, pz=0.0):
     V - voltage = (energy vs. the Fermi Level in eV);
@@ -56,8 +68,16 @@ def dIdV( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0
     unification of all the predefined dI/dV procedures from C++, you can choose, whatever PP orbital you want
     '''
     tip, orb_t = standart_check(orbs=orbs, s=s, px=px, py=py, pz=pz, dxy=dxy, dxz=dxz, dyz=dyz, dz2=dz2)
-    cur = dIdV_sp_sp( V, WF, eta, eig, R, Rat, coes, tip, orb_t )
-    return cur;
+    if backend == DidvBackend.OPENCL:
+        _didv_spd_spd = ProbeSTMOpenCLParallel.get_instance().didv
+    elif backend == DidvBackend.CPP:
+        _didv_spd_spd = dIdV_sp_sp
+    elif backend == DidvBackend.PYTORCH:
+        _didv_spd_spd = ProbeStmPytorch.didv
+    else:  # backend == DidvBackend.NUMPY:
+        _didv_spd_spd = ProbeStmNumpy.didv
+    cur = _didv_spd_spd( V, WF, eta, eig, R, Rat, coes, tip, orb_t )
+    return cur
 
 def dIdV_tilt( V, WF, eta ,eig, R, R0, Rat, coes, orbs='sp', pz=0.0, pxy =0.0, dz2=0.0, dxyz=0.0, len_R=4.0, al=1.0):
     '''
@@ -87,7 +107,8 @@ def dIdV_tilt( V, WF, eta ,eig, R, R0, Rat, coes, orbs='sp', pz=0.0, pxy =0.0, d
     cur = dIdV_sp_sp_tilt( V, WF, eta, eig, R, R0, Rat, coes, tip, len_R, al, orb_t)
     return cur;
 
-def STM( V, nV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxy=0.0, dxz=0.0, dyz=0.0, dz2=0.0, WF_decay=1.0):
+def STM( V, nV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxy=0.0, dxz=0.0, dyz=0.0, dz2=0.0, WF_decay=1.0,
+         backend: DidvBackend = DidvBackend.CPP):
     '''
     STM( V, nV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=1.0, px =0.0, py=0.0, pz=0.0, WF_decay=1.0):
     summing more dI/dV via rectangle integration, be aware Work Function is changing with Voltage!
@@ -101,7 +122,8 @@ def STM( V, nV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, p
         ii +=1
         assert (WF-v_*WF_decay> 0.1), "Non-physical Work Function or Voltage, together WF <= 0.1 eV	"
         print("WF for this step is: " , WF-v_*WF_decay, " eV")
-        i_ = dIdV( v_, WF-v_*WF_decay, eta ,eig, R, Rat, coes, orbs=orbs, s=s, px =px, py=py, pz=pz, dxy=dxy, dxz=dxz, dyz=dyz, dz2=dz2)
+        i_ = dIdV( v_, WF-v_*WF_decay, eta ,eig, R, Rat, coes, orbs=orbs, s=s, px =px, py=py, pz=pz, dxy=dxy, dxz=dxz, dyz=dyz, dz2=dz2,
+                   backend=backend)
         #print "maximal dI/dV: " , max(i_)
         if (v_ == 0):
             cur = i_
@@ -111,7 +133,8 @@ def STM( V, nV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, p
     print("All dI/dV steps done, current rescalled into Ampers")
     return cur;
 
-def MSTM( Vmin, Vmax, dV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=1.0, px =0.0, py=0.0, pz=0.0, dxy=0.0, dxz=0.0, dyz=0.0, dz2=0.0, WF_decay=1.0):
+def MSTM( Vmin, Vmax, dV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=1.0, px =0.0, py=0.0, pz=0.0, dxy=0.0, dxz=0.0, dyz=0.0, dz2=0.0, WF_decay=1.0,
+          backend: DidvBackend = DidvBackend.CPP):
     '''
     MSTM( Vmin, Vmax,  dV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=1.0, px =0.0, py=0.0, pz=0.0, WF_decay=1.0):
     summing more dI/dV via rectangle integration, be aware Work Function is changing with Voltage!
@@ -127,7 +150,8 @@ def MSTM( Vmin, Vmax, dV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=1.0, px =0.0,
         print("Start to calculate voltage step %d of %d in total." %(ii, len(np.arange(Vmin,Vmax+0.001,dV))))
         assert (WF-v_*WF_decay> 0.1), "Non-physical Work Function or Voltage, together WF <= 0.1 eV	"
         print("WF for this step is: " , WF-v_*WF_decay, " eV")
-        i_ = dIdV( v_, WF-v_*WF_decay, eta ,eig, R, Rat, coes, orbs=orbs, s=s, px =px, py=py, pz=pz, dxy=dxy, dxz=dxz, dyz=dyz, dz2=dz2)
+        i_ = dIdV( v_, WF-v_*WF_decay, eta ,eig, R, Rat, coes, orbs=orbs, s=s, px =px, py=py, pz=pz, dxy=dxy, dxz=dxz, dyz=dyz, dz2=dz2,
+                   backend=backend)
         dIdVs = np.array([i_]) if v_ == Vmin else np.append(dIdVs, np.array([i_]),axis=0)
         if -0.005 < v_ < 0.005:
             v0 = ii
@@ -232,7 +256,7 @@ def before_C( eig, R, Rat, coes, orb_t):
         #print "orb_t", orb_t
         #print "len(coes)", len(coes)
         #print "len(coes[0])", len(coes[0])
-        assert (NoOrb == len(coes)*len(coes[0])/(orb_t*NoAt)), "Different eigennumbers, than basis"	
+        assert (NoOrb == len(coes)*len(coes[0])/(orb_t*NoAt)), "Different eigennumbers, than basis"
     print("We're going to C++")
     return NoAt, NoOrb, Npoints, cur_1d, sh;
 
