@@ -5,8 +5,11 @@ from typing import Optional
 import numpy as np
 import pytest
 
+from pyPPSTM import visualization
+
 
 class _TestSave(ABC):
+    _FILENAME_EXTENSION: str
     _TIP_TYPE = "fixed"
     _TIP_ORB = "s"
     _ETA = .1
@@ -26,19 +29,19 @@ class _TestSave(ABC):
         [0., 0., _SCAN_WINDOW[1, 2] - _SCAN_WINDOW[0, 2]]
     ])
 
-    @pytest.fixture(scope="class")
+    @pytest.fixture(scope="function")
     def current(self, request):
         if request.param:
-            return self._CURRENT
+            yield self._CURRENT
         else:
-            return None
+            yield None
 
-    @pytest.fixture(scope="class")
+    @pytest.fixture(scope="function")
     def didv(self, request):
         if request.param:
-            return self._DIDV
+            yield self._DIDV
         else:
-            return None
+            yield None
 
     @pytest.mark.parametrize(("scan_type",     "current", "didv", "expected_files_count"),
                              (("didv",         False,      True,  1),
@@ -170,3 +173,94 @@ class _TestSave(ABC):
     @staticmethod
     def _find_one_created_file_name(directory: Path, pattern: str = '*') -> str:
         return next(iter(directory.glob(pattern))).name
+
+
+class _TestSaveData(_TestSave, ABC):
+    def _build_expected_didv_file_name(self, work_function_decay: float) -> str:
+        return f'didv_{self._NAMES[0]}_tip_{self._TIP_TYPE}-{self._TIP_ORB}' \
+               f'_WF_{self._WORK_FUNCTION - self._VOLTAGES[0] * work_function_decay}' \
+               f'_eta_{self._ETA:.7f}.{self._FILENAME_EXTENSION}'
+
+    def _build_expected_stm_file_name(self, expected_work_function_decay: float) -> str:
+        return f'STM_{self._NAMES[0]}_tip_{self._TIP_TYPE}-{self._TIP_ORB}' \
+               f'_WF_{self._WORK_FUNCTION:.1f}_WF_decay_{expected_work_function_decay:.1f}' \
+               f'_eta_{self._ETA:.7f}.{self._FILENAME_EXTENSION}'
+
+
+class _TestSavePlot(_TestSave, ABC):
+    def _build_expected_didv_file_name(self, work_function_decay: float) -> str:
+        return f'didv_{self._NAMES[0]}_tip_{self._TIP_TYPE}-{self._TIP_ORB}' \
+               f'_WF_{self._WORK_FUNCTION - self._VOLTAGES[0] * work_function_decay}' \
+               f'_eta_{self._ETA:.7f}_{0:03d}.{self._FILENAME_EXTENSION}'
+
+    def _build_expected_stm_file_name(self, expected_work_function_decay: float) -> str:
+        return f'STM_{self._NAMES[0]}_tip_{self._TIP_TYPE}-{self._TIP_ORB}' \
+               f'_WF_{self._WORK_FUNCTION:.1f}_WF_decay_{expected_work_function_decay:.1f}' \
+               f'_eta_{self._ETA:.7f}_{0:03d}.{self._FILENAME_EXTENSION}'
+
+
+class TestSaveNpz(_TestSaveData):
+    _ATOMIC_INFO_OR_HEAD = (np.zeros((4, 1)), np.zeros((4, 3)))
+    _FILENAME_EXTENSION = "npz"
+
+    def _save(self, scan_type: str, save_dir: Path, current: Optional = None, didv: Optional = None):
+        visualization.save_npz(self._config(scan_type),
+                               current=current,
+                               didv=didv,
+                               voltages=self._VOLTAGES,
+                               names=self._NAMES,
+                               lvec=self._LVEC,
+                               atomic_info_or_head=self._ATOMIC_INFO_OR_HEAD,
+                               save_dir=save_dir)
+
+
+class TestSavePlotPng(_TestSavePlot):
+    _FILENAME_EXTENSION = "png"
+
+    def _save(self, scan_type: str, save_dir: Path, current: Optional = None, didv: Optional = None):
+        visualization.plot_png(self._config(scan_type),
+                               current=current,
+                               didv=didv,
+                               voltages=self._VOLTAGES,
+                               names=self._NAMES,
+                               lvec=self._LVEC,
+                               extent=None,
+                               geom_plot=None,
+                               save_dir=save_dir)
+
+
+class TestSavePlotWsxm(_TestSavePlot):
+    _DIDV = _CURRENT = np.random.randn(1, 1, 4, 1)
+    _SCAN_DIM = [1, 1, 1]
+    _DX = (_TestSavePlot._SCAN_WINDOW[1, 0] - _TestSavePlot._SCAN_WINDOW[0, 0]) / _SCAN_DIM[0]
+    _DY = (_TestSavePlot._SCAN_WINDOW[1, 1] - _TestSavePlot._SCAN_WINDOW[0, 1]) / _SCAN_DIM[1]
+    _DZ = (_TestSavePlot._SCAN_WINDOW[1, 2] - _TestSavePlot._SCAN_WINDOW[0, 2]) / _SCAN_DIM[2]
+    _TIP_R0 = np.mgrid[
+        _TestSavePlot._SCAN_WINDOW[0, 0]:_TestSavePlot._SCAN_WINDOW[1, 0] + 0.0001:_DX,
+        _TestSavePlot._SCAN_WINDOW[0, 1]:_TestSavePlot._SCAN_WINDOW[1, 1] + 0.0001:_DY,
+        _TestSavePlot._SCAN_WINDOW[0, 2]:_TestSavePlot._SCAN_WINDOW[1, 2] + 0.0001:_DZ
+    ].transpose()
+    _FILENAME_EXTENSION = "wsxm"
+
+    def _save(self, scan_type: str, save_dir: Path, current: Optional = None, didv: Optional = None):
+        visualization.plot_wsxm(self._config(scan_type),
+                                current=current,
+                                didv=didv,
+                                voltages=self._VOLTAGES,
+                                names=self._NAMES,
+                                tip_r0=self._TIP_R0,
+                                save_dir=save_dir)
+
+
+class TestSaveXsf(_TestSaveData):
+    _FILENAME_EXTENSION = "xsf"
+
+    def _save(self, scan_type: str, save_dir: Path, current: Optional = None, didv: Optional = None):
+        visualization.save_xsf(self._config(scan_type),
+                               current=current,
+                               didv=didv,
+                               voltages=self._VOLTAGES,
+                               names=self._NAMES,
+                               lvec=self._LVEC,
+                               geom_plot=None,
+                               save_dir=save_dir)
