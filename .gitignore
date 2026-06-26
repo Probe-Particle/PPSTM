@@ -7,6 +7,7 @@
 *_backup
 __pycache__
 *.idea
+.coverage
 
 *.npy
 *.xsf
