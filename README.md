@@ -58,6 +58,22 @@ When the `ppstm-dev` environment is activated, you can run the test suite:
 pytest tests
 ```
 
+#### Test Coverage
+Measure code coverage to identify untested code paths.
+
+##### View coverage in the terminal
+To show coverage statistics by file and list lines not covered by tests:
+```bash
+pytest --cov=pyPPSTM --cov-report term-missing tests
+```
+
+##### Generate an interactive HTML report
+To create a detailed HTML report with coverage by file, function, and class:
+```bash
+pytest --cov=pyPPSTM --cov-report html:coverage tests
+```
+Open `coverage/index.html` in your browser to explore the results interactively.
+
 ### References (should be always cited)
 * [Ondrej Krejčí, Prokop Hapala, Martin Ondráček, and Pavel Jelínek, Principles and simulations of high-resolution STM imaging with a flexible tip apex, Phys. Rev. B 95, 045407 – Published 6 January 2017 ](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.95.045407) 
 
