@@ -1,0 +1,43 @@
+title = "Default configuration"
+
+
+[scan]
+scan_type       = 'v-scan' # with dV of 0.01 the dIdV within works like states, but then the STM part see, hows dIdV summs .. different part of code
+tip_type        = 'fixed'
+scan_window     = [[-5, -5, -5], [5, 5, 5]]
+scan_dim        = [50, 50, 50]
+V               = -0.04 # -0.04 -s orb and -0.03, -0.02, -0.01 p orbs. are inside
+V_max           =  0.00 # we shoul end on -0.01 + 0.0001 ... for the numerical precision, but v-scan needs 0.0 anyway
+dV              =  0.01
+eta             =  0.0000002
+tip_orb         = 'pz'
+sample_orbs     = 'sp'
+
+[input]
+path            = './'
+dft_code        = 'fireball'
+geometry_file   = 'input_plot.xyz'
+pbc             = [0, 0]
+lvs             = false
+spin            = false
+cp2k_name       = 'None'
+Q               = 0.0
+K               = 0.24
+data_format     = 'npy'
+
+[advanced]
+cut_atoms       = -1
+lower_atoms     = []
+lower_coefs     = []
+work_function   = 5.0
+work_function_decay =  0.0
+fermi           = 0.0
+cut_min         = -0.045 # -0.04 -s orb and -0.03, -0.02, -0.01 p orbs. are inside
+cut_max         = -0.005 # d - orbs starts at 0.00, we don't need them
+
+[output]
+plot_atoms      = true
+PNG             = false
+WSxM            = false
+NPY             = false
+XSF             = true
