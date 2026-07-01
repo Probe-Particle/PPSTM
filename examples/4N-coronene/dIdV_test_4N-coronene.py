@@ -92,6 +92,8 @@ for WorkFunction in [WorkFunction]:
             current5 = PS.STM( V, nV, WorkFunction, eta, eigEn, tip_r1, Ratin, coefs, orbs=orbs, px=0.5, py=0.5, WF_decay=WF_decay)
             # next procedure is under development
             current6 = PS.IETS_simple( V, WorkFunction, eta, eigEn, tip_r1, Ratin, coefs, orbs=orbs, s=0.0, px =0.5, py=0.5, pz=0.0, dxz=0.0, dyz=0.0, dz2=0.0, Amp=0.02)
+            current7 = PS.dIdV_tilt( V, WorkFunction, eta, eigEn, tip_r1, tip_r2, Ratin, coefs, orbs=orbs, pxy = 1.0, al =1.0)
+            current8 = PS.dIdV_tilt( V, WorkFunction, eta, eigEn, tip_r1, tip_r2, Ratin, coefs, orbs=orbs, dz2 = 1.0, al =1.0)
             
             # --- plotting part here, plots all calculated signals:
             print(" plotting ")
@@ -114,6 +116,8 @@ for WorkFunction in [WorkFunction]:
                 name_plot4=namez[i]+';height:%03dA; dIdV [G0] dxyz-tip tilting' %k
                 name_plot5=namez[i]+';height:%03dA; STM [I] pxy-tip' %k
                 name_plot6=namez[i]+';height:%03dA; Under develoment' %k
+                name_plot7=namez[i]+';height:%03dA; dIdV [G0] pxy-tip tilting' %k
+                name_plot8=namez[i]+';height:%03dA; dIdV [G0] dz2-tip tilting' %k
                 
                 # ploting part here:
                 plt.figure( figsize=(1.5* xl , 1.5*yl/2 ) )
