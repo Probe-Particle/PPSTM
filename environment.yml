@@ -19,4 +19,5 @@ dependencies:
   - pip=26.1.2
   - pip:
     - ppafm==0.4.0
+    - torch==2.13.0  # optional
 
