@@ -37,9 +37,16 @@ Choose the environment that best fits your needs:
    python -m ipykernel install --user --name=ppstm
    ```
 
-- **Dev Environment (ppstm-dev):**
+- **Dev Environment with Intel GPU (ppstm-dev):**
    ```bash
    conda env create -f environment_dev_gpu_intel.yml
+   conda activate ppstm-dev
+   python -m ipykernel install --user --name=ppstm-dev
+   ```
+
+- **Dev Environment with system-wide ICDs (ppstm-dev):**
+   ```bash
+   conda env create -f environment_dev_icd_system.yml
    conda activate ppstm-dev
    python -m ipykernel install --user --name=ppstm-dev
    ```
