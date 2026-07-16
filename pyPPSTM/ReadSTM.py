@@ -3,12 +3,12 @@
 import os
 import sys
 import numpy as np
-from . import basUtils as bU
-from . import elements
+from pyPPSTM import basUtils as bU
+from pyPPSTM import elements
 
 from   ctypes import c_int, c_double, c_char_p
 import ctypes
-from . import cpp_utils
+from pyPPSTM import cpp_utils
 
 import time
 
