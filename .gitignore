@@ -14,3 +14,5 @@ __pycache__
 *.png
 *.vesta
 .DS_store
+.ipynb_checkpoints
+.virtual_documents
