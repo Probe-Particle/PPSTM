@@ -29,6 +29,7 @@ def main(config: dict):
     print(f"Read eigenenergies and coefficients.")
 
     # Set up atom plotting if enabled
+    geom_plot = None
     if config['output']['plot_atoms']:
         try:
             geom_plot, _, _ = bU.loadAtoms(
@@ -38,7 +39,6 @@ def main(config: dict):
                 )
             ) 
         except FileNotFoundError:
-            geom_plot = None
             print("WARNING: Atom plotting disabled due to missing input_plot.xyz file.")
 
     # Get tip positions
