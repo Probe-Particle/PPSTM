@@ -153,7 +153,7 @@ static double Norm = 1;
 
  inline double dxzsp(double* coe, double rev_rr, const Vec3d& dR){
  //printf("inside ssp \n");
- double f = coe[0]*dR.x*dR.y*decay*( rev_rr + decay) ;																			// s  orb. of sample
+ double f = coe[0]*dR.x*dR.z*decay*( rev_rr + decay) ;																			// s  orb. of sample
  f += coe[1]*N_p*dR.x*dR.y*dR.z*rev_rr*( 3*sqr(rev_rr) + 3*decay*rev_rr + sqr(decay) );											// py orb. of sample
  f += coe[2]*N_p*dR.x*( 3*sqr(dR.z)*trr(rev_rr) + 3*decay*sqr(dR.z)*sqr(rev_rr) - rev_rr + sqr(decay)*sqr(dR.z)*rev_rr - decay );	// pz orb. of sample
  f += coe[3]*N_p*dR.z*( 3*sqr(dR.x)*trr(rev_rr) + 3*decay*sqr(dR.x)*sqr(rev_rr) - rev_rr + sqr(decay)*sqr(dR.x)*rev_rr - decay );	// px orb. of sample

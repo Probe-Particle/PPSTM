@@ -7,9 +7,12 @@
 *_backup
 __pycache__
 *.idea
+.coverage
 
 *.npy
 *.xsf
 *.png
 *.vesta
 .DS_store
+.ipynb_checkpoints
+.virtual_documents

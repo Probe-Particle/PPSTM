@@ -1,11 +1,11 @@
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Probe-Particle/PPSTM)
 
 # PPSTM (Probe Particle STM)
-Code simulating various various STM techniques, especially for [tilting tips](https://pubs.acs.org/doi/10.1021/ja204624g) (depending on [ProkopHapala/ProbeParticleModel](https://github.com/ProkopHapala/ProbeParticleModel) )
+Code simulating various STM techniques, especially for [tilting tips](https://pubs.acs.org/doi/10.1021/ja204624g) (depending on [ProkopHapala/ProbeParticleModel](https://github.com/ProkopHapala/ProbeParticleModel) )
 This is implementation of efficient and simple model for simulation of High-resolution scanning tunneling microscopy (STM).
 Normall STM simulations using [Chen's approximattion](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.42.8841) is part of the code as well
 
-- BEWARE - latest numpy is probably causing problems within the code, the we have noticed problem with trying to run examples with periodic boundary conditions recently.
+- BEWARE - latest numpy is probably causing problems within the code, we have noticed problem with trying to run examples with periodic boundary conditions recently.
 - BEWARE - after repairing misteake in d-orbitals the results for FePc are different. We are investigating it.
 
 * currently developed Python3/C++ version of the PPSTM code:
@@ -14,7 +14,7 @@ Normall STM simulations using [Chen's approximattion](https://journals.aps.org/p
 
 For easy introduction to this code and its functionalities, try [Graphic User Interface (GUI)](https://github.com/Probe-Particle/PPSTM/wiki#GUI-for-PPSTM-code) or [PPSTM_simple.py](https://github.com/Probe-Particle/PPSTM/wiki#ppstm_simplepy) script.
 
-Constant current simulations are now available through `const_cur_tutorial.ipynb` jupyter notebook from an npz or xsf. There is also former [Mathematica notebook](https://github.com/Probe-Particle/MathematicaForPPSTM/blob/master/PPSTM_contant_current_XSF_view.nb) which works only with xsf.
+Constant current simulations are now available through `const_cur_tutorial.ipynb` jupyter notebook from npz or xsf. There is also former [Mathematica notebook](https://github.com/Probe-Particle/MathematicaForPPSTM/blob/master/PPSTM_contant_current_XSF_view.nb) which works only with xsf.
 
 ### Documentation
 
@@ -37,9 +37,16 @@ Choose the environment that best fits your needs:
    python -m ipykernel install --user --name=ppstm
    ```
 
-- **Dev Environment (ppstm-dev):**
+- **Dev Environment with Intel GPU (ppstm-dev):**
    ```bash
-   conda env create -f environment_dev.yml
+   conda env create -f environment_dev_gpu_intel.yml
+   conda activate ppstm-dev
+   python -m ipykernel install --user --name=ppstm-dev
+   ```
+
+- **Dev Environment with system-wide ICDs (ppstm-dev):**
+   ```bash
+   conda env create -f environment_dev_icd_system.yml
    conda activate ppstm-dev
    python -m ipykernel install --user --name=ppstm-dev
    ```
@@ -53,10 +60,27 @@ Choose the environment that best fits your needs:
 *Note: macOS support is currently experimental and may have limited functionality.*
 
 ### Tests
-When the `ppstm-dev` environment is activated, you can run the test suite:
+After activating the `ppstm-dev` environment, you can run the test suite with:
 ```bash
-pytest tests
+pytest tests -v
 ```
+This runs all tests in verbose mode.
+
+#### Test Coverage
+Measure code coverage to identify untested code paths.
+
+##### View coverage in the terminal
+To show coverage statistics by file and list lines not covered by tests:
+```bash
+pytest --cov=pyPPSTM --cov-report term-missing tests
+```
+
+##### Generate an interactive HTML report
+To create a detailed HTML report with coverage by file, function, and class:
+```bash
+pytest --cov=pyPPSTM --cov-report html:coverage tests
+```
+Open `coverage/index.html` in your browser to explore the results interactively.
 
 ### References (should be always cited)
 * [Ondrej Krejčí, Prokop Hapala, Martin Ondráček, and Pavel Jelínek, Principles and simulations of high-resolution STM imaging with a flexible tip apex, Phys. Rev. B 95, 045407 – Published 6 January 2017 ](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.95.045407) 

@@ -35,7 +35,7 @@ def get_voltages_and_names(config, eigs):
         names = [f"{V:.5f}" for V in voltages]
     else:
         voltages = np.arange(V, V_max+0.001 ,dV)
-        names = [f"{V:.1f}" for V in voltages]
+        names = [f"{V:.2f}" for V in voltages]
 
     return voltages, names
 
@@ -76,7 +76,7 @@ def plot_png(config, current, didv, voltages, names, lvec, extent, geom_plot,
                 plt.xlabel(r' Tip_x $\AA$')
                 plt.ylabel(r' Tip_y $\AA$')
                 plt.title("dIdV:"+name_plot)
-                save_name = f'didv_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function-voltages[vv]*wf_decay}_eta_{eta:.1f}_{k:03d}.png'
+                save_name = f'didv_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function-voltages[vv]*wf_decay}_eta_{eta:.7f}_{k:03d}.png'
                 plt.savefig(save_dir.joinpath(save_name), bbox_inches='tight')
                 plt.close()
             if current is not None:
@@ -87,7 +87,7 @@ def plot_png(config, current, didv, voltages, names, lvec, extent, geom_plot,
                 plt.xlabel(r' Tip_x $\AA$')
                 plt.ylabel(r' Tip_y $\AA$')
                 plt.title("STM:"+name_plot)
-                save_name = f'STM_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function:.1f}_WF_decay_{wf_decay:.1f}_eta_{eta:.1f}_{k:03d}.png'
+                save_name = f'STM_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function:.1f}_WF_decay_{wf_decay:.1f}_eta_{eta:.7f}_{k:03d}.png'
                 plt.savefig(save_dir.joinpath(save_name), bbox_inches='tight')
                 plt.close()
 
@@ -107,7 +107,7 @@ def plot_wsxm(config, current, didv, voltages, names, tip_r0,
     for vv in range(nV):
         for k in range(nH):
             if didv is not None:
-                name_file = f'didv_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function-voltages[vv]*wf_decay}_eta_{eta:.1f}_{k:03d}.wsxm'
+                name_file = f'didv_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function-voltages[vv]*wf_decay}_eta_{eta:.7f}_{k:03d}.wsxm'
                 tmp_curr=didv[vv,k,:,:].flatten()
                 out_curr=np.zeros((len(tmp_curr),3))
                 out_curr[:,0]=tip_r0[k,:,:,0].flatten()
@@ -122,7 +122,7 @@ def plot_wsxm(config, current, didv, voltages, names, tip_r0,
                 f.close()
         
             if current is not None:
-                name_file = f'STM_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function:.1f}_WF_decay_{wf_decay:.1f}_eta_{eta:.1f}_{k:03d}.wsxm'
+                name_file = f'STM_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function:.1f}_WF_decay_{wf_decay:.1f}_eta_{eta:.7f}_{k:03d}.wsxm'
                 tmp_curr=current[vv,k,:,:].flatten()
                 out_curr=np.zeros((len(tmp_curr),3))
                 out_curr[:,0]=tip_r0[k,:,:,0].flatten()
@@ -155,13 +155,12 @@ def save_xsf(config, current, didv, voltages, names, geom_plot, lvec,
 
     xsf_head = Bu.At2XSF(geom_plot) if geom_plot is not None else io.XSF_HEAD_DEFAULT
     nV, nH = get_number_of_voltages_and_heights(config, current, didv)
-    
     for vv in range(nV):
         if didv is not None:
-            name_file = f'didv_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function-voltages[vv]*wf_decay}_eta_{eta:.1f}.xsf'
+            name_file = f'didv_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function-voltages[vv]*wf_decay}_eta_{eta:.7f}.xsf'
             io.saveXSF(save_dir.joinpath(name_file), didv[vv], lvec, head=xsf_head )
         if current is not None:
-            name_file = f'STM_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function:.1f}_WF_decay_{wf_decay:.1f}_eta_{eta:.1f}.xsf'
+            name_file = f'STM_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function:.1f}_WF_decay_{wf_decay:.1f}_eta_{eta:.7f}.xsf'
             io.saveXSF(save_dir.joinpath(name_file), current[vv], lvec, head=xsf_head )
 
 def save_npz(config, current, didv, voltages, names, lvec, atomic_info_or_head,
@@ -184,8 +183,8 @@ def save_npz(config, current, didv, voltages, names, lvec, atomic_info_or_head,
 
     for vv in range(nV):
         if didv is not None:
-            name_file = f'didv_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function-voltages[vv]*wf_decay}_eta_{eta:.1f}'
+            name_file = f'didv_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function-voltages[vv]*wf_decay}_eta_{eta:.7f}'
             io.saveNpy(str(save_dir.joinpath(name_file)), didv[vv], lvec, atomic_info=atomic_info_or_head)
         if current is not None:
-            name_file = f'STM_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function:.1f}_WF_decay_{wf_decay:.1f}_eta_{eta:.1f}'
+            name_file = f'STM_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function:.1f}_WF_decay_{wf_decay:.1f}_eta_{eta:.7f}'
             io.saveNpy(str(save_dir.joinpath(name_file)), current[vv], lvec, atomic_info=atomic_info_or_head)

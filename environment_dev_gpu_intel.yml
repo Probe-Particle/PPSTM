@@ -17,7 +17,9 @@ dependencies:
   - ase=3.28.0  # optional
   - gpaw=25.7.0  # optional
   - pyopencl=2026.1.1  # optional
+  - intel-compute-runtime=24.52.32224.14  # optional
   - scipy-stubs=1.17.1.5  # optional
+  - pytz=2026.2  # optional (required for pandas 3 before python 3.14)
   - pandas=3.0.3  # optional
   - pandas-stubs=3.0.3.260530  # optional
   - seaborn=0.13.2  # optional
@@ -25,4 +27,7 @@ dependencies:
   - pip=26.1.2
   - pip:
     - ppafm==0.4.0
+    - torch==2.13.0  # optional
 
+variables:
+  PYOPENCL_COMPILER_OUTPUT: 1  # optional

@@ -1,5 +1,7 @@
+import argparse
 import os
-import sys
+from pathlib import Path
+
 import tomli
 
 from pyPPSTM import basUtils as bU
@@ -27,6 +29,7 @@ def main(config: dict):
     print(f"Read eigenenergies and coefficients.")
 
     # Set up atom plotting if enabled
+    geom_plot = None
     if config['output']['plot_atoms']:
         try:
             geom_plot, _, _ = bU.loadAtoms(
@@ -36,7 +39,6 @@ def main(config: dict):
                 )
             ) 
         except FileNotFoundError:
-            geom_plot = None
             print("WARNING: Atom plotting disabled due to missing input_plot.xyz file.")
 
     # Get tip positions
@@ -78,9 +80,30 @@ def main(config: dict):
 
     print(f"Output finished, exiting.")
 
+def _existing_toml_file(value: str) -> Path:
+    path = Path(value)
+
+    if not path.is_file():
+        raise argparse.ArgumentTypeError(f"file does not exist: {path}")
+
+    if path.suffix.lower() != ".toml":
+        raise argparse.ArgumentTypeError(f"expected a .toml file: {path}")
+
+    return path
+
 if __name__=='__main__':
+    parser = argparse.ArgumentParser(
+        description="Execute PP-STM simulation scan",
+    )
+    parser.add_argument(
+        'config_file',
+        type=_existing_toml_file,
+        help="TOML configuration file with PP-STM simulation parameters",
+    )
+    args = parser.parse_args()
+
     # Get config file from command line
-    config_file = sys.argv[1]
+    config_file = args.config_file
 
     # Load config file
     with open(config_file, 'rb') as f:

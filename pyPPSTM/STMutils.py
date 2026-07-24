@@ -186,6 +186,7 @@ def run_stm_scan(
         'Rat': atoms,
         'coes': coefs,
         'orbs': config['scan']['sample_orbs'],
+        'backend': config['advanced']['didv_backend'] if 'didv_backend' in config['advanced'] else PS.DidvBackend.CPP,
     }
     tip_coefficients = get_tip_coefficients(config['scan']['tip_orb'])
     
