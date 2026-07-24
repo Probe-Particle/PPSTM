@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+import math
 import os
 import numpy as np
 
@@ -79,103 +79,54 @@ df, lvec2, nDim2, atomic_info_or_head = io.load_scal_field( path_df+'df' ,data_f
 
 # --- the Main Loop - for different WorkFunction (exponential z-decay of current), sample bias Voltages & eta - lorentzian FWHM
 
-for WorkFunction in [WorkFunction]:
-    i=0;
-    for V in Voltages:
-        print ("Voltage:",V,"name:",namez[i])
+for wf in [WorkFunction]:
+    for V, energy_orbital in zip(Voltages, namez):
+        print ("Voltage:", V,"name:", energy_orbital)
         for eta in [eta]:
-            current0 = PS.dIdV( V, WorkFunction, eta, eigEn, tip_r2, Ratin, coefs, orbs=orbs, s=1.0, px=0.0, py=0.0, pz = 0.0)
-            current1 = PS.dIdV( V, WorkFunction, eta, eigEn, tip_r1, Ratin, coefs, orbs=orbs, s=1.0, px=0.0, py=0.0, pz = 0.0)
-            current2 = PS.dIdV( V, WorkFunction, eta, eigEn, tip_r1, Ratin, coefs, orbs=orbs, s=0.0, px=1.0, py=1.0, pz = 0.0)
-            current3 = PS.dIdV_tilt( V, WorkFunction, eta, eigEn, tip_r1, tip_r2, Ratin, coefs, orbs=orbs, pz = 1.0, al =1.0)
-            current4 = PS.dIdV_tilt( V, WorkFunction, eta, eigEn, tip_r1, tip_r2, Ratin, coefs, orbs=orbs, dxyz = 1.0, al =1.0)
-            current5 = PS.STM( V, nV, WorkFunction, eta, eigEn, tip_r1, Ratin, coefs, orbs=orbs, px=0.5, py=0.5, WF_decay=WF_decay)
-            # next procedure is under development
-            current6 = PS.IETS_simple( V, WorkFunction, eta, eigEn, tip_r1, Ratin, coefs, orbs=orbs, s=0.0, px =0.5, py=0.5, pz=0.0, dxz=0.0, dyz=0.0, dz2=0.0, Amp=0.02)
-            current7 = PS.dIdV_tilt( V, WorkFunction, eta, eigEn, tip_r1, tip_r2, Ratin, coefs, orbs=orbs, pxy = 1.0, al =1.0)
-            current8 = PS.dIdV_tilt( V, WorkFunction, eta, eigEn, tip_r1, tip_r2, Ratin, coefs, orbs=orbs, dz2 = 1.0, al =1.0)
+            scans = [
+                df,
+                PS.dIdV(V, wf, eta, eigEn, tip_r2, Ratin, coefs, orbs=orbs, s=1.0, px=0.0, py=0.0, pz = 0.0),
+                PS.dIdV(V, wf, eta, eigEn, tip_r1, Ratin, coefs, orbs=orbs, s=1.0, px=0.0, py=0.0, pz = 0.0),
+                PS.dIdV(V, wf, eta, eigEn, tip_r1, Ratin, coefs, orbs=orbs, s=0.0, px=1.0, py=1.0, pz = 0.0),
+                PS.dIdV_tilt(V, wf, eta, eigEn, tip_r1, tip_r2, Ratin, coefs, orbs=orbs, pz = 1.0, al =1.0),
+                PS.dIdV_tilt(V, wf, eta, eigEn, tip_r1, tip_r2, Ratin, coefs, orbs=orbs, dxyz = 1.0, al =1.0),
+                PS.STM(V, nV, wf, eta, eigEn, tip_r1, Ratin, coefs, orbs=orbs, px=0.5, py=0.5, WF_decay=WF_decay),
+                PS.IETS_simple(V, wf, eta, eigEn, tip_r1, Ratin, coefs, orbs=orbs, s=0.0, px =0.5, py=0.5, pz=0.0, dxz=0.0, dyz=0.0, dz2=0.0, Amp=0.02),
+                PS.dIdV_tilt(V, wf, eta, eigEn, tip_r1, tip_r2, Ratin, coefs, orbs=orbs, pxy = 1.0, al =1.0),
+                PS.dIdV_tilt(V, wf, eta, eigEn, tip_r1, tip_r2, Ratin, coefs, orbs=orbs, dz2 = 1.0, al =1.0),
+            ]
             
             # --- plotting part here, plots all calculated signals:
             print(" plotting ")
-            for k in range(df.shape[0]):
-                dff = np.array(df[k,:,:]).copy()
-                curr0 = np.array(current0[k,:,:]).copy()
-                curr1 = np.array(current1[k,:,:]).copy()
-                curr2 = np.array(current2[k,:,:]).copy()
-                curr3 = np.array(current3[k,:,:]).copy()
-                curr4 = np.array(current4[k,:,:]).copy()
-                curr5 = np.array(current5[k,:,:]).copy()
-                curr6 = np.array(current6[k,:,:]).copy()
-                
-                name_file='didV-'+namez[i]+'_%03d.dat' %k
-                name_plot_df='height:%03dA; df [Hz]' %k
-                name_plot0=namez[i]+';height:%03dA; dIdV [G0] s-fixed-tip' %k
-                name_plot1=namez[i]+';height:%03dA; dIdV [G0] s-tip' %k
-                name_plot2=namez[i]+';height:%03dA; dIdV [G0] pxy-tip' %k
-                name_plot3=namez[i]+';height:%03dA; dIdV [G0] pz-tip tilting' %k
-                name_plot4=namez[i]+';height:%03dA; dIdV [G0] dxyz-tip tilting' %k
-                name_plot5=namez[i]+';height:%03dA; STM [I] pxy-tip' %k
-                name_plot6=namez[i]+';height:%03dA; Under develoment' %k
-                name_plot7=namez[i]+';height:%03dA; dIdV [G0] pxy-tip tilting' %k
-                name_plot8=namez[i]+';height:%03dA; dIdV [G0] dz2-tip tilting' %k
-                
-                # ploting part here:
+            for tip_height in range(df.shape[0]):
+                name_file=f'didv_{energy_orbital}_WF_{wf}_{eta}_{tip_height:03d}.png'
+
+                subplot_titles = [
+                    f'height:{tip_height:03d}A; df [Hz]',
+                    f'{energy_orbital};height:{tip_height:03d}A; dIdV [G0] s-fixed-tip',
+                    f'{energy_orbital};height:{tip_height:03d}A; dIdV [G0] s-tip',
+                    f'{energy_orbital};height:{tip_height:03d}A; dIdV [G0] pxy-tip',
+                    f'{energy_orbital};height:{tip_height:03d}A; dIdV [G0] pz-tip tilting',
+                    f'{energy_orbital};height:{tip_height:03d}A; dIdV [G0] dxyz-tip tilting',
+                    f'{energy_orbital};height:{tip_height:03d}A; STM [I] pxy-tip',
+                    f'{energy_orbital};height:{tip_height:03d}A; Under develoment',
+                    f'{energy_orbital};height:{tip_height:03d}A; dIdV [G0] pxy-tip tilting',
+                    f'{energy_orbital};height:{tip_height:03d}A; dIdV [G0] dz2-tip tilting',
+                ]
+
                 plt.figure( figsize=(1.5* xl , 1.5*yl/2 ) )
-                plt.subplot(2,4,1)
-                plt.imshow( dff, origin='lower', extent=extent , cmap='gray')
-                plt.xlabel(r' Tip_x $\AA$')
-                plt.ylabel(r' Tip_y $\AA$')
-                plt.title(name_plot_df)
+
+                n_plot_rows = 2
+                n_plot_cols = math.ceil(len(scans) / 2)
+
+                for j, (scan_j, subtitle_j) in enumerate(zip(scans, subplot_titles)):
+                    plt.subplot(n_plot_rows, n_plot_cols, j + 1)
+                    plt.imshow(scan_j[tip_height], origin='lower', extent=extent, cmap='gray')
+                    plt.xlabel(r' Tip_x $\AA$')
+                    plt.ylabel(r' Tip_y $\AA$')
+                    plt.title(subtitle_j, fontdict={'fontsize': 'medium'})
                 
-                # ploting part here:
-                plt.subplot(2,4,2)
-                plt.imshow( curr0, origin='lower', extent=extent, cmap='gray' )
-                plt.xlabel(r' Tip_x $\AA$')
-                plt.ylabel(r' Tip_y $\AA$')
-                plt.title(name_plot0)
-                
-                # ploting part here:
-                plt.subplot(2,4,3)
-                plt.imshow( curr1, origin='lower', extent=extent, cmap='gray' )
-                plt.xlabel(r' Tip_x $\AA$')
-                plt.ylabel(r' Tip_y $\AA$')
-                plt.title(name_plot1)
-                
-                # ploting part here:
-                plt.subplot(2,4,4)
-                plt.imshow( curr2, origin='lower', extent=extent, cmap='gray' )
-                plt.xlabel(r' Tip_x $\AA$')
-                plt.ylabel(r' Tip_y $\AA$')
-                plt.title(name_plot2)
-                
-                plt.subplot(2,4,5)
-                plt.imshow( curr3, origin='lower', extent=extent , cmap='gray')
-                plt.xlabel(r' Tip_x $\AA$')
-                plt.ylabel(r' Tip_y $\AA$')
-                plt.title(name_plot3)
-                
-                # ploting part here:
-                plt.subplot(2,4,6)
-                plt.imshow( curr4, origin='lower', extent=extent, cmap='gray' )
-                plt.xlabel(r' Tip_x $\AA$')
-                plt.ylabel(r' Tip_y $\AA$')
-                plt.title(name_plot4)
-                
-                # ploting part here:
-                plt.subplot(2,4,7)
-                plt.imshow( curr5, origin='lower', extent=extent, cmap='gray' )
-                plt.xlabel(r' Tip_x $\AA$')
-                plt.ylabel(r' Tip_y $\AA$')
-                plt.title(name_plot5)
-                
-                # ploting part here:
-                plt.subplot(2,4,8)
-                plt.imshow( curr6, origin='lower', extent=extent, cmap='gray' )
-                plt.xlabel(r' Tip_x $\AA$')
-                plt.ylabel(r' Tip_y $\AA$')
-                plt.title(name_plot6)
-                
-                plt.savefig( 'didv_'+namez[i]+"_WF_"+str(WorkFunction)+"_"+str(eta)+'_%03d.png' %k , bbox_inches='tight' )
+                plt.savefig(name_file, bbox_inches='tight' )
                 plt.close()
                 #plt.show()
                 #
@@ -196,8 +147,7 @@ for WorkFunction in [WorkFunction]:
                 #
         
         #plt.show()
-        i = i+1
-    
+
 
 # --- the end
 
