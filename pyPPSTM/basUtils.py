@@ -1,15 +1,3 @@
-#!/usr/bin/python
-
-import numpy as np
-from . import elements
-import math
-#import matplotlib.pyplot as plt
-
-
-# default variables:
-
-default_atom_size     =  0.10
-
 # procedures for loading geometry from different files:
 
 def loadAtoms( name , sl=False):
