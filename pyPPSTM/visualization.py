@@ -76,7 +76,10 @@ def plot_png(config, current, didv, voltages, names, lvec, extent, geom_plot,
                 plt.xlabel(r' Tip_x $\AA$')
                 plt.ylabel(r' Tip_y $\AA$')
                 plt.title("dIdV:"+name_plot)
-                save_name = f'didv_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function-voltages[vv]*wf_decay}_eta_{eta:.7f}_{k:03d}.png'
+                save_name = f'didv_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function-voltages[vv]*wf_decay}' \
+                            f'_eta_{eta:.7f}_{k:03d}' \
+                            f'{"_geom" if geom_plot is not None else ""}' \
+                            '.png'
                 plt.savefig(save_dir.joinpath(save_name), bbox_inches='tight')
                 plt.close()
             if current is not None:
@@ -87,7 +90,10 @@ def plot_png(config, current, didv, voltages, names, lvec, extent, geom_plot,
                 plt.xlabel(r' Tip_x $\AA$')
                 plt.ylabel(r' Tip_y $\AA$')
                 plt.title("STM:"+name_plot)
-                save_name = f'STM_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function:.1f}_WF_decay_{wf_decay:.1f}_eta_{eta:.7f}_{k:03d}.png'
+                save_name = f'STM_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function:.1f}_WF_decay_{wf_decay:.1f}' \
+                            f'_eta_{eta:.7f}_{k:03d}' \
+                            f'{"_geom" if geom_plot is not None else ""}' \
+                            '.png'
                 plt.savefig(save_dir.joinpath(save_name), bbox_inches='tight')
                 plt.close()
 
@@ -157,10 +163,16 @@ def save_xsf(config, current, didv, voltages, names, geom_plot, lvec,
     nV, nH = get_number_of_voltages_and_heights(config, current, didv)
     for vv in range(nV):
         if didv is not None:
-            name_file = f'didv_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function-voltages[vv]*wf_decay}_eta_{eta:.7f}.xsf'
+            name_file = f'didv_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function-voltages[vv]*wf_decay}' \
+                        f'_eta_{eta:.7f}' \
+                        f'{"_geom" if geom_plot is not None else ""}' \
+                        '.xsf'
             io.saveXSF(save_dir.joinpath(name_file), didv[vv], lvec, head=xsf_head )
         if current is not None:
-            name_file = f'STM_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function:.1f}_WF_decay_{wf_decay:.1f}_eta_{eta:.7f}.xsf'
+            name_file = f'STM_{names[vv]}_tip_{tip_type}-{tip_orb}_WF_{work_function:.1f}_WF_decay_{wf_decay:.1f}' \
+                        f'_eta_{eta:.7f}' \
+                        f'{"_geom" if geom_plot is not None else ""}' \
+                        '.xsf'
             io.saveXSF(save_dir.joinpath(name_file), current[vv], lvec, head=xsf_head )
 
 def save_npz(config, current, didv, voltages, names, lvec, atomic_info_or_head,
