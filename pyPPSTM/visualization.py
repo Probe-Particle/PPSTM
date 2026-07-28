@@ -7,7 +7,7 @@ from pyPPSTM import elements
 from pyPPSTM import basUtils as Bu
 
 
-def plotAtoms( atoms, atomSize=0.1, edge=True, ec='k', color='w' ):
+def plotAtoms( atoms, atomSize: float = 0.15, edge=True, ec='k', color='w' ):
     plt.fig = plt.gcf()
     es = atoms[0]; xs = atoms[1]; ys = atoms[2]
     for i in range(len(xs)):
@@ -17,7 +17,7 @@ def plotAtoms( atoms, atomSize=0.1, edge=True, ec='k', color='w' ):
         circle=plt.Circle( ( xs[i], ys[i] ), atomSize, fc=fc, ec=ec  )
         plt.fig.gca().add_artist(circle)
 
-def plotGeom( atoms=None, atomSize=0.1 ):
+def plotGeom( atoms=None, atomSize: float = 0.15 ):
     if atoms is not None:
         plotAtoms( atoms, atomSize=atomSize )
 
@@ -51,7 +51,7 @@ def get_number_of_voltages_and_heights(config, current, didv):
 
     return nV, nH
 
-def plot_png(config, current, didv, voltages, names, lvec, extent, geom_plot,
+def plot_png(config, current, didv, voltages, names, lvec, extent, geom_plot, atom_size: float = 0.15,
              save_dir: Path = Path(".")):
     tip_type = config['scan']['tip_type']
     tip_orb = config['scan']['tip_orb']
@@ -72,7 +72,7 @@ def plot_png(config, current, didv, voltages, names, lvec, extent, geom_plot,
                 # ploting part here:
                 plt.figure(figsize=(0.5*lvec[1,0], 0.5*lvec[2,1]))
                 plt.imshow(didv[vv,k,:,:], origin='lower', extent=extent, cmap='gray')
-                plotGeom(atoms=geom_plot)
+                plotGeom(atoms=geom_plot, atomSize=atom_size)
                 plt.xlabel(r' Tip_x $\AA$')
                 plt.ylabel(r' Tip_y $\AA$')
                 plt.title("dIdV:"+name_plot)
@@ -86,7 +86,7 @@ def plot_png(config, current, didv, voltages, names, lvec, extent, geom_plot,
                 # ploting part here:
                 plt.figure(figsize=(0.5*lvec[1,0], 0.5*lvec[2,1]))
                 plt.imshow(current[vv,k,:,:], origin='lower', extent=extent, cmap='gray')
-                plotGeom(atoms=geom_plot)
+                plotGeom(atoms=geom_plot, atomSize=atom_size)
                 plt.xlabel(r' Tip_x $\AA$')
                 plt.ylabel(r' Tip_y $\AA$')
                 plt.title("STM:"+name_plot)
