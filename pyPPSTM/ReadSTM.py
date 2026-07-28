@@ -2,6 +2,8 @@
 
 import os
 import sys
+from pathlib import Path
+
 import numpy as np
 from . import basUtils as bU
 from . import elements
@@ -258,9 +260,9 @@ def	handle_coef(coef):
 
 # procedures for preparing everything for STM:
 
-def	read_AIMS_all(name = 'KS_eigenvectors.band_1.kpt_1.out', geom='geometry.in', fermi=None, orbs = 'sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lower_atoms=[], lower_coefs=[]):
+def	read_AIMS_all(name = 'KS_eigenvectors.band_1.kpt_1.out', geom: Path=Path('geometry.in'), fermi=None, orbs = 'sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lower_atoms=[], lower_coefs=[]):
     '''
-    read_AIMS_all(name = 'KS_eigenvectors.band_1.kpt_1.out', geom='geometry.in', fermi=None, orbs = 'sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lower_atoms=[], lower_coefs=[]):
+    read_AIMS_all(name = 'KS_eigenvectors.band_1.kpt_1.out', geom=Path('geometry.in'), fermi=None, orbs = 'sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lower_atoms=[], lower_coefs=[]):
     read eigen energies, coffecients (0=Fermi Level) from the 'name' file and geometry  from the 'geom' file.
     orbs - 'sp' read only sp structure of valence orbitals or 'spd' orbitals of the sample
     Fermi - set to zero by AIMS itself
@@ -433,9 +435,9 @@ def	read_GPAW_all(name = 'OUTPUT.gpw', fermi = None, orbs = 'sp', pbc=(1,1), ima
     print("All coefficients read")
     return eig.copy(), coeffs.copy(), Ratin.copy();
 
-def	read_FIREBALL_all(name = 'phi_' , geom='answer.bas', fermi=None, orbs = 'sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lvs = None, lower_atoms=[], lower_coefs=[]):
+def	read_FIREBALL_all(name = 'phi_' , geom: Path=Path('answer.bas'), fermi=None, orbs = 'sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lvs = None, lower_atoms=[], lower_coefs=[]):
     '''
-    read_FIREBALL_all(name = 'phi_' , geom='answer.bas', fermi=None, orbs = 'sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lvs = None, lower_atoms=[], lower_coefs=[]):
+    read_FIREBALL_all(name = 'phi_' , geom=Path('answer.bas'), fermi=None, orbs = 'sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lvs = None, lower_atoms=[], lower_coefs=[]):
     This procedure uses only local libraries;
     read coffecients and eigen numbers from Fireball made (iwrtcoefs = -2) files phik_0001_s.dat, phik_0001_py.dat ....
     fermi - If None the Fermi Level from the Fireball calculations (in case of molecule and visualising some molecular orbitals it can be move to their energy by putting there real value)
@@ -729,15 +731,15 @@ def read_dft(
 
     if ((dft_code == 'fireball') or(dft_code == 'Fireball') or (dft_code == 'FIREBALL')):
         eigEn, coefs, Ratin = read_FIREBALL_all(
-            name=path+'phik_0001_',
-            geom=path+geometry_file,
+            name=str(path / 'phik_0001_'),
+            geom=path / geometry_file,
             lvs=cell,
             **common_params
         )
 
     elif ((dft_code == 'gpaw') or(dft_code == 'GPAW')):
         eigEn, coefs, Ratin = read_GPAW_all(
-            name=path+cp2k_name+'.gpw',
+            name=str(path / cp2k_name+'.gpw'),
             **common_params
         )
 
@@ -756,19 +758,19 @@ def read_dft(
         
         if spin != 'both':
             eigEn, coefs, Ratin = read_AIMS_all(
-                name=path+name,
-                geom=path+geometry_file,
+                name=str(path / name),
+                geom=path / geometry_file,
                 **common_params
             )
         else:
             eigEn1, coefs1, Ratin = read_AIMS_all(
-                name=path+name_up,
-                geom=path+geometry_file,
+                name=str(path / name_up),
+                geom=path / geometry_file,
                 **common_params
             )
             eigEn2, coefs2, Ratin = read_AIMS_all(
-                name=path+name_dn,
-                geom=path+geometry_file,
+                name=str(path / name_dn),
+                geom=path / geometry_file,
                 **common_params
             )
             eigEn = np.concatenate((eigEn1, eigEn2), axis=0)
@@ -777,26 +779,26 @@ def read_dft(
     elif ((dft_code == 'cp2k') or(dft_code == 'CP2K')):
         if ((spin == None)or(spin == False)):
             eigEn, coefs, Ratin  = read_CP2K_all(
-                name = path + cp2k_name ,
+                name=str(path / cp2k_name),
                 lvs=cell,
                 **common_params
             )
         elif ((spin == 'up')or(spin == 'alpha')):
             eigEn, coefs, Ratin  = read_CP2K_all(
-                name=path+cp2k_name,
+                name=str(path / cp2k_name),
                 lvs=cell,
                 spin='alpha',
                 **common_params
             )
         elif (spin == 'both'):
             eigEn1, coefs1, Ratin  = read_CP2K_all(
-                name=path+cp2k_name,
+                name=str(path / cp2k_name),
                 lvs=cell,
                 spin='alpha',
                 **common_params
             )
             eigEn2, coefs2, Ratin  = read_CP2K_all(
-                name = path + cp2k_name ,
+                name=str(path / cp2k_name),
                 lvs=cell,
                 spin='beta',
                 **common_params
@@ -805,7 +807,7 @@ def read_dft(
             coefs = np.concatenate((coefs1, coefs2), axis=0)
         elif ((spin == 'down')or(spin == 'beta')or(spin == 'dn')):
             eigEn, coefs, Ratin  = read_CP2K_all(
-                name=path+cp2k_name,
+                name=str(path / cp2k_name),
                 lvs=cell,
                 spin='beta',
                 **common_params

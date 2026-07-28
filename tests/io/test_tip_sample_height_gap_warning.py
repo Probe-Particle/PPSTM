@@ -44,4 +44,4 @@ class TestTipSampleHeightGapWarning:
              patch("pyPPSTM.visualization.plot_wsxm"), \
              patch("pyPPSTM.visualization.save_xsf"), \
              patch("pyPPSTM.visualization.save_npz"):
-            ppstm_run.main(config=MagicMock())
+            ppstm_run.run_simulation(config=MagicMock())

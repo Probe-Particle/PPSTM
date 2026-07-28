@@ -1,21 +1,20 @@
-import argparse
 import logging
 import os
-from pathlib import Path
+from typing import Iterable
 
 import numpy as np
-import tomli
 
-from pyPPSTM import basUtils as bU
 from pyPPSTM import ReadSTM
 from pyPPSTM import STMutils
+from pyPPSTM import basUtils as bU
 from pyPPSTM import visualization
+from pyPPSTM.scan_config_builder import ScanConfigBuilder
 
 logger = logging.getLogger(__name__)
 
 _MIN_TIP_SAMPLE_HEIGHT_GAP = 2.0  # Angstroms
 
-def main(config: dict):
+def run_simulation(config: dict):
     # ppafm needed for relaxed tip scans and npy+xsf output
     tip_type = config['scan']['tip_type']
     npy_or_xsf_output = config['output']['NPY'] or config['output']['XSF']
@@ -102,37 +101,13 @@ def _is_tip_above_sample(tip_positions: np.ndarray, sample_atom_positions: np.nd
     highest_sample_height = np.max(sample_atom_positions[:,2])
     return bool(lowest_tip_height >= highest_sample_height + min_gap)
 
-def _existing_toml_file(value: str) -> Path:
-    path = Path(value)
 
-    if not path.is_file():
-        raise argparse.ArgumentTypeError(f"file does not exist: {path}")
+def main(args: Iterable[str]|None = None):
+    config = ScanConfigBuilder.build(args)
 
-    if path.suffix.lower() != ".toml":
-        raise argparse.ArgumentTypeError(f"expected a .toml file: {path}")
+    run_simulation(config)
 
-    return path
 
 if __name__=='__main__':
     logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
-    parser = argparse.ArgumentParser(
-        description="Execute PP-STM simulation scan",
-    )
-    parser.add_argument(
-        'config_file',
-        type=_existing_toml_file,
-        help="TOML configuration file with PP-STM simulation parameters",
-    )
-    args = parser.parse_args()
-
-    # Get config file from command line
-    config_file = args.config_file
-
-    # Load config file
-    with open(config_file, 'rb') as f:
-        config = tomli.load(f)
-    
-    print(f"Loaded config from {config_file}")
-    print(f"Config: {config}")
-
-    main(config)
+    main()
