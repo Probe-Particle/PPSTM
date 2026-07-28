@@ -66,7 +66,8 @@ def main(config: dict):
 
     # Output results
     if config['output']['PNG']:
-        visualization.plot_png(config, current, didv, voltages, names, lvec, extent, geom_plot)
+        atom_size = config['output'].get('atom_size', 0.15)
+        visualization.plot_png(config, current, didv, voltages, names, lvec, extent, geom_plot, atom_size)
         print(f"PNG output complete.")
     if config['output']['WSxM']:
         visualization.plot_wsxm(config, current, didv, voltages, names, tip_r0)
