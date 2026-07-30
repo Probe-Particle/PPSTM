@@ -268,9 +268,7 @@ def before_C( eig, R, Rat, coes, orb_t):
 # ============================== interface to C++ core 
 
 cpp_name='ProbeSTM_spd'
-#cpp_utils.compile_lib( cpp_name  )
-make_name='MSTM' if sys.platform=='darwin' else 'STM'
-
+make_name = 'STM'
 try:
     ncpu = int(os.environ['OMP_NUM_THREADS'])
 except:
@@ -281,7 +279,6 @@ except:
 make_name_end ='PAR' if ncpu > 1.01 else ''
 del ncpu;
 make_name += make_name_end
-print("DEBUG: make_name", make_name);
 cpp_utils.make(make_name)
 lib    = ctypes.CDLL(  cpp_utils.CPP_PATH + "/" + cpp_name + cpp_utils.lib_ext )     # load dynamic librady object using ctypes 
 

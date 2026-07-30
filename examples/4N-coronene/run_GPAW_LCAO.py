@@ -15,16 +15,12 @@ xc='LDA'
 
 view(mol)
 
-calc = GPAW(txt='out_LCAO.txt',xc=xc,mode='lcao',basis='dzp')
-
-mol.calc = calc
+mol.calc = GPAW(txt='out_LCAO.txt',xc=xc,mode='lcao',basis='dzp')
 
 en = mol.get_potential_energy()
 
 print (en)
 
-calc.write('out_LCAO_'+xc+'.gpw',mode='all')
+mol.calc.write('out_LCAO_'+xc+'.gpw',mode='all')
 
-print ()
-print ("good bye")
-print ()
+print ("\ngood bye\n")

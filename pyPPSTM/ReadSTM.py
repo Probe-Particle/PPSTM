@@ -41,10 +41,7 @@ LIB_PATH = os.path.dirname( os.path.realpath(__file__) )
 print(" ProbeParticle Library DIR = ", LIB_PATH)
 
 cpp_name='IO'
-#cpp_utils.compile_lib( cpp_name  )
-make_name='MIO' if sys.platform=='darwin' else 'IO'
-print("DEBUG: make_name", make_name)
-cpp_utils.make(make_name)
+cpp_utils.make(cpp_name)
 lib    = ctypes.CDLL(  cpp_utils.CPP_PATH + "/" + cpp_name + cpp_utils.lib_ext )     # load dynamic librady object using ctypes 
 
 # define used numpy array types for interfacing with C++
