@@ -1,7 +1,7 @@
 
 import os
 
-recompile = True 
+recompile = True # this is actually not used at all.
 lib_ext   ='_lib.so'
 
 def work_dir( v__file__ ): 

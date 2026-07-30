@@ -5,12 +5,11 @@ Code simulating various STM techniques, especially for [tilting tips](https://pu
 This is implementation of efficient and simple model for simulation of High-resolution scanning tunneling microscopy (STM).
 Normall STM simulations using [Chen's approximattion](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.42.8841) is part of the code as well
 
-- BEWARE - latest numpy is probably causing problems within the code, we have noticed problem with trying to run examples with periodic boundary conditions recently.
 - BEWARE - after repairing misteake in d-orbitals the results for FePc are different. We are investigating it.
 
 * currently developed Python3/C++ version of the PPSTM code:
-  * works in python3(.7 and higher), matplotlib, cpp>=4.4.8 (look at wiki instruction for problems with MAC [compilation](https://github.com/Probe-Particle/PPSTM/wiki#compilation-and-overview)), PyQt5 (for [GUI](https://github.com/Probe-Particle/PPSTM/wiki#GUI-for-PPSTM-code) ),for some parts [ASE](https://wiki.fysik.dtu.dk/ase/) and [GPAW](https://wiki.fysik.dtu.dk/gpaw/) are imporatant;
-  * Part of the code regarding simulations with tilting tips is depending on the ProbeParticleModel developed by Prokop Hapala and co. (https://github.com/Probe-Particle/ppafm), you can easilly install it with ```pip install ppafm>=0.2.0a3```.
+  * works in python3.12, matplotlib, cpp>=4.4.8 (look at wiki instruction for problems with [MAC compilation](https://github.com/Probe-Particle/PPSTM/wiki/Installation#mac)), PyQt5 (for [GUI](https://github.com/Probe-Particle/PPSTM/wiki#GUI-for-PPSTM-code) ),for some parts [ASE](https://wiki.fysik.dtu.dk/ase/) and [GPAW](https://wiki.fysik.dtu.dk/gpaw/) are imporatant;
+  * Part of the code regarding simulations with tilting tips is depending on the PPAFM developed by Prokop Hapala and co. (https://github.com/Probe-Particle/ppafm), you can easilly install it with ```pip install ppafm>=0.2.0a3```.
 
 For easy introduction to this code and its functionalities, try [Graphic User Interface (GUI)](https://github.com/Probe-Particle/PPSTM/wiki#GUI-for-PPSTM-code) or [PPSTM_simple.py](https://github.com/Probe-Particle/PPSTM/wiki#ppstm_simplepy) script.
 
@@ -27,37 +26,14 @@ It can also simulate IETS images of molecules, if the imaging mechanism is drive
 * [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Probe-Particle/PPSTM)
 
 ### Setup
-Ensure you have [Conda](https://conda.io) installed.
+A simple setup with CONDA [Conda](https://conda.io) on Linux is:.
+```bash
+conda env create -f environment.yml
+conda activate ppstm
+python -m ipykernel install --user --name=ppstm
+```
 
-Choose the environment that best fits your needs:
-- **Full Environment (ppstm):**
-   ```bash
-   conda env create -f environment.yml
-   conda activate ppstm
-   python -m ipykernel install --user --name=ppstm
-   ```
-
-- **Dev Environment with Intel GPU (ppstm-dev):**
-   ```bash
-   conda env create -f environment_dev_gpu_intel.yml
-   conda activate ppstm-dev
-   python -m ipykernel install --user --name=ppstm-dev
-   ```
-
-- **Dev Environment with system-wide ICDs (ppstm-dev):**
-   ```bash
-   conda env create -f environment_dev_icd_system.yml
-   conda activate ppstm-dev
-   python -m ipykernel install --user --name=ppstm-dev
-   ```
-
-- **Minimal Environment (ppstm-min):**
-   ```bash
-   conda env create -f environment_min.yml
-   conda activate ppstm-min
-   ```
-
-*Note: macOS support is currently experimental and may have limited functionality.*
+More details can be found on a [dedicated Wikipage](https://github.com/Probe-Particle/PPSTM/wiki/Installation).
 
 ### Tests
 After activating the `ppstm-dev` environment, you can run the test suite with:

@@ -1,6 +1,5 @@
 title = "Si-7x7-fixed"
 
-
 [scan]
 scan_type       = 'v-scan'
 tip_type        = 'fixed'
@@ -23,6 +22,7 @@ spin            = false
 cp2k_name       = ''  # unused in fireball dft
 
 [advanced]
+didv_backend   = 'c++'
 cut_atoms       = 18
 lower_atoms     = []
 lower_coefs     = []

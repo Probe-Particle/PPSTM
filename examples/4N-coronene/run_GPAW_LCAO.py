@@ -5,26 +5,26 @@ from gpaw import *
 
 import numpy as npy
 
-mol = read('crazy_mol.traj')
+mol = read('crazy_mol.xyz')
 # Molecule allready centered in the 15x15x10 cell
-#cell = npy.loadtxt('input.lvs')
-#mol.set_cell(cell)
-#mol.set_pbc(False)
-#mol.center()
+cell = [15.,15.,10.]
+mol.set_cell(cell)
+mol.set_pbc(False)
+mol.center()
 xc='LDA'
 
 view(mol)
 
 calc = GPAW(txt='out_LCAO.txt',xc=xc,mode='lcao',basis='dzp')
 
-mol.set_calculator(calc)
+mol.calc = calc
 
 en = mol.get_potential_energy()
 
-print en
+print (en)
 
 calc.write('out_LCAO_'+xc+'.gpw',mode='all')
 
-print
-print "good bye"
-print
+print ()
+print ("good bye")
+print ()

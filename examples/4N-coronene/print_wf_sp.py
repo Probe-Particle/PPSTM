@@ -2,6 +2,8 @@ from ase import *
 from gpaw import GPAW
 import numpy as npy
 
+# creates a Fireball-like PPSTM input files from GPAW runs
+
 xc='LDA'
 calc = GPAW('out_LCAO_'+xc+'.gpw',txt='tmp.txt')
 
@@ -18,18 +20,18 @@ eig = pre_eig #- calc.get_fermi_level()
 eig = eig[53:55]
 
 f=open('fermi.dat','w')
-print >> f, 'Fermi Level =', calc.get_fermi_level() , 'eV'
+print ('Fermi Level =', calc.get_fermi_level() , 'eV', file=f)
 f.close()
 
 f=open('eigen.dat','w')
-print >> f, "1" , n_bands
-print >> f, "  ---- The eigen values (Fermi = ", calc.get_fermi_level() ,"eV) ----"
+print ( "1" , n_bands, file=f)
+print ("  ---- The eigen values (Fermi = ", calc.get_fermi_level() ,"eV) ----", file=f)
 npy.savetxt(f,eig,fmt="%0.4f")
 f.close
 
-print "n_at = ", n_at
-print "n_bands = " , n_bands
-print "eig:", eig
+print ("n_at = ", n_at)
+print ("n_bands = " , n_bands)
+print ("eig:", eig)
 
 # s-orb
 X=npy.zeros((n_bands,n_at*2+1))
@@ -41,8 +43,8 @@ for i in range(53,55):
 		X[i-53,2*j+1] = calc.wfs.kpt_u[0].C_nM[i,h]
 		h += calc.wfs.setups[j].nao
 
-f=open('phik_example_s.dat','w')
-print >> f, n_at, n_bands, calc.get_fermi_level()
+f=open('phik_gpaw_s.dat','w')
+print ( n_at, n_bands, calc.get_fermi_level(), file=f)
 npy.savetxt(f,X)
 f.close()
 
@@ -56,8 +58,8 @@ for i in range(53,55):
 		if (at_nos[j] !=1) :		
 			X[i-53,2*j+1] = calc.wfs.kpt_u[0].C_nM[i,h+1]
 			h += calc.wfs.setups[j].nao
-f=open('phik_example_py.dat','w')
-print >> f, n_at, n_bands, calc.get_fermi_level()
+f=open('phik_gpaw_py.dat','w')
+print ( n_at, n_bands, calc.get_fermi_level(), file=f )
 npy.savetxt(f,X)
 f.close()
 
@@ -72,8 +74,8 @@ for i in range(53,55):
 			X[i-53,2*j+1] = calc.wfs.kpt_u[0].C_nM[i,h+2]
 			h += calc.wfs.setups[j].nao
 
-f=open('phik_example_pz.dat','w')
-print >> f, n_at, n_bands, calc.get_fermi_level()
+f=open('phik_gpaw_pz.dat','w')
+print ( n_at, n_bands, calc.get_fermi_level(), file=f )
 npy.savetxt(f,X)
 f.close()
 
@@ -88,8 +90,8 @@ for i in range(53,55):
 			X[i-53,2*j+1] = calc.wfs.kpt_u[0].C_nM[i,h+3]
 			h += calc.wfs.setups[j].nao
 
-f=open('phik_example_px.dat','w')
-print >> f, n_at, n_bands, calc.get_fermi_level()
+f=open('phik_gpaw_px.dat','w')
+print ( n_at, n_bands, calc.get_fermi_level(), file=f)
 npy.savetxt(f,X)
 f.close()
 '''
@@ -99,31 +101,31 @@ f.close()
 X=npy.zeros((n_bands,n_at*2+1))
 X[:,0] = eig
 
-f=open('phik_0001_dxy.dat','w')
-print >> f, n_at, n_bands
+f=open('phik_gpaw_dxy.dat','w')
+print ( n_at, n_bands, file =f)
 npy.savetxt(f,X,fmt="%4.2f")
 f.close()
 
-f=open('phik_0001_dyz.dat','w')
-print >> f, n_at, n_bands
+f=open('phik_gpaw_dyz.dat','w')
+print ( n_at, n_bands, file =f)
 npy.savetxt(f,X,fmt="%4.2f")
 f.close()
 
-f=open('phik_0001_dz2.dat','w')
-print >> f, n_at, n_bands
+f=open('phik_gpaw_dz2.dat','w')
+print ( n_at, n_bands, file =f)
 npy.savetxt(f,X,fmt="%4.2f")
 f.close()
 
 
-f=open('phik_0001_dxz.dat','w')
-print >> f, n_at, n_bands
+f=open('phik_gpaw_dxz.dat','w')
+print ( n_at, n_bands, file =f)
 npy.savetxt(f,X,fmt="%4.2f")
 f.close()
 
-f=open('phik_0001_dx2y2.dat','w')
-print >> f, n_at, n_bands
+f=open('phik_gpaw_dx2y2.dat','w')
+print ( n_at, n_bands, file =f)
 npy.savetxt(f,X,fmt="%4.2f")
 f.close()
 '''
 
-print "wave function written, keep on rocking"
+print ("wave function written, keep on rocking")
