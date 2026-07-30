@@ -1,0 +1,40 @@
+title = "s-fixed-dIdV-OpenCL"
+
+
+[scan]
+scan_type       = 'dIdV'
+tip_type        = 'fixed'
+scan_window     = [[0, 0, 7], [16, 16, 13]]
+scan_dim        = [160, 160, 60]
+V               = 1.0
+V_max           = 1.0
+dV              = 0.1
+eta             = 0.2
+tip_orb         = 's'
+sample_orbs     = 'sp'
+
+[input]
+path            = './'
+dft_code        = 'fireball'
+geometry_file   = 'crazy_mol.xyz'
+pbc             = [0,0]
+lvs             = false
+spin            = false
+cp2k_name       = 'None'
+
+[advanced]
+didv_backend    = 'opencl'
+cut_atoms       = -1
+lower_atoms     = []
+lower_coefs     = []
+work_function   =  5.0
+fermi           = 0.0
+cut_min         = -1.0
+cut_max         = 1.0
+
+[output]
+plot_atoms      = true
+PNG             = false
+WSxM            = false
+NPY             = false
+XSF             = true
