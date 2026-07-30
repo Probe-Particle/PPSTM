@@ -134,11 +134,11 @@ class _TestDidvCore(_test_didv._TestDidv, ABC):
         """Compute differential conductance using the specified backend.
 
         Args:
-            tip_positions (np.ndarray): array of tip coordinates, shape: (n_z, n_y, n_z, 3)
+            tip_positions (np.ndarray): array of tip coordinates, shape: (n_z, n_y, n_x, 3)
             backend (Callable): dI/dV implementation
 
         Returns:
-            Array of conductance values, shape: shape (n_z, n_y, n_z)
+            Array of conductance values, shape: shape (n_z, n_y, n_x)
         """
         return super()._didv_generic(tip_positions=tip_positions,
                                      tip_orb=self._TIP,
@@ -160,7 +160,7 @@ class TestDidvCoreOneSamplePositionDiagonalLCAO(_TestDidvCore):
     ])
 
     _EIGENENERGIES = np.asarray([-0.04, -0.03, -0.02, -0.01, 0.0, 0.01, 0.02, 0.03, 0.04])
-    _LCAO_KS_COEFFICIENTS = np.diag([1.0, 1.0, 1.0, 1.0, 0.2, 0.2, 0.2, 0.2, 0.2])
+    _LCAO_COEFFICIENTS = np.diag([1.0, 1.0, 1.0, 1.0, 0.2, 0.2, 0.2, 0.2, 0.2])
     _SAMPLE_ATOMS_POSITIONS = np.asarray([[0.0, 0.0, 0.0]])
 
 
@@ -179,7 +179,7 @@ class TestDidvCoreTwoSamplePositionsDiagonalLikeLCAO(_TestDidvCore):
     ])
 
     _EIGENENERGIES = np.asarray([-0.04, -0.03, -0.02, -0.01, 0.0, 0.01, 0.02, 0.03, 0.04])
-    _LCAO_KS_COEFFICIENTS = np.hstack(
+    _LCAO_COEFFICIENTS = np.hstack(
         [np.diag([1.0, 1.0, 1.0, 1.0, 0.2, 0.2, 0.2, 0.2, 0.2]),]*2
     )
     _SAMPLE_ATOMS_POSITIONS = np.asarray([[0.0, 0.0, 0.0], ] * 2)
@@ -200,7 +200,7 @@ class TestDidvCoreTwoSamplePositionsNonDiagonalLCAO(_TestDidvCore):
     ])
 
     _EIGENENERGIES = np.asarray([-2.49928599, -2.48934599, -2.48904599, -2.48875599])
-    _LCAO_KS_COEFFICIENTS = np.asarray(
+    _LCAO_COEFFICIENTS = np.asarray(
         [
             [8.000e-05, -3.251e-02, 1.700e-04, 1.100e-04, -6.900e-04,
              3.760e-04, -8.000e-06, 4.000e-06, 0.000e+00, -1.000e-04,

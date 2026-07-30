@@ -35,7 +35,7 @@ class _TestDidvSymmetry(_test_didv._TestDidv, ABC):
     def test_even_symmetry_at_tip_center_for_single_tip_position(self, tip_position: np.ndarray,
                                                                  didv_backend: Callable,
                                                                  rtol:float):
-        """Verify dIdV curve is even-symmetric about the tip's center position for a single tip positions.
+        """Verify dI/dV curve is even-symmetric about the tip's center position for a single tip positions.
         Checks that f(x) == f(-x) for all sampled tip positions."""
         self._test_even_symmetry_at_tip_center(tip_position, didv_backend, rtol)
 
@@ -43,7 +43,7 @@ class _TestDidvSymmetry(_test_didv._TestDidv, ABC):
                                                                  all_tip_positions_batch: np.ndarray,
                                                                  didv_backend: Callable,
                                                                  rtol:float):
-        """Verify dIdV curve is even-symmetric about the tip's center position for a batch of tip positions.
+        """Verify dI/dV curve is even-symmetric about the tip's center position for a batch of tip positions.
         Checks that f(x) == f(-x) for all sampled tip positions."""
         self._test_even_symmetry_at_tip_center(all_tip_positions_batch, didv_backend, rtol)
 
@@ -51,7 +51,7 @@ class _TestDidvSymmetry(_test_didv._TestDidv, ABC):
                                           tip_positions: np.ndarray,
                                           didv_backend: Callable,
                                           rtol: float):
-        """Verify dIdV curve is even-symmetric about the tip's center position.
+        """Verify dI/dV curve is even-symmetric about the tip's center position.
         Checks that f(x) == f(-x) for all sampled tip positions."""
         didv = self._didv(tip_positions, backend=didv_backend)
         didv_with_opposite_tip_position = self._didv(-tip_positions, backend=didv_backend)
@@ -82,14 +82,14 @@ class _TestDidvSymmetry(_test_didv._TestDidv, ABC):
                                  (
                                          (ProbeSTMOpenCLParallel.didv,   1e-7),
                                          (ProbeSTMOpenCLSequential.didv, 1e-7),
-                                         (ProbeStmNumpy.didv,                           1e-7),
-                                         (ProbeStmPytorch.didv,                         1e-7),
+                                         (ProbeStmNumpy.didv,            1e-7),
+                                         (ProbeStmPytorch.didv,          1e-7),
                                  ),
                                  ids=[
-                                     "OpenCL parallel-rtol=1e-7",
-                                     "OpenCL sequential-rtol=1e-7",
-                                     "NumPy-rtol=1e-7",
-                                     "PyTorch-rtol=1e-7",
+                                     "OpenCL parallel",
+                                     "OpenCL sequential",
+                                     "NumPy",
+                                     "PyTorch",
                                  ])
 
     def _sample_tip_positions(self, n_samples: int) -> np.ndarray:
@@ -110,12 +110,10 @@ class _TestDidvSymmetry(_test_didv._TestDidv, ABC):
 class TestDidvSymmetrySp(_TestDidvSymmetry):
     _SAMPLE_ORBITAL_COUNT = 4
     _EIGENENERGIES = np.asarray([-0.04, -0.03, -0.02, -0.01])
-    _LCAO_KS_COEFFICIENTS_DIAG = [1.0, 1.0, 1.0, 1.0]
-    _LCAO_KS_COEFFICIENTS = np.diag(_LCAO_KS_COEFFICIENTS_DIAG)
+    _LCAO_COEFFICIENTS = np.diag([1.0, 1.0, 1.0, 1.0])
 
 
 class TestDidvSymmetrySpd(_TestDidvSymmetry):
     _SAMPLE_ORBITAL_COUNT = 9
     _EIGENENERGIES = np.asarray([-0.04, -0.03, -0.02, -0.01, 0.0, 0.01, 0.02, 0.03, 0.04])
-    _LCAO_KS_COEFFICIENTS_DIAG = [1.0, 1.0, 1.0, 1.0, 0.2, 0.2, 0.2, 0.2, 0.2]
-    _LCAO_KS_COEFFICIENTS = np.diag(_LCAO_KS_COEFFICIENTS_DIAG)
+    _LCAO_COEFFICIENTS = np.diag([1.0, 1.0, 1.0, 1.0, 0.2, 0.2, 0.2, 0.2, 0.2])
