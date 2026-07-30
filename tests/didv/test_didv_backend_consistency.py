@@ -3,18 +3,16 @@ from abc import ABC
 import numpy as np
 import pytest
 
+from tests.didv._test_didv_backend_consistency import _TestDidvBackendConsistencySpdSampleOrbitalsOrbital, \
+    _TestDidvBackendConsistencySpSampleOrbitalsOrbital
+
 # Register assert rewrite BEFORE import to enable better error messages in inherited tests
 pytest.register_assert_rewrite("tests.didv._test_didv_backend_consistency")
 from tests.didv import _test_didv_backend_consistency
 
 
 class _TestDidvBackendConsistency(_test_didv_backend_consistency._TestDidvBackendConsistency, ABC):
-    """Unit tests for dI/dV backend consistency with synthetic tip positions.
-
-    This test class generates a dense grid of tip positions across a 10×10×10 Ångström region
-    (51 positions per axis with 0.2 Ångström spacing) and verifies that the C++ backend
-    produces results consistent with OpenCL and NumPy implementations.
-    """
+    """Backend-consistency tests using synthetic tip positions."""
     _LOWEST_TIP_POSITION  = -5.0  # Symmetric around origin
     _HIGHEST_TIP_POSITION =  5.0  # Symmetric around origin
     _TIP_POSITION_STEP    =  0.2  # Results in 51×51×51 = 132,651 positions
@@ -27,8 +25,8 @@ class _TestDidvBackendConsistency(_test_didv_backend_consistency._TestDidvBacken
                                              num=_NR_TIP_POSITIONS_SINGLE_AXIS)
 
     @pytest.fixture(scope="class")
-    def all_tip_positions_batch(self):
-        """All synthetic tip positions as a grid."""
+    def tip_positions_batch(self):
+        """Batch of synthetic tip positions."""
         yield self._generate_tip_position_grid()
 
     def _generate_tip_position_grid(self) -> np.ndarray:
@@ -40,13 +38,13 @@ class _TestDidvBackendConsistency(_test_didv_backend_consistency._TestDidvBacken
         return np.stack((tip_positions_x, tip_positions_y, tip_positions_z), axis=-1)
 
     def _sample_tip_positions(self, n_samples: int) -> np.ndarray:
-        """Sample n_samples synthetic tip positions.
+        """Sample synthetic tip positions.
 
         Args:
-            n_samples (int): number of tip positions to sample
+            n_samples: Number of tip positions to draw.
 
         Returns:
-            Array with sampled tip positions, shape: (n_samples, 3)
+            Tip positions, shape: (n_samples, 3).
 
         Raises:
             ValueError: If n_samples exceeds the total number of available positions
@@ -68,17 +66,19 @@ class _TestDidvBackendConsistency(_test_didv_backend_consistency._TestDidvBacken
         ))
 
 
-class TestDidvBackendConsistencySp(
-    _TestDidvBackendConsistency,
-    _test_didv_backend_consistency._TestDidvBackendConsistencySp):
+class TestDidvBackendConsistencySpSampleOrbitalsOrbital(
+    _TestDidvBackendConsistencySpSampleOrbitalsOrbital,
+    _TestDidvBackendConsistency):
     """Tests dI/dV backend consistency with synthetic tip positions
-    for sp sample orbitals (s and p, total 4 eigenstates)."""
+    for s and p sample orbitals.
+    Inspired by examples/orbitals_tests."""
     pass
 
 
-class TestDidvBackendConsistencySpd(
-    _TestDidvBackendConsistency,
-    _test_didv_backend_consistency._TestDidvBackendConsistencySpd):
+class TestDidvBackendConsistencySpdSampleOrbitalsOrbital(
+    _TestDidvBackendConsistencySpdSampleOrbitalsOrbital,
+    _TestDidvBackendConsistency):
     """Tests dI/dV backend consistency with synthetic tip positions
-    for spd sample orbitals (s, p, and d, total 9 eigenstates)."""
+    for s, p and d sample orbitals.
+    Inspired by examples/orbitals_tests."""
     pass
