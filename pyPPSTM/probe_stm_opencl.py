@@ -46,10 +46,10 @@ class _ProbeSTMOpenCL(ABC):
             V (float): Applied voltage bias
             WF (float): Work function
             eta (float): Broadening parameter (energy smearing)
-            eig (np.ndarray): Eigenvalues array, shape (n_o,)
+            eig (np.ndarray): Eigenvalues array, shape (n_e,)
             R (np.ndarray): Spatial grid of probe positions, shape (n_z, n_y, n_x, 3)
             Rat (np.ndarray): Atomic positions array, shape (n_a, 3)
-            coes (np.ndarray): Orbital coefficients for sample, shape (n_o, n_a*orb_t)
+            coes (np.ndarray): Orbital coefficients for sample, shape (n_e, n_a*orb_t)
             tip_coes (np.ndarray): Orbital coefficients for tip, shape (9,)
             orb_t (int): Orbital type identifier (4 or 9) for sample
 
