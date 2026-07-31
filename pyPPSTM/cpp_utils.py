@@ -26,14 +26,15 @@ CPP_PATH     = os.path.normpath( PACKAGE_PATH + '../../cpp/' )
 print(" PACKAGE_PATH = ", PACKAGE_PATH)
 print(" CPP_PATH     = ", CPP_PATH)
 
-def ctypes_make( what="" , cpp_name="" ):
+def ctypes_make( make_name: str , lib_name:str ):
     '''
-    Compile the given part of C++ code using what is _recompile=True or if the library, created from cpp_name does not exist.
+    Compile the given part of C++ code using make_name is _recompile=True or if the library, created from lib_name does not exist.
+    E.g. make_name = STM & lib_name ProbeSTM_spd ; This ends up with following command  make STM -> creates ProbeSTM_spd.lib.so
     Returns Ctypes dynamic library object necessary for communication between python and C++
     '''
-    lib_path    =   CPP_PATH + "/" + cpp_name + _lib_ext
+    lib_path    =   CPP_PATH + "/" + lib_name + _lib_ext
     if _recompile or not os.path.exists(lib_path) : # checks if the libraries exist
-        what = 'M' + what if system =='darwin' else what # different recompilation for mac !
+        what = 'M' + make_name if system =='darwin' else make_name # different recompilation for mac !
         print ("DEBUG: make command:",what)
         current_directory = os.getcwd()
         os.chdir ( CPP_PATH          )

@@ -1,6 +1,6 @@
 # HOW TO RUN PPSTM simulations:
-Relaxed scans require installation of PPAFM (version =< 0.2.0a3) with 
-`pip install ppafm==0.2.0a3` # See the [ppafm installation](https://github.com/Probe-Particle/ppafm/wiki/Install-ppafm) if you run into problems 
+Relaxed scans require installation of PPAFM with: 
+`pip install ppafm` # See the [ppafm installation](https://github.com/Probe-Particle/ppafm/wiki/Install-ppafm) if you run into problems 
 
 ```
 ppafm-generate-ljff -i crazy_mol.xyz -f npy # see params.ini &/or AFM documentation for initial settings.
