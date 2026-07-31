@@ -2,7 +2,9 @@ from ase import *
 from gpaw import GPAW
 import numpy as npy
 
+# Inputs from run_GPAW_LCAO.py needed
 # creates a Fireball-like PPSTM input files from GPAW runs
+# Read README.md for more details
 
 xc='LDA'
 calc = GPAW('out_LCAO_'+xc+'.gpw',txt='tmp.txt')

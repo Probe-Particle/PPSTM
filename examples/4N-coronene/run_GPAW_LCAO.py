@@ -5,6 +5,9 @@ from gpaw import *
 
 import numpy as npy
 
+# Creates the GPAW *.gpw file with wavefunction stored.
+# Check README.md 
+
 mol = read('crazy_mol.xyz')
 # Molecule allready centered in the 15x15x10 cell
 cell = [15.,15.,10.]

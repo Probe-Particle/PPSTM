@@ -4,8 +4,8 @@ import numpy as np
 from   ctypes import c_int, c_double, c_char_p
 import ctypes
 import os
-from . import cpp_utils
 import sys
+from . import cpp_utils as cu
 
 # ============================== 
 
@@ -15,17 +15,8 @@ bohrRadius2angstroem = 0.5291772109217
 
 LIB_PATH = os.path.dirname( os.path.realpath(__file__) )
 print(" ProbeParticle Library DIR = ", LIB_PATH)
-cpp_name='IO'
-cpp_utils.make(cpp_name)
-lib    = ctypes.CDLL(  cpp_utils.CPP_PATH + "/" + cpp_name + cpp_utils.lib_ext )     # load dynamic librady object using ctypes
-
-# define used numpy array types for interfacing with C++
-
-array1i = np.ctypeslib.ndpointer(dtype=np.int32,  ndim=1, flags='CONTIGUOUS')
-array1d = np.ctypeslib.ndpointer(dtype=np.double, ndim=1, flags='CONTIGUOUS')
-array2d = np.ctypeslib.ndpointer(dtype=np.double, ndim=2, flags='CONTIGUOUS')
-array3d = np.ctypeslib.ndpointer(dtype=np.double, ndim=3, flags='CONTIGUOUS')
-array4d = np.ctypeslib.ndpointer(dtype=np.double, ndim=4, flags='CONTIGUOUS')
+cpp_name ='IO'
+lib = cu.ctypes_make(cpp_name, cpp_name) # make_name and cpp_name are the same # load dynamic librady object using ctypes
 
 # ==============  String / File IO utils
 
@@ -53,7 +44,7 @@ def writeArr2D(f, arr):
         writeArr(f,vec)
 
 #    int ReadNumsUpTo_C (char *fname, double *numbers, int * dims, int noline)
-lib.ReadNumsUpTo_C.argtypes  = [c_char_p, array1d, array1i, c_int]
+lib.ReadNumsUpTo_C.argtypes  = [c_char_p, cu.array1d, cu.array1i, c_int]
 lib.ReadNumsUpTo_C.restype   = c_int
 def readNumsUpTo(filename, dimensions, noline):
     N_arry=np.zeros( (dimensions[0]*dimensions[1]*dimensions[2]), dtype = np.double )

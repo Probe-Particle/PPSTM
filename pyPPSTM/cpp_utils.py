@@ -1,8 +1,21 @@
 
 import os, sys
+import ctypes
+import numpy as np
 
-_recompile = True # global settings for recompilation
-lib_ext   ='_lib.so'
+if "PPSTM_RECOMPILE" in os.environ and os.environ["PPSTM_RECOMPILE"] != "":
+    _recompile = True
+else:
+    _recompile = False
+
+
+# Shared libraries are called .dll on Windows and .so on Linux/MAC by convention
+# Note: Windows were not tested yet
+system = sys.platform
+if system == "win32":
+    _lib_ext = "_lib.dll"
+else:
+    _lib_ext = "_lib.so"
 
 def work_dir( v__file__ ): 
     return os.path.dirname( os.path.realpath( v__file__ ) )
@@ -13,18 +26,25 @@ CPP_PATH     = os.path.normpath( PACKAGE_PATH + '../../cpp/' )
 print(" PACKAGE_PATH = ", PACKAGE_PATH)
 print(" CPP_PATH     = ", CPP_PATH)
 
-def make( what="" ):
-    if _recompile:
-        what = 'M' + what if sys.platform=='darwin' else what # different recompilation for mac !
+def ctypes_make( what="" , cpp_name="" ):
+    '''
+    Compile the given part of C++ code using what is _recompile=True or if the library, created from cpp_name does not exist.
+    Returns Ctypes dynamic library object necessary for communication between python and C++
+    '''
+    lib_path    =   CPP_PATH + "/" + cpp_name + _lib_ext
+    if _recompile or not os.path.exists(lib_path) : # checks if the libraries exist
+        what = 'M' + what if system =='darwin' else what # different recompilation for mac !
         print ("DEBUG: make command:",what)
         current_directory = os.getcwd()
         os.chdir ( CPP_PATH          )
         os.system( "make "+what       )
         os.chdir ( current_directory )
+    return ctypes.CDLL( lib_path )      # load dynamic librady object using ctypes 
 
-def makeclean( ):
-    CWD=os.getcwd()
-    os.chdir( CPP_PATH )
-    os.system("make clean")
-    os.chdir(CWD)
+# define used numpy array types for interfacing with C++
 
+array1i = np.ctypeslib.ndpointer(dtype=np.int32,  ndim=1, flags='CONTIGUOUS')
+array1d = np.ctypeslib.ndpointer(dtype=np.double, ndim=1, flags='CONTIGUOUS')
+array2d = np.ctypeslib.ndpointer(dtype=np.double, ndim=2, flags='CONTIGUOUS')
+array3d = np.ctypeslib.ndpointer(dtype=np.double, ndim=3, flags='CONTIGUOUS')
+array4d = np.ctypeslib.ndpointer(dtype=np.double, ndim=4, flags='CONTIGUOUS')
