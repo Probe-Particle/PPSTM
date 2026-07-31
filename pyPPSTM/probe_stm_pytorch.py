@@ -5,7 +5,7 @@ This module provides PyTorch-based implementations for computing dI/dV (differen
 conductance) spectra with sp(d)-sp(d) orbital interactions.
 """
 from abc import ABC
-from typing import Sequence, TypeAlias
+from typing import Sequence, TypeAlias, List, Tuple
 
 import numpy as np
 import torch
@@ -36,10 +36,10 @@ class ProbeStmPytorch(ProbeStmPython, ABC):
             V (float): Applied voltage bias
             WF (float): Work function
             eta (float): Broadening parameter (energy smearing)
-            eig (np.ndarray): Eigenvalues array, shape (n_o,)
+            eig (np.ndarray): Eigenvalues array, shape (n_e,)
             R (np.ndarray): Spatial grid of probe positions, shape (n_z, n_y, n_x, 3)
             Rat (np.ndarray): Atomic positions array, shape (n_a, 3)
-            coes (np.ndarray): Orbital coefficients for sample, shape (n_o, n_a*orb_t)
+            coes (np.ndarray): Orbital coefficients for sample, shape (n_e, n_a*orb_t)
             tip_coes (np.ndarray): Orbital coefficients for tip, shape (9,)
             orb_t (int): Orbital type identifier (4 or 9) for sample
 
@@ -78,8 +78,15 @@ class ProbeStmPytorch(ProbeStmPython, ABC):
     def _to_float(self, tensor):
         return tensor.float()
 
-    def _unsqueeze(self, tensor, dim: int):
-        return torch.unsqueeze(tensor, dim=dim)
+    def _unsqueeze(self, tensor, dims: int|List[int]|Tuple[int]):
+        if isinstance(dims, int):
+            tensor = torch.unsqueeze(tensor, dim=dims)
+        else:
+            new_shape = list(tensor.shape)
+            for d in dims:
+                new_shape.insert(d, 1)
+            tensor = tensor.view(new_shape)
+        return tensor
 
     def _zeros(self, size: Sequence[int], dtype):
         return torch.zeros(size, dtype=dtype, device=self._device)
