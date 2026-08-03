@@ -54,7 +54,7 @@ class ProbeStmPython(ABC):
         tip_position = self._unsqueeze(self._to_float(R), dims=[3, 4])                # shape (n_z, n_y, n_x,   1,   1, 3)
 
         self._decay = math.sqrt((2 * wf) * self._EV)
-        self._r_a = (sample_atom_position - tip_position) * self._AB                  # shape (n_z, n_y, n_x,   1, n_a, 3)
+        self._r_a = (tip_position - sample_atom_position) * self._AB                  # shape (n_z, n_y, n_x,   1, n_a, 3)
         self._r_a_norm = self._norm(self._r_a, ord=2, axis=-1)                        # shape (n_z, n_y, n_x,   1, n_a)
         self._radial = self._exp(-self._decay * self._r_a_norm)                       # shape (n_z, n_y, n_x,   1, n_a)
 
