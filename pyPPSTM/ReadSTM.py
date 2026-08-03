@@ -8,7 +8,7 @@ from . import elements
 
 from   ctypes import c_int, c_double, c_char_p
 import ctypes
-from . import cpp_utils
+from . import cpp_utils as cu
 
 import time
 
@@ -41,19 +41,7 @@ LIB_PATH = os.path.dirname( os.path.realpath(__file__) )
 print(" ProbeParticle Library DIR = ", LIB_PATH)
 
 cpp_name='IO'
-#cpp_utils.compile_lib( cpp_name  )
-make_name='MIO' if sys.platform=='darwin' else 'IO'
-print("DEBUG: make_name", make_name)
-cpp_utils.make(make_name)
-lib    = ctypes.CDLL(  cpp_utils.CPP_PATH + "/" + cpp_name + cpp_utils.lib_ext )     # load dynamic librady object using ctypes 
-
-# define used numpy array types for interfacing with C++
-
-array1i = np.ctypeslib.ndpointer(dtype=np.int32,  ndim=1, flags='CONTIGUOUS')
-array1d = np.ctypeslib.ndpointer(dtype=np.double, ndim=1, flags='CONTIGUOUS')
-array2d = np.ctypeslib.ndpointer(dtype=np.double, ndim=2, flags='CONTIGUOUS')
-array3d = np.ctypeslib.ndpointer(dtype=np.double, ndim=3, flags='CONTIGUOUS')
-array4d = np.ctypeslib.ndpointer(dtype=np.double, ndim=4, flags='CONTIGUOUS')
+lib = cu.ctypes_make(cpp_name, cpp_name) # make_name and cpp_name are the same # load dynamic librady object using ctypes 
 
 # ========
 # ======== Python warper function for C++ functions
@@ -61,7 +49,7 @@ array4d = np.ctypeslib.ndpointer(dtype=np.double, ndim=4, flags='CONTIGUOUS')
 
 #************* sp(d) now as well *************
 # int read_AIMS_coefs          (char *fname, double* coefs, int* period, int nMOmax, int nMOmin, int nAtoms, int nPerAtoms ){
-lib.read_AIMS_coefs.argtypes = [ c_char_p,   array3d,       array1i,     c_int,      c_int,      c_int,      c_int ]
+lib.read_AIMS_coefs.argtypes = [ c_char_p,   cu.array3d,       cu.array1i,     c_int,      c_int,      c_int,      c_int ]
 lib.read_AIMS_coefs.restype  = c_int
 def read_AIMS_coefs(fname, at_nums ):
     #eigs = ReadSTM.getAimsEigenE(fname)

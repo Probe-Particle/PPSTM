@@ -91,7 +91,7 @@ class Vec3d : public Vec3TYPE<double,Vec3d>{
 	inline double norm ( ) const { return  sqrt( x*x + y*y + z*z ); };
     inline double normalize() {
 		double norm  = sqrt( x*x + y*y + z*z );
-		double inVnorm = 1.0d/norm;
+		double inVnorm = 1.0e0 /norm;
 		x *= inVnorm;    y *= inVnorm;    z *= inVnorm;
 		return norm;
     };

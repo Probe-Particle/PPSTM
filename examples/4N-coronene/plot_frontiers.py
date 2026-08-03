@@ -2,8 +2,11 @@ from ase import *
 from gpaw import *
 from ase.io import *
 
-
 import numpy as npy
+
+# Inputs from run_GPAW_LCAO.py
+# Creates 2 cube files, that could be used for visualization.
+# Read README.md for more details.
 
 xc='LDA'
 
@@ -13,15 +16,12 @@ slab, calc = restart('out_LCAO_'+xc+'.gpw')#,txt = 'dos_out.txt')
 b=53
 wf = calc.get_pseudo_wave_function(band=b)
 fname=  'wf_'+str(b)+'-HOMO.cube'
-print 'writing wf', b, 'to file', fname
+print ('writing wf', b, 'to file', fname)
 write(fname, slab, data=wf)
 b=54
 wf = calc.get_pseudo_wave_function(band=b)
 fname=  'wf_'+str(b)+'-LUMO.cube'
-print 'writing wf', b, 'to file', fname
+print ('writing wf', b, 'to file', fname)
 write(fname, slab, data=wf)
 
-
-print
-print "Bye bye"
-print
+print ("\nBye bye\n")

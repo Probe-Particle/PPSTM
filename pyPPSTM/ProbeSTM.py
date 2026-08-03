@@ -13,7 +13,7 @@ from pyPPSTM.probe_stm_opencl import ProbeSTMOpenCLParallel
 from pyPPSTM.probe_stm_numpy import ProbeStmNumpy
 from pyPPSTM.probe_stm_pytorch import ProbeStmPytorch
 
-from pyPPSTM import cpp_utils
+from pyPPSTM import cpp_utils as cu
 
 #important constants:
 
@@ -268,9 +268,7 @@ def before_C( eig, R, Rat, coes, orb_t):
 # ============================== interface to C++ core 
 
 cpp_name='ProbeSTM_spd'
-#cpp_utils.compile_lib( cpp_name  )
-make_name='MSTM' if sys.platform=='darwin' else 'STM'
-
+make_name = 'STM'
 try:
     ncpu = int(os.environ['OMP_NUM_THREADS'])
 except:
@@ -281,17 +279,7 @@ except:
 make_name_end ='PAR' if ncpu > 1.01 else ''
 del ncpu;
 make_name += make_name_end
-print("DEBUG: make_name", make_name);
-cpp_utils.make(make_name)
-lib    = ctypes.CDLL(  cpp_utils.CPP_PATH + "/" + cpp_name + cpp_utils.lib_ext )     # load dynamic librady object using ctypes 
-
-# define used numpy array types for interfacing with C++
-
-array1i = np.ctypeslib.ndpointer(dtype=np.int32,  ndim=1, flags='CONTIGUOUS')
-array1d = np.ctypeslib.ndpointer(dtype=np.double, ndim=1, flags='CONTIGUOUS')
-array2d = np.ctypeslib.ndpointer(dtype=np.double, ndim=2, flags='CONTIGUOUS')
-array3d = np.ctypeslib.ndpointer(dtype=np.double, ndim=3, flags='CONTIGUOUS')
-array4d = np.ctypeslib.ndpointer(dtype=np.double, ndim=4, flags='CONTIGUOUS')
+lib = cu.ctypes_make(make_name, cpp_name) # check for the library and compile if necessary, load dynamic librady object using ctypes
 
 # ========
 # ======== Python warper function for C++ functions
@@ -299,7 +287,7 @@ array4d = np.ctypeslib.ndpointer(dtype=np.double, ndim=4, flags='CONTIGUOUS')
 
 #************* sp(d) now as well *************
 # void proc_dIdVspdspd(   int const_orb, int NoAt, int NoOrb, int Npoints, double V, double WF, double eta, double* eig, double* R_, double* Rat_, double* coesin, double* tip_coes, double* cur)
-lib.proc_dIdVspdspd.argtypes = [ c_int, c_int, c_int, c_int, c_double, c_double, c_double, array1d, array4d, array2d, array2d, array1d, array1d ]
+lib.proc_dIdVspdspd.argtypes = [ c_int, c_int, c_int, c_int, c_double, c_double, c_double, cu.array1d, cu.array4d, cu.array2d, cu.array2d, cu.array1d, cu.array1d ]
 lib.proc_dIdVspdspd.restype  = None
 def dIdV_sp_sp( V, WF, eta ,eig, R, Rat, coes, tip_coes, orb_t):
     print("Entering the dI/dV ( sp(d)-sp(d) ) procedure")
@@ -309,7 +297,7 @@ def dIdV_sp_sp( V, WF, eta ,eig, R, Rat, coes, tip_coes, orb_t):
     return cur_1d.reshape((sh[0],sh[1],sh[2])).copy();
 
 # void proc_dIdVspsp_tilt( int NoAt, int NoOrb, int Npoints, double V, double WF, double eta, double len_R, double al, double* eig, double* R_, double* R0_, double* Rat_, double* coesin, double* tip_coes, double* cur)
-lib.proc_dIdVspsp_tilt.argtypes = [ c_int, c_int, c_int, c_double, c_double, c_double, c_double, c_double, array1d, array4d, array4d, array2d, array2d, array1d, array1d ]
+lib.proc_dIdVspsp_tilt.argtypes = [ c_int, c_int, c_int, c_double, c_double, c_double, c_double, c_double, cu.array1d, cu.array4d, cu.array4d, cu.array2d, cu.array2d, cu.array1d, cu.array1d ]
 lib.proc_dIdVspsp_tilt.restype  = None
 def dIdV_sp_sp_tilt( V, WF, eta ,eig, R, R0, Rat, coes, tip_coes, len_R, al, orb_t):
     print("Entering the dI/dV (sp-sp) procedure with tilting orbitals")
@@ -319,7 +307,7 @@ def dIdV_sp_sp_tilt( V, WF, eta ,eig, R, R0, Rat, coes, tip_coes, len_R, al, orb
     return cur_1d.reshape((sh[0],sh[1],sh[2])).copy();
 
 # void proc_dIdVspspd( int const_orb, int NoAt, int NoOrb, int Npoints, double V, double WF, double eta, double Amp, double* eig, double* R_, double* Rat_, double* coesin, double* tip_coes, double* cur)
-lib.proc_IETSspspd.argtypes = [ c_int, c_int, c_int, c_int, c_double, c_double, c_double, c_double, array1d, array4d, array2d, array2d, array1d, array1d ]
+lib.proc_IETSspspd.argtypes = [ c_int, c_int, c_int, c_int, c_double, c_double, c_double, c_double, cu.array1d, cu.array4d, cu.array2d, cu.array2d, cu.array1d, cu.array1d ]
 lib.proc_IETSspspd.restype  = None
 def IETS_sp_sp( V, WF, eta ,eig, R, Rat, coes, tip_coes, Amp, orb_t):
     print("Entering the IETS (sp-sp(d)) procedure")
@@ -330,8 +318,8 @@ def IETS_sp_sp( V, WF, eta ,eig, R, Rat, coes, tip_coes, Amp, orb_t):
 
 #  void proc_IETScomplex( int const_orb, int NoAt, int NoOrb, int Npoints, double V, double WF, double eta, double* eig, double* R_, double* eigenVec1_, double* eigenVec2_, double* denomin_,
 #                             double* Rat_, double* coesin, double* tip_coes, double* cur, double* cur2)
-lib.proc_IETScomplex.argtypes = [ c_int, c_int, c_int, c_int, c_double, c_double, c_double, array1d, array4d, array4d, array4d, array4d,
-                                       array2d, array2d, array1d, array1d, array1d ]
+lib.proc_IETScomplex.argtypes = [ c_int, c_int, c_int, c_int, c_double, c_double, c_double, cu.array1d, cu.array4d, cu.array4d, cu.array4d, cu.array4d,
+                                       cu.array2d, cu.array2d, cu.array1d, cu.array1d, cu.array1d ]
 lib.proc_IETScomplex.restype  = None
 def IETScomplex( V, WF, eta ,eig, R, eigenVec1, eigenVec2, denomin, Rat, coes, tip_coes, orb_t):
     print("Entering the complex IETS (sp-sp(d)) procedure")

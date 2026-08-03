@@ -1,8 +1,21 @@
 
-import os
+import os, sys
+import ctypes
+import numpy as np
 
-recompile = True 
-lib_ext   ='_lib.so'
+if "PPSTM_RECOMPILE" in os.environ and os.environ["PPSTM_RECOMPILE"] != "":
+    _recompile = True
+else:
+    _recompile = False
+
+
+# Shared libraries are called .dll on Windows and .so on Linux/MAC by convention
+# Note: Windows were not tested yet
+system = sys.platform
+if system == "win32":
+    _lib_ext = "_lib.dll"
+else:
+    _lib_ext = "_lib.so"
 
 def work_dir( v__file__ ): 
     return os.path.dirname( os.path.realpath( v__file__ ) )
@@ -13,38 +26,26 @@ CPP_PATH     = os.path.normpath( PACKAGE_PATH + '../../cpp/' )
 print(" PACKAGE_PATH = ", PACKAGE_PATH)
 print(" CPP_PATH     = ", CPP_PATH)
 
-def compile_lib( name,
-        #FFLAGS = "-std=c++11 -Og -g -Wall",
-        FFLAGS = "-std=c++11 -O3 -ftree-vectorize -unroll-loops -ffast-math",
-        LFLAGS = "-I/usr/local/include/SDL2 -lSDL2",
-        path   = CPP_PATH,
-        clean  = True,
-    ):
-    lib_name = name+lib_ext
-    print(" COMPILATION OF : "+name)
-    if path is not None:
-        dir_bak = os.getcwd()
-        os.chdir( path );
-    print(os.getcwd())
-    if clean:
-        try:
-            os.remove( lib_name  )
-            os.remove( name+".o" ) 
-        except:
-            pass 
-    os.system("g++ "+FFLAGS+" -c -fPIC "+name+".cpp -o "+name+".o "+LFLAGS )
-    os.system("g++ "+FFLAGS+" -shared -Wl,-soname,"+lib_name+" -o "+lib_name+" "+name+".o "+LFLAGS)
-    if path is not None:
-        os.chdir( dir_bak )
+def ctypes_make( make_name: str , lib_name:str ):
+    '''
+    Compile the given part of C++ code using make_name is _recompile=True or if the library, created from lib_name does not exist.
+    E.g. make_name = STM & lib_name ProbeSTM_spd ; This ends up with following command  make STM -> creates ProbeSTM_spd.lib.so
+    Returns Ctypes dynamic library object necessary for communication between python and C++
+    '''
+    lib_path    =   CPP_PATH + "/" + lib_name + _lib_ext
+    if _recompile or not os.path.exists(lib_path) : # checks if the libraries exist
+        what = 'M' + make_name if system =='darwin' else make_name # different recompilation for mac !
+        print ("DEBUG: make command:",what)
+        current_directory = os.getcwd()
+        os.chdir ( CPP_PATH          )
+        os.system( "make "+what       )
+        os.chdir ( current_directory )
+    return ctypes.CDLL( lib_path )      # load dynamic librady object using ctypes 
 
-def make( what="" ):
-    current_directory = os.getcwd()
-    os.chdir ( CPP_PATH          )
-    os.system( "make "+what       )
-    os.chdir ( current_directory )
+# define used numpy array types for interfacing with C++
 
-def makeclean( ):
-    CWD=os.getcwd()
-    os.chdir( CPP_PATH )
-    os.system("make clean")
-    os.chdir(CWD)
+array1i = np.ctypeslib.ndpointer(dtype=np.int32,  ndim=1, flags='CONTIGUOUS')
+array1d = np.ctypeslib.ndpointer(dtype=np.double, ndim=1, flags='CONTIGUOUS')
+array2d = np.ctypeslib.ndpointer(dtype=np.double, ndim=2, flags='CONTIGUOUS')
+array3d = np.ctypeslib.ndpointer(dtype=np.double, ndim=3, flags='CONTIGUOUS')
+array4d = np.ctypeslib.ndpointer(dtype=np.double, ndim=4, flags='CONTIGUOUS')

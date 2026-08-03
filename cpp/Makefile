@@ -1,13 +1,12 @@
 # C++ compilers: CC - linux; MCC - Mac OS - we recommend to update g++ compiler on your MAC#
 CC=g++
-MCC=g++-9
+MCC=clang++-22
 # flagss Linux; OMPFLAGS used only for OMP compiltion of #
 OMPFLAGS=-fopenmp
-CPPFLAGS=-std=c++11 -O3 -ffast-math -ftree-vectorize 
-CPPLFLAGS= $(CPPFLAGS) -shared -Wl,-soname
+BASEFLAGS=-std=c++11 -O3 -ffast-math -ftree-vectorize 
+CPPLFLAGS= $(BASEFLAGS) -shared -Wl,-soname
 # flags Max Os #
-MCPPFLAGS=-std=c++11 -O3 -ffast-math -ftree-vectorize
-MCPPLFLAGS= $(MCPPFLAGS) -shared -Wl,-install_name
+MCPPLFLAGS= $(BASEFLAGS) -shared -Wl,-install_name
 
 
 all: STM IO
