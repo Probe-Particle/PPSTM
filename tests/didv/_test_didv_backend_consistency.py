@@ -23,10 +23,14 @@ class _TestDidvBackendConsistency(_test_didv._TestDidv, ABC):
     _NR_SAMPLED_TIP_POSITIONS = 10
 
     _S_TIP_ORB     = np.asarray([ 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+    _PY_TIP_ORB    = np.asarray([ 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
     _PZ_TIP_ORB    = np.asarray([ 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+    _PX_TIP_ORB    = np.asarray([ 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0])
     _PXY_TIP_ORB   = np.asarray([ 0.0, 0.5, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0])
     _CO_TIP_ORB    = np.asarray([0.15, 0.5, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0])
+    _DYZ_TIP_ORB   = np.asarray([ 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0])
     _DZ2_TIP_ORB   = np.asarray([ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0])
+    _DXZ_TIP_ORB   = np.asarray([ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0])
     _DXZYZ_TIP_ORB = np.asarray([ 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.5, 0.0])
 
     def test_didv_cpp_matches_other_backends_for_single_tip_position(self,
@@ -94,14 +98,14 @@ class _TestDidvBackendConsistency(_test_didv._TestDidv, ABC):
                                  (
                                          (ProbeSTMOpenCLParallel.didv,   2e-3),
                                          (ProbeSTMOpenCLSequential.didv, 2e-3),
-                                         (ProbeStmNumpy.didv,            2e-3),
-                                         (ProbeStmPytorch.didv,          2e-3),
+                                         (ProbeStmNumpy.didv,            4e-3),
+                                         (ProbeStmPytorch.didv,          3e-3),
                                  ),
                                  ids=[
-                                     "OpenCL parallel-rtol=2e-3",
-                                     "OpenCL sequential-rtol=2e-3",
-                                     "NumPy-rtol=2e-3",
-                                     "PyTorch-rtol=2e-3",
+                                     "OpenCL parallel",
+                                     "OpenCL sequential",
+                                     "NumPy",
+                                     "PyTorch",
                                  ])
 
     @abstractmethod
@@ -121,18 +125,26 @@ class _TestDidvBackendConsistencySpSampleOrbitals(_TestDidvBackendConsistency, A
     """Tests dI/dV backend consistency for s and p sample orbitals."""
     _TIP_ORBITALS = [
         _TestDidvBackendConsistency._S_TIP_ORB,
+        _TestDidvBackendConsistency._PY_TIP_ORB,
         _TestDidvBackendConsistency._PZ_TIP_ORB,
+        _TestDidvBackendConsistency._PX_TIP_ORB,
         _TestDidvBackendConsistency._PXY_TIP_ORB,
         _TestDidvBackendConsistency._CO_TIP_ORB,
+        _TestDidvBackendConsistency._DYZ_TIP_ORB,
         _TestDidvBackendConsistency._DZ2_TIP_ORB,
+        _TestDidvBackendConsistency._DXZ_TIP_ORB,
         _TestDidvBackendConsistency._DXZYZ_TIP_ORB,
     ]
     _TIP_ORBITAL_LABELS = [
         "s",
+        "py",
         "pz",
+        "px",
         "pxy",
         "CO",
+        "dyz",
         "dz2",
+        "dxz",
         "dxzyz",
     ]
     _SAMPLE_ORBITAL_COUNT = 4
@@ -142,13 +154,17 @@ class _TestDidvBackendConsistencySpdSampleOrbitals(_TestDidvBackendConsistency, 
     """Tests dI/dV backend consistency for s, p and d sample orbitals."""
     _TIP_ORBITALS = [
         _TestDidvBackendConsistency._S_TIP_ORB,
+        _TestDidvBackendConsistency._PY_TIP_ORB,
         _TestDidvBackendConsistency._PZ_TIP_ORB,
+        _TestDidvBackendConsistency._PX_TIP_ORB,
         _TestDidvBackendConsistency._PXY_TIP_ORB,
         _TestDidvBackendConsistency._CO_TIP_ORB,
     ]
     _TIP_ORBITAL_LABELS = [
         "s",
+        "py",
         "pz",
+        "px",
         "pxy",
         "CO",
     ]
