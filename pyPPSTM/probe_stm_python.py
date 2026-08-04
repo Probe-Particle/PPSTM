@@ -21,7 +21,7 @@ class ProbeStmPython(ABC):
     _N_P = math.sqrt(3)
     _N_D = math.sqrt(15)
     _N_D2 = math.sqrt(5) * 0.5
-    _I_3 = 0.3333333
+    _I_3 = 1/3
 
     def __init__(self,
                  V: float,
@@ -132,6 +132,7 @@ class ProbeStmPython(ABC):
         """
         r_a_norm_inv = 1 / self._r_a_norm
         r_a_norm_inv_sq = r_a_norm_inv**2
+        r_a_x_sq = self._r_a[..., 0]**2
         r_a_y_sq = self._r_a[..., 1]**2
         r_a_z_sq = self._r_a[..., 2]**2
         t =  self._coes[..., 0] * self._r_a[..., 1] * self._decay  # s  orb. of sample, shape (n_z, n_y, n_x, n_e, n_a)
@@ -139,11 +140,11 @@ class ProbeStmPython(ABC):
         t += self._coes[..., 2] * self._N_P * self._r_a[..., 1] * self._r_a[..., 2] * (self._decay*r_a_norm_inv + r_a_norm_inv_sq)  # pz orb. of sample
         t += self._coes[..., 3] * self._N_P * self._r_a[..., 1] * self._r_a[..., 0] * (self._decay*r_a_norm_inv + r_a_norm_inv_sq)  # px orb. of sample
         if self._SAMPLE_ORBITAL_COUNT == 9:
-            t += self._coes[..., 4] * self._N_D * self._r_a[..., 1] * r_a_norm_inv*( 2*r_a_y_sq*r_a_norm_inv_sq + self._decay*r_a_y_sq*r_a_norm_inv - 1 )  # dxy orb. of sample
-            t += self._coes[..., 5] * self._N_D * self._r_a[..., 2] * r_a_norm_inv*( 2*r_a_y_sq*r_a_norm_inv_sq + self._decay*r_a_y_sq*r_a_norm_inv - 1 )  # dyz orb. of sample
-            t += self._coes[..., 6] * self._N_D2 * ( (6*self._r_a[..., 1]**3*r_a_norm_inv**3-6*self._r_a[..., 2]*r_a_norm_inv) + self._decay*(3*r_a_z_sq*r_a_norm_inv_sq-1) )  # dz2 orb. of sample
+            t += self._coes[..., 4] * self._N_D * self._r_a[..., 0] * r_a_norm_inv*( 2*r_a_y_sq*r_a_norm_inv_sq + self._decay*r_a_y_sq*r_a_norm_inv - 1 )   # dxy orb. of sample
+            t += self._coes[..., 5] * self._N_D * self._r_a[..., 2] * r_a_norm_inv*( 2*r_a_y_sq*r_a_norm_inv_sq + self._decay*r_a_y_sq*r_a_norm_inv - 1 )   # dyz orb. of sample
+            t += self._coes[..., 6] * self._N_D2 * self._r_a[..., 1] * (6*r_a_z_sq*r_a_norm_inv**3 + self._decay*(3*r_a_z_sq*r_a_norm_inv_sq-1))            # dz2 orb. of sample
             t += self._coes[..., 7] * self._N_D * self._r_a[..., 0] * self._r_a[..., 1]*self._r_a[..., 2]*r_a_norm_inv_sq*( 2*r_a_norm_inv + self._decay )  # dxz orb. of sample
-            t += self._coes[..., 8] * self._N_D * r_a_norm_inv_sq*self._r_a[..., 1]*((self._r_a[..., 0]**2-r_a_y_sq)*r_a_norm_inv_sq + 0.5*self._decay*(self._r_a[..., 0]**2-r_a_y_sq)*r_a_norm_inv + 1)  # dx2-y2 orb. of sample
+            t += self._coes[..., 8] * self._N_D * r_a_norm_inv*self._r_a[..., 1]*((r_a_x_sq-r_a_y_sq)*r_a_norm_inv_sq + 0.5*self._decay*(r_a_x_sq-r_a_y_sq)*r_a_norm_inv + 1)  # dx2-y2 orb. of sample
         return t * r_a_norm_inv
 
     def _pz(self):
@@ -160,11 +161,11 @@ class ProbeStmPython(ABC):
         t += self._coes[..., 2] * self._N_P * ( -1 + self._decay*r_a_norm_inv*r_a_z_sq + r_a_norm_inv_sq*r_a_z_sq )                 # pz orb. of sample
         t += self._coes[..., 3] * self._N_P * self._r_a[..., 2] * self._r_a[..., 0]*( self._decay*r_a_norm_inv + r_a_norm_inv_sq )  # px orb. of sample
         if self._SAMPLE_ORBITAL_COUNT == 9:
-            t += self._coes[..., 4] * self._N_D * self._r_a[..., 0] * self._r_a[..., 1]*self._r_a[..., 2]*r_a_norm_inv_sq*( 2*r_a_norm_inv + self._decay )                     # dxy orb. of sample
-            t += self._coes[..., 5] * self._N_D * self._r_a[..., 1] * r_a_norm_inv*( 2*r_a_z_sq*r_a_norm_inv_sq + self._decay*r_a_z_sq*r_a_norm_inv - 1 )                      # dyz orb. of sample
-            t += self._coes[..., 6] * self._N_D2 * ( (6*self._r_a[..., 2]**3*r_a_norm_inv**3-6*self._r_a[..., 2]*r_a_norm_inv) + self._decay*(3*r_a_z_sq*r_a_norm_inv_sq-1) )  # dz2 orb. of sample
-            t += self._coes[..., 7] * self._N_D * self._r_a[..., 0] * r_a_norm_inv*( 2*r_a_z_sq*r_a_norm_inv_sq + self._decay*r_a_z_sq*r_a_norm_inv - 1 )                      # dxz orb. of sample
-            t += self._coes[..., 8] * self._N_D * r_a_norm_inv_sq*self._r_a[..., 2]*(self._r_a[..., 0]**2-self._r_a[..., 1]**2)*( r_a_norm_inv + 0.5*self._decay  )            # dx2-y2 orb. of sample
+            t += self._coes[..., 4] * self._N_D * self._r_a[..., 0] * self._r_a[..., 1]*self._r_a[..., 2]*r_a_norm_inv_sq*( 2*r_a_norm_inv + self._decay )                   # dxy orb. of sample
+            t += self._coes[..., 5] * self._N_D * self._r_a[..., 1] * r_a_norm_inv*( 2*r_a_z_sq*r_a_norm_inv_sq + self._decay*r_a_z_sq*r_a_norm_inv - 1 )                    # dyz orb. of sample
+            t += self._coes[..., 6] * self._N_D2 * ((6*self._r_a[..., 2]**3*r_a_norm_inv**3-6*self._r_a[..., 2]*r_a_norm_inv) + self._decay*(3*r_a_z_sq*r_a_norm_inv_sq-1))  # dz2 orb. of sample
+            t += self._coes[..., 7] * self._N_D * self._r_a[..., 0] * r_a_norm_inv*( 2*r_a_z_sq*r_a_norm_inv_sq + self._decay*r_a_z_sq*r_a_norm_inv - 1 )                    # dxz orb. of sample
+            t += self._coes[..., 8] * self._N_D * r_a_norm_inv_sq*self._r_a[..., 2]*(self._r_a[..., 0]**2-self._r_a[..., 1]**2)*( r_a_norm_inv + 0.5*self._decay  )          # dx2-y2 orb. of sample
         return t * r_a_norm_inv
 
     def _px(self):
@@ -176,6 +177,7 @@ class ProbeStmPython(ABC):
         r_a_norm_inv = 1 / self._r_a_norm
         r_a_norm_inv_sq = r_a_norm_inv**2
         r_a_x_sq = self._r_a[..., 0]**2
+        r_a_y_sq = self._r_a[..., 1]**2
         r_a_z_sq = self._r_a[..., 2]**2
         t =  self._coes[..., 0] * self._r_a[..., 0] * self._decay  # s  orb. of sample, shape (n_z, n_y, n_x, n_e, n_a)
         t += self._coes[..., 1] * self._N_P * self._r_a[..., 0] * self._r_a[..., 1] * (self._decay*r_a_norm_inv + r_a_norm_inv_sq)  # py orb. of sample
@@ -184,20 +186,19 @@ class ProbeStmPython(ABC):
         if self._SAMPLE_ORBITAL_COUNT == 9:
             t += self._coes[..., 4] * self._N_D * self._r_a[..., 1] * r_a_norm_inv*( 2*r_a_x_sq*r_a_norm_inv_sq + self._decay*r_a_x_sq*r_a_norm_inv - 1 )                      # dxy orb. of sample
             t += self._coes[..., 5] * self._N_D * self._r_a[..., 0] * self._r_a[..., 1]*self._r_a[..., 2]*r_a_norm_inv_sq*( 2*r_a_norm_inv + self._decay )                     # dyz orb. of sample
-            t += self._coes[..., 6] * self._N_D2 * ( (6*self._r_a[..., 0]**3*r_a_norm_inv**3-6*self._r_a[..., 2]*r_a_norm_inv) + self._decay*(3*r_a_z_sq*r_a_norm_inv_sq-1) )  # dz2 orb. of sample
+            t += self._coes[..., 6] * self._N_D2 * self._r_a[..., 0] * (6*r_a_z_sq*r_a_norm_inv**3 + self._decay*(3*r_a_z_sq*r_a_norm_inv_sq-1))                               # dz2 orb. of sample
             t += self._coes[..., 7] * self._N_D * self._r_a[..., 2] * r_a_norm_inv*( 2*r_a_x_sq*r_a_norm_inv_sq + self._decay*r_a_x_sq*r_a_norm_inv - 1 )                      # dxz orb. of sample
-            t += self._coes[..., 8] * self._N_D * r_a_norm_inv_sq*self._r_a[..., 0]*((r_a_x_sq-self._r_a[..., 1]**2)*r_a_norm_inv_sq + 0.5*self._decay*(r_a_x_sq-self._r_a[..., 1]**2)*r_a_norm_inv + 1)  # dx2-y2 orb. of sample
+            t += self._coes[..., 8] * self._N_D * r_a_norm_inv*self._r_a[..., 0]*((r_a_x_sq-r_a_y_sq)*r_a_norm_inv_sq + 0.5*self._decay*(r_a_x_sq-r_a_y_sq)*r_a_norm_inv - 1)  # dx2-y2 orb. of sample
         return t * r_a_norm_inv
 
     def _missing_conductance(self, tip_orbital: str, *args, **kwargs):
         """Placeholder returning zeros for unsupported tip-sample orbital combinations.
 
-        Returns:
-            array_like: Array of zeros, shape (n_z, n_y, n_x, n_a)
+        Raise:
+            NotImplementedError
         """
-        self._logger.info(f"Not implemented formula for {tip_orbital} tip orb"
-                          f" and {'spd' if self._SAMPLE_ORBITAL_COUNT == 9 else 'sp'} sample orbitals!")
-        return self._zeros(self._tip_position.shape[:-1] + len(self._sample_atom_position), dtype=self._float32)
+        raise NotImplementedError(f"Not implemented formula for {tip_orbital} tip orb"
+                                  f" and {'spd' if self._SAMPLE_ORBITAL_COUNT == 9 else 'sp'} sample orbitals!")
 
     @property
     @abstractmethod
@@ -281,9 +282,9 @@ class ProbeStmPythonSp(ProbeStmPython, ABC):
         r_a_z_sq = self._r_a[..., 2]**2
         r_a_x_mul_z = self._r_a[..., 0]*self._r_a[..., 2]
         t =  self._coes[..., 0] * r_a_x_mul_z*(r_a_norm_inv + self._decay)*self._decay  # s  orb. of sample, shape (n_z, n_y, n_x, n_e, n_a)
-        t += self._coes[..., 1] * self._N_P*self._r_a[..., 1]*r_a_x_mul_z*r_a_norm_inv*( 3*r_a_norm_inv_sq + 3*self._decay*r_a_norm_inv + decay_sq )                                                 # px orb. of sample
+        t += self._coes[..., 1] * self._N_P*self._r_a[..., 1]*r_a_x_mul_z*r_a_norm_inv*( 3*r_a_norm_inv_sq + 3*self._decay*r_a_norm_inv + decay_sq )                                                 # py orb. of sample
         t += self._coes[..., 2] * self._N_P*self._r_a[..., 0]*( 3*r_a_z_sq*r_a_norm_inv_cu + 3*self._decay*r_a_z_sq*r_a_norm_inv_sq - r_a_norm_inv + decay_sq*r_a_z_sq*r_a_norm_inv - self._decay )  # pz orb. of sample
-        t += self._coes[..., 3] * self._N_P*self._r_a[..., 2]*( 3*r_a_x_sq*r_a_norm_inv_cu + 3*self._decay*r_a_x_sq*r_a_norm_inv_sq - r_a_norm_inv + decay_sq*r_a_x_sq*r_a_norm_inv - self._decay )  # py orb. of sample
+        t += self._coes[..., 3] * self._N_P*self._r_a[..., 2]*( 3*r_a_x_sq*r_a_norm_inv_cu + 3*self._decay*r_a_x_sq*r_a_norm_inv_sq - r_a_norm_inv + decay_sq*r_a_x_sq*r_a_norm_inv - self._decay )  # px orb. of sample
         return t * r_a_norm_inv_sq
 
     def _dyz(self):
@@ -302,7 +303,7 @@ class ProbeStmPythonSp(ProbeStmPython, ABC):
         t =  self._coes[..., 0] * r_a_y_mul_z*(r_a_norm_inv + self._decay)*self._decay  # s  orb. of sample, shape (n_z, n_y, n_x, n_e, n_a)
         t += self._coes[..., 1] * self._N_P*self._r_a[..., 2]*( 3*r_a_y_sq*r_a_norm_inv_cu + 3*self._decay*r_a_y_sq*r_a_norm_inv_sq - r_a_norm_inv + decay_sq*r_a_y_sq*r_a_norm_inv - self._decay )  # py orb. of sample
         t += self._coes[..., 2] * self._N_P*self._r_a[..., 1]*( 3*r_a_z_sq*r_a_norm_inv_cu + 3*self._decay*r_a_z_sq*r_a_norm_inv_sq - r_a_norm_inv + decay_sq*r_a_z_sq*r_a_norm_inv - self._decay )  # pz orb. of sample
-        t += self._coes[..., 3] * self._N_P*self._r_a[..., 0]*r_a_y_mul_z*r_a_norm_inv*( 3*r_a_norm_inv_sq + 3*self._decay*r_a_norm_inv + decay_sq )  # px orb. of sample
+        t += self._coes[..., 3] * self._N_P*self._r_a[..., 0]*r_a_y_mul_z*r_a_norm_inv*( 3*r_a_norm_inv_sq + 3*self._decay*r_a_norm_inv + decay_sq )                                                 # px orb. of sample
         return t * r_a_norm_inv_sq
 
     def _dz2(self):
