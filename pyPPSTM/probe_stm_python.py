@@ -48,8 +48,7 @@ class ProbeStmPython(ABC):
         eta = np.float32(eta)
         self._tip_coes = self._to_float(tip_coes)  # shape (9,)
         eig = self._to_float(eig)                                                     # shape                (n_e,)
-
-        self._sample_dos = eta / (2 * math.pi * ((eig - v) ** 2 + 0.25 * eta ** 2))   # Lorentzian, shape    (n_e,)
+        self._sample_dos = self._lorentzian(x=eig, loc=v, scale=0.5 * eta)            # shape                (n_e,)
 
         sample_atom_position = self._to_float(Rat)                                    # shape                     (n_a, 3)
         tip_position = self._unsqueeze(self._to_float(R), dims=[3, 4])                # shape (n_z, n_y, n_x,   1,   1, 3)
@@ -233,6 +232,20 @@ class ProbeStmPython(ABC):
     @abstractmethod
     def _float32(self):
         pass
+
+    @staticmethod
+    def _lorentzian(x, loc: float, scale: float):
+        """Probability density function (PDF) of the Lorentz or Cauchy distribution.
+
+        Args:
+            x (array-like): Evaluation points.
+            loc (float): Center of the peak.
+            scale (float): Half-width at half-maximum (HWHM), half interquartile range, probable error. Must be > 0.
+
+        Returns:
+            array-like: Lorentzian density, same shape as `x`.
+        """
+        return scale / (math.pi * ((x - loc)**2 + scale ** 2))
 
 
 class ProbeStmPythonSp(ProbeStmPython, ABC):
