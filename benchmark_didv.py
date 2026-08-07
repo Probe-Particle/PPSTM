@@ -54,7 +54,7 @@ if __name__ == "__main__":
           didv_official = ProbeStmNumpy.didv
           ProbeStmNumpy.didv = didv_sp_sp_timed_wrapper
 
-     ppstm_run.main(config)
+     ppstm_run.run_simulation(config)
 
      output_csv_path.parent.mkdir(parents=False, exist_ok=True)
      pd.Series(execution_times, name="exec_time_s").to_csv(output_csv_path, index=False, mode="w")
