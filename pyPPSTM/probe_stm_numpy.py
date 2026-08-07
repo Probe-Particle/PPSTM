@@ -5,7 +5,7 @@ This module provides NumPy-based implementations for computing dI/dV (differenti
 conductance) spectra with sp(d)-sp(d) orbital interactions.
 """
 from abc import ABC
-from typing import Sequence
+from typing import Sequence, List, Tuple
 
 import numpy as np
 
@@ -24,7 +24,8 @@ class ProbeStmNumpy(ProbeStmVectorized, ABC):
              Rat: np.ndarray,
              coes: np.ndarray,
              tip_coes: np.ndarray,
-             orb_t: int) -> np.ndarray:
+             orb_t: int,
+             n_tip_position_chunks: int = 1) -> np.ndarray:
         """Compute dI/dV (differential conductance) using NumPy.
 
         Args:
@@ -37,14 +38,15 @@ class ProbeStmNumpy(ProbeStmVectorized, ABC):
             coes (np.ndarray): Orbital coefficients for sample, shape (n_e, n_a*orb_t)
             tip_coes (np.ndarray): Orbital coefficients for tip, shape (9,)
             orb_t (int): Orbital type identifier (4 or 9) for sample
+            n_tip_position_chunks (int): nr. subsets of tip positions, default 1
 
         Returns:
             np.ndarray: dI/dV spectrum, shape (n_z, n_y, n_x)
         """
         if orb_t == 9:  # 9 sample orbitals = spd
-            probe_stm = ProbeStmNumpySpd(V, WF, eta, eig, R, Rat, coes, tip_coes)
+            probe_stm = ProbeStmNumpySpd(V, WF, eta, eig, R, Rat, coes, tip_coes, n_tip_position_chunks)
         else:  # 4 sample orbitals = sp
-            probe_stm = ProbeStmNumpySp(V, WF, eta, eig, R, Rat, coes, tip_coes)
+            probe_stm = ProbeStmNumpySp(V, WF, eta, eig, R, Rat, coes, tip_coes, n_tip_position_chunks)
         return probe_stm()
 
     @property
@@ -68,6 +70,9 @@ class ProbeStmNumpy(ProbeStmVectorized, ABC):
 
     def _broadcasted_dot_last_axis(self, a: np.ndarray, b: np.ndarray):
         return np.einsum("...i,...i", a, b)
+
+    def _vstack(self, arrays: List[np.ndarray] | Tuple[np.ndarray]):
+        return np.vstack(arrays)
 
 
 class ProbeStmNumpySp(ProbeStmNumpy, ProbeStmVectorizedSp):
