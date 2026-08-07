@@ -1,4 +1,5 @@
 import argparse
+import logging
 import os
 from pathlib import Path
 
@@ -93,6 +94,7 @@ def _existing_toml_file(value: str) -> Path:
     return path
 
 if __name__=='__main__':
+    logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
     parser = argparse.ArgumentParser(
         description="Execute PP-STM simulation scan",
     )
