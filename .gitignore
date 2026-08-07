@@ -9,6 +9,10 @@ __pycache__
 *.idea
 .coverage
 
+*.gpw
+*.cube
+*.dat
+*.npz
 *.npy
 *.xsf
 *.png
