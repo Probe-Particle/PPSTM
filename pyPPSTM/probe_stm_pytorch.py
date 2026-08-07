@@ -5,14 +5,12 @@ This module provides PyTorch-based implementations for computing dI/dV (differen
 conductance) spectra with sp(d)-sp(d) orbital interactions.
 """
 from abc import ABC
-from typing import Sequence, TypeAlias
+from typing import Sequence, List, Tuple
 
 import numpy as np
 import torch
 
 from pyPPSTM.probe_stm_vectorized import ProbeStmVectorized, ProbeStmVectorizedSp, ProbeStmVectorizedSpd
-
-DeviceLikeType: TypeAlias = str | torch.device | int
 
 
 class ProbeStmPytorch(ProbeStmVectorized, ABC):
@@ -27,7 +25,8 @@ class ProbeStmPytorch(ProbeStmVectorized, ABC):
              Rat: np.ndarray,
              coes: np.ndarray,
              tip_coes: np.ndarray,
-             orb_t: int) -> np.ndarray:
+             orb_t: int,
+             n_tip_position_chunks: int = 1) -> np.ndarray:
         """Compute dI/dV (differential conductance) using PyTorch.
 
         Args:
@@ -40,14 +39,15 @@ class ProbeStmPytorch(ProbeStmVectorized, ABC):
             coes (np.ndarray): Orbital coefficients for sample, shape (n_e, n_a*orb_t)
             tip_coes (np.ndarray): Orbital coefficients for tip, shape (9,)
             orb_t (int): Orbital type identifier (4 or 9) for sample
+            n_tip_position_chunks (int): nr. subsets of tip positions, default 1
 
         Returns:
             np.ndarray: dI/dV spectrum, shape (n_z, n_y, n_x)
         """
         if orb_t == 9:  # 9 sample orbitals = spd
-            probe_stm = ProbeStmPytorchSpd(V, WF, eta, eig, R, Rat, coes, tip_coes)
+            probe_stm = ProbeStmPytorchSpd(V, WF, eta, eig, R, Rat, coes, tip_coes, n_tip_position_chunks)
         else:  # 4 sample orbitals = sp
-            probe_stm = ProbeStmPytorchSp(V, WF, eta, eig, R, Rat, coes, tip_coes)
+            probe_stm = ProbeStmPytorchSp(V, WF, eta, eig, R, Rat, coes, tip_coes, n_tip_position_chunks)
         return probe_stm().cpu()
 
     def __init__(self,
@@ -58,7 +58,8 @@ class ProbeStmPytorch(ProbeStmVectorized, ABC):
                  R: np.ndarray,
                  Rat: np.ndarray,
                  coes: np.ndarray,
-                 tip_coes: np.ndarray):
+                 tip_coes: np.ndarray,
+                 n_tip_position_chunks: int = 1):
         """Args:
             V (float): Applied voltage bias
             WF (float): Work function
@@ -68,16 +69,18 @@ class ProbeStmPytorch(ProbeStmVectorized, ABC):
             Rat (np.ndarray): Atomic positions array, shape (n_a, 3)
             coes (np.ndarray): Orbital coefficients for sample, shape (n_e, n_a*orb_t)
             tip_coes (np.ndarray): Orbital coefficients for tip, shape (9,)
+            n_tip_position_chunks (int): nr. subsets of tip positions, default 1
         """
         self._device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         super().__init__(V=V,
-                        WF=WF,
-                        eta=eta,
-                        eig=torch.from_numpy(eig).to(self._device),
-                        R=torch.from_numpy(R).to(self._device),
-                        Rat=torch.from_numpy(Rat).to(self._device),
-                        coes=torch.from_numpy(coes).to(self._device),
-                        tip_coes=torch.from_numpy(tip_coes).to(self._device))
+                         WF=WF,
+                         eta=eta,
+                         eig=torch.from_numpy(eig).to(self._device),
+                         R=torch.from_numpy(R).to(self._device),
+                         Rat=torch.from_numpy(Rat).to(self._device),
+                         coes=torch.from_numpy(coes).to(self._device),
+                         tip_coes=torch.from_numpy(tip_coes).to(self._device),
+                         n_tip_position_chunks=n_tip_position_chunks)
 
     @property
     def backend(self) -> str:
@@ -107,6 +110,9 @@ class ProbeStmPytorch(ProbeStmVectorized, ABC):
 
     def _broadcasted_dot_last_axis(self, a: torch.Tensor, b: torch.Tensor):
         return torch.einsum("...i,...i", a, b)
+
+    def _vstack(self, arrays: List[torch.Tensor] | Tuple[torch.Tensor]):
+        return torch.vstack(arrays)
 
 
 class ProbeStmPytorchSp(ProbeStmPytorch, ProbeStmVectorizedSp):
