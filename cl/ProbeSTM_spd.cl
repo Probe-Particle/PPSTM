@@ -19,8 +19,8 @@ inline float s(constant float* coe, const float rev_rr, const float3 dr, const i
     f += coe[1]*dr.y*rev_rr*N_P;		                       // py orb. of sample
     f += coe[2]*dr.z*rev_rr*N_P;		                       // pz orb. of sample
     f += coe[3]*dr.x*rev_rr*N_P;		                       // px orb. of sample
-    f += coe[4]*dr.x*dr.y*sqr(rev_rr)*N_D;                     //dxy orb. of sample
     if (const_orb == 9) {
+        f += coe[4]*dr.x*dr.y*sqr(rev_rr)*N_D;                     //dxy orb. of sample
         f += coe[5]*dr.y*dr.z*sqr(rev_rr)*N_D;                     //dyz orb. of sample
         f += coe[6]*( 3*sqr(dr.z)*sqr(rev_rr) - 1 )*N_D2;          //dz2 orb. of sample
         f += coe[7]*dr.x*dr.z*sqr(rev_rr)*N_D;                     //dxz orb. of sample
@@ -34,8 +34,8 @@ inline float px(constant float* coe, const float rev_rr, const float3 dr, const 
     f += coe[1]*N_P*dr.x*dr.y*( decay*rev_rr + sqr(rev_rr) );						// py orb. of sample
     f += coe[2]*N_P*dr.x*dr.z*( decay*rev_rr + sqr(rev_rr) );						// pz orb. of sample
     f += coe[3]*N_P*( -1 + decay*rev_rr*sqr(dr.x) + sqr(rev_rr)*sqr(dr.x) );		// px orb. of sample
-    f += coe[4]*N_D*dr.y*rev_rr*( 2*sqr(dr.x)*sqr(rev_rr) + decay*sqr(dr.x)*rev_rr - 1 );                           //dxy orb. of sample
     if (const_orb == 9) {
+        f += coe[4]*N_D*dr.y*rev_rr*( 2*sqr(dr.x)*sqr(rev_rr) + decay*sqr(dr.x)*rev_rr - 1 );                           //dxy orb. of sample
         f += coe[5]*N_D*dr.x*dr.y*dr.z*sqr(rev_rr)*( 2*rev_rr + decay );                                                //dyz orb. of sample
         f += coe[6]*N_D2*dr.x*( 6*sqr(dr.z)*trr(rev_rr) + decay*(3*sqr(dr.z)*sqr(rev_rr)-1) );                          //dz2 orb. of sample
         f += coe[7]*N_D*dr.z*rev_rr*( 2*sqr(dr.x)*sqr(rev_rr) + decay*sqr(dr.x)*rev_rr - 1 );                           //dxz orb. of sample
@@ -49,8 +49,8 @@ inline float py(constant float* coe, const float rev_rr, const float3 dr, const 
     f += coe[1]*N_P*( -1 + decay*rev_rr*sqr(dr.y) + sqr(rev_rr)*sqr(dr.y) );		// py orb. of sample
     f += coe[2]*N_P*dr.y*dr.z*( decay*rev_rr + sqr(rev_rr) );						// pz orb. of sample
     f += coe[3]*N_P*dr.y*dr.x*( decay*rev_rr + sqr(rev_rr) );						// px orb. of sample
-    f += coe[4]*N_D*dr.x*rev_rr*( 2*sqr(dr.y)*sqr(rev_rr) + decay*sqr(dr.y)*rev_rr - 1 );                           //dxy orb. of sample
     if (const_orb == 9) {
+        f += coe[4]*N_D*dr.x*rev_rr*( 2*sqr(dr.y)*sqr(rev_rr) + decay*sqr(dr.y)*rev_rr - 1 );                           //dxy orb. of sample
         f += coe[5]*N_D*dr.z*rev_rr*( 2*sqr(dr.y)*sqr(rev_rr) + decay*sqr(dr.y)*rev_rr - 1 );                           //dyz orb. of sample
         f += coe[6]*N_D2*dr.y*( 6*sqr(dr.z)*trr(rev_rr) + decay*(3*sqr(dr.z)*sqr(rev_rr)-1) );                          //dz2 orb. of sample
         f += coe[7]*N_D*dr.x*dr.y*dr.z*sqr(rev_rr)*( 2*rev_rr + decay );                                                //dxz orb. of sample
@@ -64,8 +64,8 @@ inline float pz(constant float* coe, const float rev_rr, const float3 dr, const 
     f += coe[1]*N_P*dr.z*dr.y*( decay*rev_rr + sqr(rev_rr) );						// py orb. of sample
     f += coe[2]*N_P*( -1 + decay*rev_rr*sqr(dr.z) + sqr(rev_rr)*sqr(dr.z) );		// pz orb. of sample
     f += coe[3]*N_P*dr.z*dr.x*( decay*rev_rr + sqr(rev_rr) );						// px orb. of sample
-    f += coe[4]*N_D*dr.x*dr.y*dr.z*sqr(rev_rr)*( 2*rev_rr + decay );                               //dxy orb. of sample
     if (const_orb == 9) {
+        f += coe[4]*N_D*dr.x*dr.y*dr.z*sqr(rev_rr)*( 2*rev_rr + decay );                                  //dxy orb. of sample
         f += coe[5]*N_D*dr.y*rev_rr*( 2*sqr(dr.z)*sqr(rev_rr) + decay*sqr(dr.z)*rev_rr - 1 );             //dyz orb. of sample
         f += coe[6]*N_D2*( (6*trr(dr.z)*trr(rev_rr)-6*dr.z*rev_rr) + decay*(3*sqr(dr.z)*sqr(rev_rr)-1) ); //dz2 orb. of sample
         f += coe[7]*N_D*dr.x*rev_rr*( 2*sqr(dr.z)*sqr(rev_rr) + decay*sqr(dr.z)*rev_rr - 1 );             //dxz orb. of sample
