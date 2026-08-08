@@ -127,25 +127,26 @@ float didv_spsp_vec(
             const float rev_rr = 1/rri;
             const float radial = exp(-(rri*decay));
             constant float* coe = coesin+(iorb*no_at*const_orb)+(const_orb*iat);
+            float gatomsp_i = 0.0f;
             if (tip_orb == 0) {
-                gatomsp += s(coe, rev_rr, dri, const_orb);
+                gatomsp_i = s(coe, rev_rr, dri, const_orb);
             } else if (tip_orb == 1) {
-                gatomsp += py(coe, rev_rr, dri, const_orb, decay);
+                gatomsp_i = py(coe, rev_rr, dri, const_orb, decay);
             } else if (tip_orb == 2) {
-                gatomsp += pz(coe, rev_rr, dri, const_orb, decay);
+                gatomsp_i = pz(coe, rev_rr, dri, const_orb, decay);
             } else if (tip_orb == 3) {
-                gatomsp += px(coe, rev_rr, dri, const_orb, decay);
+                gatomsp_i = px(coe, rev_rr, dri, const_orb, decay);
             } else if (tip_orb == 5) {
-                gatomsp += dyz_sp(coe, rev_rr, dri, decay);
+                gatomsp_i = dyz_sp(coe, rev_rr, dri, decay);
             } else if (tip_orb == 6) {
-                gatomsp += dz2_sp(coe, rev_rr, dri, decay);
+                gatomsp_i = dz2_sp(coe, rev_rr, dri, decay);
             } else if (tip_orb == 7) {
-                gatomsp += dxz_sp(coe, rev_rr, dri, decay);
+                gatomsp_i = dxz_sp(coe, rev_rr, dri, decay);
             } else {
                 printf("tip_orb=%.d is not currently supported!\n", tip_orb);
                 return 0.f;
             }
-            gatomsp *= radial;
+            gatomsp += radial * gatomsp_i;
         }
         f += lor(v,eig[iorb],eta)*sqr(gatomsp);
     }
