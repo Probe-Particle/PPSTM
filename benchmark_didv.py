@@ -41,8 +41,9 @@ if __name__ == "__main__":
           return result
 
      if didv_backend == DidvBackend.OPENCL:
-          didv_official = ProbeSTMOpenCLParallel.get_instance().didv
-          ProbeSTMOpenCLParallel.get_instance().didv = didv_sp_sp_timed_wrapper
+          ProbeSTMOpenCLParallel.get_instance()
+          didv_official = ProbeSTMOpenCLParallel.didv
+          ProbeSTMOpenCLParallel.didv = didv_sp_sp_timed_wrapper
      elif didv_backend == DidvBackend.CPP:
           didv_official = ProbeSTM.dIdV_sp_sp
           ProbeSTM.dIdV_sp_sp = didv_sp_sp_timed_wrapper
