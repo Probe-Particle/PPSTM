@@ -99,8 +99,7 @@ inline float dz2_sp(constant float* coe, const float rev_rr, const float3 dr, co
 }
 
 inline float lor(const float V, const float eig, const float eta){
-    float f = REV_DPI*eta/((V-eig)*(V-eig)+(0.25f*eta*eta));
-    return f;
+    return REV_DPI*eta/((V-eig)*(V-eig)+(0.25f*eta*eta));
 }
 
 float didv_spsp_vec(
@@ -116,7 +115,7 @@ float didv_spsp_vec(
     constant float * coesin,
     const uint tip_orb
     ){
-    const float decay = sqrt( fabs(wf+wf)*EV);
+    const float decay = sqrt( fabs(2*wf)*EV);
     const float norm = FOUR_PI*decay;
     float f = 0.0f;
     for (int iorb=0; iorb<no_orb; iorb++){
@@ -150,8 +149,7 @@ float didv_spsp_vec(
         }
         f += lor(v,eig[iorb],eta)*sqr(gatomsp);
     }
-    f *= GO*norm;
-    return f;
+    return f*GO*norm;
 }
 
 void _proc_didv_spd_spd(
