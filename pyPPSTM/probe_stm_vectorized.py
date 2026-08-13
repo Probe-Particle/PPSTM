@@ -203,6 +203,7 @@ class ProbeStmVectorized(ABC):
     @property
     @abstractmethod
     def backend(self) -> str:
+        """Backend name."""
         pass
 
     @abstractmethod

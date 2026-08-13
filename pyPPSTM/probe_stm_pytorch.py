@@ -17,8 +17,6 @@ DeviceLikeType: TypeAlias = str | torch.device | int
 
 class ProbeStmPytorch(ProbeStmVectorized, ABC):
     """STM (Scanning Tunneling Microscopy) calculations using PyTorch."""
-    _BACKEND = "PyTorch"
-
     @classmethod
     def didv(cls,
              V: float,
@@ -73,7 +71,7 @@ class ProbeStmPytorch(ProbeStmVectorized, ABC):
 
     @property
     def backend(self) -> str:
-        return f"{self._BACKEND}({self._device})"
+        return f"PyTorch ({self._device})"
 
     def _to_float(self, tensor):
         return tensor.float()

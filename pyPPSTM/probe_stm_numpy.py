@@ -14,8 +14,6 @@ from pyPPSTM.probe_stm_vectorized import ProbeStmVectorized, ProbeStmVectorizedS
 
 class ProbeStmNumpy(ProbeStmVectorized, ABC):
     """STM (Scanning Tunneling Microscopy) calculations using NumPy."""
-    _BACKEND = "NumPy"
-
     @classmethod
     def didv(cls,
              V: float,
@@ -51,7 +49,7 @@ class ProbeStmNumpy(ProbeStmVectorized, ABC):
 
     @property
     def backend(self) -> str:
-        return self._BACKEND
+        return "NumPy"
 
     def _to_float(self, tensor):
         return tensor.astype(np.float32)
