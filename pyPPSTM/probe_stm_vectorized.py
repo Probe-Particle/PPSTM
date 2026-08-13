@@ -7,7 +7,7 @@ conductance) spectra with sp(d)-sp(d) orbital interactions.
 import logging
 from abc import abstractmethod, ABC
 from functools import partial
-from typing import List, Callable, Sequence, Tuple
+from typing import List, Callable, Sequence
 
 import numpy as np
 import math
@@ -51,7 +51,7 @@ class ProbeStmVectorized(ABC):
         self._sample_dos = self._lorentzian(x=eig, loc=v, scale=0.5 * eta)            # shape                (n_e,)
 
         sample_atom_position = self._to_float(Rat)                                    # shape                     (n_a, 3)
-        tip_position = self._unsqueeze(self._to_float(R), dims=[3, 4])                # shape (n_z, n_y, n_x,   1,   1, 3)
+        tip_position = self._unsqueeze(self._to_float(R), axis=[3, 4])                # shape (n_z, n_y, n_x,   1,   1, 3)
 
         self._decay = math.sqrt((2 * wf) * self._EV)
         self._r_a = (tip_position - sample_atom_position) * self._AB                  # shape (n_z, n_y, n_x,   1, n_a, 3)
@@ -70,7 +70,7 @@ class ProbeStmVectorized(ABC):
 
         self._logger.debug(f"Entering the dI/dV ( sp(d)-sp(d) ) {self.backend} procedure")
 
-        g = self._zeros((*self._r_a.shape[:3], self._coes.shape[0]), dtype=self._float32)
+        g = self._float_zeros((*self._r_a.shape[:3], self._coes.shape[0]))
         for i, fn in enumerate(self.orbital_conductances_fns):
             if self._tip_coes[i] > 0.:
                 orbital_conductances = fn()                                                   # shape (n_z, n_y, n_x, n_e, n_a)
@@ -207,32 +207,168 @@ class ProbeStmVectorized(ABC):
         pass
 
     @abstractmethod
-    def _to_float(self, tensor):
+    def _to_float(self, array):
+        """Cast array to single-precision floating-point number type.
+
+        Parameters
+        ----------
+        array : array_like
+            Input array
+
+        Returns
+        -------
+        array_like
+            a new array of the same shape as the input array, with single-precision floating-point number type.
+        """
         pass
 
     @abstractmethod
-    def _unsqueeze(self, tensor, dims: int|List[int]|Tuple[int]):
+    def _unsqueeze(self, array, axis: int | Sequence[int]):
+        """Expand the shape of an array by inserting new singleton axes.
+
+        Insert one or more new axes (size 1) at the positions specified by `axis`.
+
+        Parameters
+        ----------
+        array : array_like
+            Input array
+        axis : int or sequence of ints
+            Position(s) in the expanded shape where new axis/axes are inserted.
+
+        Returns
+        -------
+        array_like
+            View of `array` with the number of dimensions increased by the number of inserted axes
+            each inserted dimension has size 1.
+
+        Raises
+        ------
+        TypeError
+            If `axis` has an invalid type.
+        ValueError
+            If any axis index is out of range for the expanded shape.
+
+        Examples
+        --------
+        If array.shape == (n_z, n_y, n_x, 3):
+        _unsqueeze(array, axis=3) -> (n_z, n_y, n_x, 1, 3)
+        _unsqueeze(array, axis=(3, 4)) -> (n_z, n_y, n_x, 1, 1, 3)
+        """
         pass
 
     @abstractmethod
-    def _zeros(self, size: Sequence[int], dtype):
+    def _float_zeros(self, size: Sequence[int]):
+        """Return a matrix of given shape, filled with single-precision floating-point zeros.
+
+        Parameters
+        ----------
+        shape : int or sequence of ints
+            Shape of the matrix
+
+        Returns
+        -------
+        matrix
+            Single-precision floating-point zero matrix of given shape.
+        """
         pass
 
     @abstractmethod
-    def _norm(self, tensor, ord: int, axis: int):
+    def _norm(self, array, ord: int, axis: int):
+        """Matrix or vector norm.
+
+        This function is able to return one of eight different matrix norms,
+        or one of an infinite number of vector norms (described below), depending
+        on the value of the ``ord`` parameter.
+
+        Parameters
+        ----------
+        x : array_like
+            Input array.  If `axis` is None, `x` must be 1-D or 2-D, unless `ord`
+            is None. If both `axis` and `ord` are None, the 2-norm of
+            ``x.ravel`` will be returned.
+        ord : {int, float, inf, -inf, 'fro', 'nuc'}, optional
+            Order of the norm (see table under ``Notes`` for what values are
+            supported for matrices and vectors respectively). inf means numpy's
+            `inf` object. The default is None.
+        axis : {None, int, 2-tuple of ints}, optional.
+            If `axis` is an integer, it specifies the axis of `x` along which to
+            compute the vector norms.  If `axis` is a 2-tuple, it specifies the
+            axes that hold 2-D matrices, and the matrix norms of these matrices
+            are computed.  If `axis` is None then either a vector norm (when `x`
+            is 1-D) or a matrix norm (when `x` is 2-D) is returned. The default
+            is None.
+
+        Returns
+        -------
+        float or array_like
+            Norm of the matrix or vector(s).
+
+        Notes
+        -----
+        The following norms can be calculated:
+
+        =====  ============================  ==========================
+        ord    norm for matrices             norm for vectors
+        =====  ============================  ==========================
+        None   Frobenius norm                2-norm
+        'fro'  Frobenius norm                --
+        'nuc'  nuclear norm                  --
+        inf    max(sum(abs(x), axis=1))      max(abs(x))
+        -inf   min(sum(abs(x), axis=1))      min(abs(x))
+        0      --                            sum(x != 0)
+        1      max(sum(abs(x), axis=0))      as below
+        -1     min(sum(abs(x), axis=0))      as below
+        2      2-norm (largest sing. value)  as below
+        -2     smallest singular value       as below
+        other  --                            sum(abs(x)**ord)**(1./ord)
+        =====  ============================  ==========================
+        """
         pass
 
     @abstractmethod
-    def _exp(self, tensor):
+    def _exp(self, array):
+        """Calculate the element-wise exponential of all elements in the input array.
+
+        Parameters
+        ----------
+        array : array_like
+            Input values.
+
+        Returns
+        -------
+        array_like or scalar
+            Output array, element-wise exponential of x. This is a scalar if x is a scalar.
+        """
         pass
 
     @abstractmethod
     def _einsum(self, subscripts, *operands):
-        pass
+        """Evaluates the Einstein summation convention on the operands.
 
-    @property
-    @abstractmethod
-    def _float32(self):
+        Using the Einstein summation convention, many common multi-dimensional,
+        linear algebraic array operations can be represented in a simple fashion.
+        In *implicit* mode `einsum` computes these values.
+
+        In *explicit* mode, `einsum` provides further flexibility to compute
+        other array operations that might not be considered classical Einstein
+        summation operations, by disabling, or forcing summation over specified
+        subscript labels.
+
+        Parameters
+        ----------
+        subscripts : str
+            Specifies the subscripts for summation as comma separated list of
+            subscript labels. An implicit (classical Einstein summation)
+            calculation is performed unless the explicit indicator '->' is
+            included as well as subscript labels of the precise output form.
+        operands : list of array_like
+            These are the arrays for the operation.
+
+        Returns
+        -------
+        array_like
+            The calculation based on the Einstein summation convention.
+        """
         pass
 
     @staticmethod
