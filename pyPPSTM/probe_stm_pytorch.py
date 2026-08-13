@@ -5,7 +5,7 @@ This module provides PyTorch-based implementations for computing dI/dV (differen
 conductance) spectra with sp(d)-sp(d) orbital interactions.
 """
 from abc import ABC
-from typing import Sequence, TypeAlias, List, Tuple
+from typing import Sequence, TypeAlias
 
 import numpy as np
 import torch
@@ -59,6 +59,16 @@ class ProbeStmPytorch(ProbeStmVectorized, ABC):
                  Rat: np.ndarray,
                  coes: np.ndarray,
                  tip_coes: np.ndarray):
+        """Args:
+            V (float): Applied voltage bias
+            WF (float): Work function
+            eta (float): Broadening parameter (energy smearing)
+            eig (np.ndarray): Eigenvalues array, shape (n_e,)
+            R (np.ndarray): Spatial grid of probe positions, shape (n_z, n_y, n_x, 3)
+            Rat (np.ndarray): Atomic positions array, shape (n_a, 3)
+            coes (np.ndarray): Orbital coefficients for sample, shape (n_e, n_a*orb_t)
+            tip_coes (np.ndarray): Orbital coefficients for tip, shape (9,)
+        """
         self._device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         super().__init__(V=V,
                         WF=WF,
@@ -73,34 +83,30 @@ class ProbeStmPytorch(ProbeStmVectorized, ABC):
     def backend(self) -> str:
         return f"PyTorch ({self._device})"
 
-    def _to_float(self, tensor):
-        return tensor.float()
+    def _to_float(self, array: torch.Tensor):
+        return array.float()
 
-    def _unsqueeze(self, tensor, dims: int|List[int]|Tuple[int]):
-        if isinstance(dims, int):
-            tensor = torch.unsqueeze(tensor, dim=dims)
+    def _unsqueeze(self, array: torch.Tensor, axis: int | Sequence[int]):
+        if isinstance(axis, int):
+            array = torch.unsqueeze(array, dim=axis)
         else:
-            new_shape = list(tensor.shape)
-            for d in dims:
-                new_shape.insert(d, 1)
-            tensor = tensor.view(new_shape)
-        return tensor
+            new_shape = list(array.shape)
+            for a in axis:
+                new_shape.insert(a, 1)
+            array = array.view(new_shape)
+        return array
 
-    def _zeros(self, size: Sequence[int], dtype):
-        return torch.zeros(size, dtype=dtype, device=self._device)
+    def _float_zeros(self, size: Sequence[int]):
+        return torch.zeros(size, dtype=torch.float32, device=self._device)
 
-    def _norm(self, tensor, ord: int, axis: int):
-        return torch.linalg.norm(tensor, ord=ord, axis=axis)
+    def _norm(self, array: torch.Tensor, ord: int, axis: int):
+        return torch.linalg.norm(array, ord=ord, axis=axis)
 
-    def _exp(self, tensor):
-        return torch.exp(tensor)
+    def _exp(self, array: torch.Tensor):
+        return torch.exp(array)
 
     def _einsum(self, subscripts, *operands):
         return torch.einsum(subscripts, *operands)
-
-    @property
-    def _float32(self):
-        return torch.float32
 
 
 class ProbeStmPytorchSp(ProbeStmPytorch, ProbeStmVectorizedSp):

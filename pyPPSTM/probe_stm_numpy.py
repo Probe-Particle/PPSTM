@@ -5,7 +5,7 @@ This module provides NumPy-based implementations for computing dI/dV (differenti
 conductance) spectra with sp(d)-sp(d) orbital interactions.
 """
 from abc import ABC
-from typing import Sequence, List, Tuple
+from typing import Sequence
 
 import numpy as np
 
@@ -51,27 +51,23 @@ class ProbeStmNumpy(ProbeStmVectorized, ABC):
     def backend(self) -> str:
         return "NumPy"
 
-    def _to_float(self, tensor):
-        return tensor.astype(np.float32)
+    def _to_float(self, array: np.ndarray):
+        return array.astype(np.float32)
 
-    def _unsqueeze(self, tensor, dims: int|List[int]|Tuple[int]):
-        return np.expand_dims(tensor, axis=dims)
+    def _unsqueeze(self, array: np.ndarray, axis: int | Sequence[int]):
+        return np.expand_dims(array, axis=axis)
 
-    def _zeros(self, size: Sequence[int], dtype):
-        return np.zeros(size, dtype=dtype)
+    def _float_zeros(self, size: Sequence[int]):
+        return np.zeros(size, dtype=np.float32)
 
-    def _norm(self, tensor, ord: int, axis: int):
-        return np.linalg.norm(tensor, ord=ord, axis=axis)
+    def _norm(self, array: np.ndarray, ord: int, axis: int):
+        return np.linalg.norm(array, ord=ord, axis=axis)
 
-    def _exp(self, tensor):
-        return np.exp(tensor)
+    def _exp(self, array: np.ndarray):
+        return np.exp(array)
 
     def _einsum(self, subscripts, *operands):
         return np.einsum(subscripts, *operands, dtype=np.float32)
-
-    @property
-    def _float32(self):
-        return np.float32
 
 
 class ProbeStmNumpySp(ProbeStmNumpy, ProbeStmVectorizedSp):
