@@ -46,7 +46,7 @@ class ProbeStmVectorized(ABC):
         v = np.float32(V)
         wf = np.float32(WF)
         eta = np.float32(eta)
-        self._tip_coes = self._to_float(tip_coes)  # shape (9,)
+        self._tip_dos = self._to_float(tip_coes)  # shape (9,)
         eig = self._to_float(eig)                                                     # shape                (n_e,)
         self._sample_dos = self._lorentzian(x=eig, loc=v, scale=0.5 * eta)            # shape                (n_e,)
 
@@ -72,14 +72,14 @@ class ProbeStmVectorized(ABC):
 
         g = self._float_zeros((*self._r_a.shape[:3], self._coes.shape[0]))
         for i, fn in enumerate(self.orbital_conductances_fns):
-            if self._tip_coes[i] > 0.:
+            if self._tip_dos[i] > 0.:
                 orbital_conductances = fn()                                                   # shape (n_z, n_y, n_x, n_e, n_a)
 
                 orbital_conductances_dot_radial = self._einsum("...a,...a",
                                                                orbital_conductances,
                                                                self._radial)                  # shape (n_z, n_y, n_x, n_e)
 
-                g += self._tip_coes[i] * orbital_conductances_dot_radial ** 2
+                g += self._tip_dos[i] * orbital_conductances_dot_radial ** 2
 
         g = self._einsum("...i,i",
                          g,
