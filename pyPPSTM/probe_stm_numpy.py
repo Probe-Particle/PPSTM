@@ -9,10 +9,10 @@ from typing import Sequence, List, Tuple
 
 import numpy as np
 
-from pyPPSTM.probe_stm_python import ProbeStmPython, ProbeStmPythonSp, ProbeStmPythonSpd
+from pyPPSTM.probe_stm_vectorized import ProbeStmVectorized, ProbeStmVectorizedSp, ProbeStmVectorizedSpd
 
 
-class ProbeStmNumpy(ProbeStmPython, ABC):
+class ProbeStmNumpy(ProbeStmVectorized, ABC):
     """STM (Scanning Tunneling Microscopy) calculations using NumPy."""
     _BACKEND = "NumPy"
 
@@ -76,9 +76,9 @@ class ProbeStmNumpy(ProbeStmPython, ABC):
         return np.float32
 
 
-class ProbeStmNumpySp(ProbeStmNumpy, ProbeStmPythonSp):
+class ProbeStmNumpySp(ProbeStmNumpy, ProbeStmVectorizedSp):
     pass
 
 
-class ProbeStmNumpySpd(ProbeStmNumpy, ProbeStmPythonSpd):
+class ProbeStmNumpySpd(ProbeStmNumpy, ProbeStmVectorizedSpd):
     pass

@@ -10,12 +10,12 @@ from typing import Sequence, TypeAlias, List, Tuple
 import numpy as np
 import torch
 
-from pyPPSTM.probe_stm_python import ProbeStmPython, ProbeStmPythonSp, ProbeStmPythonSpd
+from pyPPSTM.probe_stm_vectorized import ProbeStmVectorized, ProbeStmVectorizedSp, ProbeStmVectorizedSpd
 
 DeviceLikeType: TypeAlias = str | torch.device | int
 
 
-class ProbeStmPytorch(ProbeStmPython, ABC):
+class ProbeStmPytorch(ProbeStmVectorized, ABC):
     """STM (Scanning Tunneling Microscopy) calculations using PyTorch."""
     _BACKEND = "PyTorch"
 
@@ -105,9 +105,9 @@ class ProbeStmPytorch(ProbeStmPython, ABC):
         return torch.float32
 
 
-class ProbeStmPytorchSp(ProbeStmPytorch, ProbeStmPythonSp):
+class ProbeStmPytorchSp(ProbeStmPytorch, ProbeStmVectorizedSp):
     pass
 
 
-class ProbeStmPytorchSpd(ProbeStmPytorch, ProbeStmPythonSpd):
+class ProbeStmPytorchSpd(ProbeStmPytorch, ProbeStmVectorizedSpd):
     pass
