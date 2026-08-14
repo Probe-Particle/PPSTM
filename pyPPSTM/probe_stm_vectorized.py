@@ -73,17 +73,13 @@ class ProbeStmVectorized(ABC):
         g_tip_orbs_sum = self._float_zeros((*self._r_a.shape[:3], self._coes.shape[0]))
         for i, g_tip_orb_fn in enumerate(self.g_tip_orb_fns):
             if self._tip_dos[i] > 0.:
-                g_tip_orb = self._einsum("...a,...a",
-                                         g_tip_orb_fn(),      # shape (n_z, n_y, n_x, n_e, n_a)
-                                         self._radial)                   # shape (n_z, n_y, n_x, n_e)
+                g_tip_orb = self._broadcasted_dot_last_axis(g_tip_orb_fn(),  # shape (n_z, n_y, n_x, n_e, n_a)
+                                                            self._radial)        # shape (n_z, n_y, n_x, n_e)
 
                 g_tip_orbs_sum += self._tip_dos[i] * g_tip_orb ** 2
 
-        g = self._einsum("...i,i",
-                         g_tip_orbs_sum,
-                         self._sample_dos)                                                    # shape (n_z, n_y, n_x)
-
-        g *= 16 * math.pi ** 3 * self._decay
+        g = self._broadcasted_dot_last_axis(g_tip_orbs_sum, self._sample_dos) \
+            * 16 * math.pi ** 3 * self._decay                               # shape (n_z, n_y, n_x)
 
         self._logger.debug(f"dI/dV ( sp(d)-sp(d) ) {self.backend} procedure DONE")
         return g
@@ -340,32 +336,22 @@ class ProbeStmVectorized(ABC):
         pass
 
     @abstractmethod
-    def _einsum(self, subscripts, *operands):
-        """Evaluates the Einstein summation convention on the operands.
-
-        Using the Einstein summation convention, many common multi-dimensional,
-        linear algebraic array operations can be represented in a simple fashion.
-        In *implicit* mode `einsum` computes these values.
-
-        In *explicit* mode, `einsum` provides further flexibility to compute
-        other array operations that might not be considered classical Einstein
-        summation operations, by disabling, or forcing summation over specified
-        subscript labels.
+    def _broadcasted_dot_last_axis(self, a, b):
+        """Sum product over the last axis of a and b and broadcast over the uncontracted dimensions.
 
         Parameters
         ----------
-        subscripts : str
-            Specifies the subscripts for summation as comma separated list of
-            subscript labels. An implicit (classical Einstein summation)
-            calculation is performed unless the explicit indicator '->' is
-            included as well as subscript labels of the precise output form.
-        operands : list of array_like
-            These are the arrays for the operation.
+        a : array_like
+            First argument.
+
+        b : array_like
+            Second argument.
 
         Returns
         -------
         array_like
-            The calculation based on the Einstein summation convention.
+            Returns the sum product over the last axis of a and b.
+            If a and b are both scalars or both 1-D arrays then a scalar is returned; otherwise an array is returned.
         """
         pass
 

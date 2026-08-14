@@ -66,8 +66,8 @@ class ProbeStmNumpy(ProbeStmVectorized, ABC):
     def _exp(self, array: np.ndarray):
         return np.exp(array)
 
-    def _einsum(self, subscripts, *operands):
-        return np.einsum(subscripts, *operands, dtype=np.float32)
+    def _broadcasted_dot_last_axis(self, a: np.ndarray, b: np.ndarray):
+        return np.einsum("...i,...i", a, b)
 
 
 class ProbeStmNumpySp(ProbeStmNumpy, ProbeStmVectorizedSp):
