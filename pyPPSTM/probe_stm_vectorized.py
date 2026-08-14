@@ -70,19 +70,17 @@ class ProbeStmVectorized(ABC):
 
         self._logger.debug(f"Entering the dI/dV ( sp(d)-sp(d) ) {self.backend} procedure")
 
-        g = self._float_zeros((*self._r_a.shape[:3], self._coes.shape[0]))
-        for i, fn in enumerate(self.orbital_conductances_fns):
+        g_tip_orbs_sum = self._float_zeros((*self._r_a.shape[:3], self._coes.shape[0]))
+        for i, g_tip_orb_fn in enumerate(self.g_tip_orb_fns):
             if self._tip_dos[i] > 0.:
-                orbital_conductances = fn()                                                   # shape (n_z, n_y, n_x, n_e, n_a)
+                g_tip_orb = self._einsum("...a,...a",
+                                         g_tip_orb_fn(),      # shape (n_z, n_y, n_x, n_e, n_a)
+                                         self._radial)                   # shape (n_z, n_y, n_x, n_e)
 
-                orbital_conductances_dot_radial = self._einsum("...a,...a",
-                                                               orbital_conductances,
-                                                               self._radial)                  # shape (n_z, n_y, n_x, n_e)
-
-                g += self._tip_dos[i] * orbital_conductances_dot_radial ** 2
+                g_tip_orbs_sum += self._tip_dos[i] * g_tip_orb ** 2
 
         g = self._einsum("...i,i",
-                         g,
+                         g_tip_orbs_sum,
                          self._sample_dos)                                                    # shape (n_z, n_y, n_x)
 
         g *= 16 * math.pi ** 3 * self._decay
@@ -92,7 +90,7 @@ class ProbeStmVectorized(ABC):
 
     @property
     @abstractmethod
-    def orbital_conductances_fns(self) -> List[Callable]:
+    def g_tip_orb_fns(self) -> List[Callable]:
         """Return a list of conductance functions for specific sample orbitals,
         where each function represents a different tip orbital.
 
@@ -390,7 +388,7 @@ class ProbeStmVectorizedSp(ProbeStmVectorized, ABC):
     _SAMPLE_ORBITAL_COUNT = 4
 
     @property
-    def orbital_conductances_fns(self) -> List[Callable]:
+    def g_tip_orb_fns(self) -> List[Callable]:
         """Return a list of conductance functions for sp sample orbitals,
         where each function represents a different tip orbital.
 
@@ -468,7 +466,7 @@ class ProbeStmVectorizedSpd(ProbeStmVectorized, ABC):
     _SAMPLE_ORBITAL_COUNT = 9
 
     @property
-    def orbital_conductances_fns(self) -> List[Callable]:
+    def g_tip_orb_fns(self) -> List[Callable]:
         """Return a list of conductance functions for spd sample orbitals,
         where each function represents a different tip orbital.
 
