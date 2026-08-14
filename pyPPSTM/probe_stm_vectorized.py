@@ -1,7 +1,7 @@
 """
-STM (Scanning Tunneling Microscopy) calculations using Python.
+STM (Scanning Tunneling Microscopy) calculations using vectorization.
 
-This module provides Python-based implementations for computing dI/dV (differential
+This module provides vectorized implementations for computing dI/dV (differential
 conductance) spectra with sp(d)-sp(d) orbital interactions.
 """
 import logging
@@ -13,8 +13,8 @@ import numpy as np
 import math
 
 
-class ProbeStmPython(ABC):
-    """STM (Scanning Tunneling Microscopy) calculations using Python."""
+class ProbeStmVectorized(ABC):
+    """STM (Scanning Tunneling Microscopy) calculations using vectorization."""
     _SAMPLE_ORBITAL_COUNT: int
     _AB = 1.889725989
     _EV = 0.036749034
@@ -249,7 +249,7 @@ class ProbeStmPython(ABC):
         return scale / (math.pi * ((x - loc)**2 + scale ** 2))
 
 
-class ProbeStmPythonSp(ProbeStmPython, ABC):
+class ProbeStmVectorizedSp(ProbeStmVectorized, ABC):
     _SAMPLE_ORBITAL_COUNT = 4
 
     @property
@@ -327,7 +327,7 @@ class ProbeStmPythonSp(ProbeStmPython, ABC):
         return t
 
 
-class ProbeStmPythonSpd(ProbeStmPython, ABC):
+class ProbeStmVectorizedSpd(ProbeStmVectorized, ABC):
     _SAMPLE_ORBITAL_COUNT = 9
 
     @property
