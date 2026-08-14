@@ -105,8 +105,8 @@ class ProbeStmPytorch(ProbeStmVectorized, ABC):
     def _exp(self, array: torch.Tensor):
         return torch.exp(array)
 
-    def _einsum(self, subscripts, *operands):
-        return torch.einsum(subscripts, *operands)
+    def _broadcasted_dot_last_axis(self, a: torch.Tensor, b: torch.Tensor):
+        return torch.einsum("...i,...i", a, b)
 
 
 class ProbeStmPytorchSp(ProbeStmPytorch, ProbeStmVectorizedSp):
