@@ -27,7 +27,7 @@ class _ProbeSTMOpenCL(ABC):
         _LOCAL_SIZE: Work group size for OpenCL (class variable)
     """
     _INSTANCE = None
-    _LOCAL_SIZE = None
+    _LOCAL_SIZE = (1,)
 
     @classmethod
     def didv(cls,
