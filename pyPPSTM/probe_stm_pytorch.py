@@ -99,8 +99,8 @@ class ProbeStmPytorch(ProbeStmVectorized, ABC):
     def _float_zeros(self, size: Sequence[int]):
         return torch.zeros(size, dtype=torch.float32, device=self._device)
 
-    def _norm(self, array: torch.Tensor, ord: int, axis: int):
-        return torch.linalg.norm(array, ord=ord, axis=axis)
+    def _euclidean_norm(self, array: torch.Tensor, axis: int):
+        return torch.linalg.norm(array, ord=2, axis=axis)
 
     def _exp(self, array: torch.Tensor):
         return torch.exp(array)
