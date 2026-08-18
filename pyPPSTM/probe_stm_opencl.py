@@ -94,6 +94,7 @@ class _ProbeSTMOpenCL(ABC):
         self._ocl_program = self._ocl_environment.loadProgram(self._ocl_environment.CL_PATH / "ProbeSTM_spd.cl")
         self._ocl_context = self._ocl_environment.context
         self._ocl_queue = self._ocl_environment.queue
+        self._ocl_kernel = None
         self._logger = logging.getLogger(self.__class__.__name__)
 
     def _prepare_read_only_float_tensor_for_opencl(self, tensor) -> Buffer:
@@ -130,13 +131,9 @@ class _ProbeSTMOpenCL(ABC):
                          context=self._ocl_context)
 
     @property
-    @abstractmethod
     def didv_opencl_fn(self) -> Callable:
-        """Reference to the OpenCL kernel function for dI/dV computation.
-
-        Must be overridden to return the appropriate kernel.
-        """
-        pass
+        """Reference to the OpenCL kernel function for dI/dV computation."""
+        return self._ocl_kernel
 
     @abstractmethod
     def _global_size(self, n_points: int):
@@ -206,9 +203,9 @@ class ProbeSTMOpenCLParallel(_ProbeSTMOpenCL):
 
     Launches work-items for up to n_points simultaneously.
     """
-    @property
-    def didv_opencl_fn(self):
-        return self._ocl_program.proc_didv_spd_spd
+    def __init__(self, platform: int = 0):
+        super().__init__(platform=platform)
+        self._ocl_kernel = self._ocl_program.proc_didv_spd_spd
 
     def _global_size(self, n_points: int):
         return (n_points,)
@@ -219,9 +216,9 @@ class ProbeSTMOpenCLSequential(_ProbeSTMOpenCL):
 
     Launches single work-item that processes points serially.
     """
-    @property
-    def didv_opencl_fn(self):
-        return self._ocl_program.proc_didv_spd_spd_sequential
+    def __init__(self, platform: int = 0):
+        super().__init__(platform=platform)
+        self._ocl_kernel = self._ocl_program.proc_didv_spd_spd_sequential
 
     def _global_size(self, n_points: int):
         return (1,)
