@@ -19,15 +19,14 @@ class _ProbeSTMOpenCL(ABC):
     """GPU acceleration for STM (Scanning Tunneling Microscopy) calculations using OpenCL.
 
     This is an abstract base class that manages OpenCL context, command queue, and kernel
-    execution. Subclasses must implement the execution strategy via `didv_opencl_fn`
-    and `_global_size()`.
+    execution.
 
     Attributes:
         _INSTANCE: Singleton instance (class variable)
-        _LOCAL_SIZE: Work group size for OpenCL (class variable)
+        _LOCAL_WORK_SIZE: Work group size for OpenCL (class variable)
     """
     _INSTANCE = None
-    _LOCAL_SIZE = (1,)
+    _LOCAL_WORK_SIZE = (1,)
 
     @classmethod
     def didv(cls,
@@ -69,8 +68,8 @@ class _ProbeSTMOpenCL(ABC):
         didv_1d_ocl = self._prepare_write_only_tensor_for_opencl(didv_1d)
 
         self.didv_opencl_fn(self._ocl_queue,
-                            self._global_size(n_points),
-                            self._LOCAL_SIZE,
+                            self._global_work_size(n_points),
+                            self._LOCAL_WORK_SIZE,
                             *list(map(np.int32, [orb_t, len(Rat), len(eig), n_points])),
                             *list(map(np.float32, [V, WF, eta])),
                             *list(map(self._prepare_read_only_float_tensor_for_opencl, [eig, R, Rat, coes, tip_coes])),
@@ -136,7 +135,7 @@ class _ProbeSTMOpenCL(ABC):
         return self._ocl_kernel
 
     @abstractmethod
-    def _global_size(self, n_points: int):
+    def _global_work_size(self, n_points: int):
         """Define OpenCL global work size for kernel launch.
 
         Args:
@@ -207,7 +206,7 @@ class ProbeSTMOpenCLParallel(_ProbeSTMOpenCL):
         super().__init__(platform=platform)
         self._ocl_kernel = self._ocl_program.proc_didv_spd_spd
 
-    def _global_size(self, n_points: int):
+    def _global_work_size(self, n_points: int):
         return (n_points,)
 
 
@@ -220,5 +219,5 @@ class ProbeSTMOpenCLSequential(_ProbeSTMOpenCL):
         super().__init__(platform=platform)
         self._ocl_kernel = self._ocl_program.proc_didv_spd_spd_sequential
 
-    def _global_size(self, n_points: int):
+    def _global_work_size(self, n_points: int):
         return (1,)
