@@ -47,21 +47,21 @@ class ProbeStmVectorized(ABC):
         wf = np.float32(WF)
         eta = np.float32(eta)
         self._tip_dos = self._to_float(tip_coes)  # shape (9,)
-        eig = self._to_float(eig)                                               # shape                (n_e,)
-        self._sample_dos = self._lorentzian(x=eig, loc=v, scale=0.5 * eta)      # shape                (n_e,)
+        eig = self._to_float(eig)                                           # shape                (n_e,)
+        self._sample_dos = self._lorentzian(x=eig, loc=v, scale=0.5 * eta)  # shape                (n_e,)
 
-        sample_atom_position = self._to_float(Rat)                              # shape                     (n_a, 3)
-        tip_position = self._unsqueeze(self._to_float(R), axis=[3, 4])          # shape (n_z, n_y, n_x,   1,   1, 3)
+        sample_atom_position = self._to_float(Rat)                          # shape                     (n_a, 3)
+        tip_position = self._unsqueeze(self._to_float(R), axis=[3, 4])      # shape (n_z, n_y, n_x,   1,   1, 3)
 
         self._decay = math.sqrt((2 * wf) * self._EV)
-        self._r_a = (tip_position - sample_atom_position) * self._AB            # shape (n_z, n_y, n_x,   1, n_a, 3)
-        self._r_a_norm = self._euclidean_norm(self._r_a, axis=-1)               # shape (n_z, n_y, n_x,   1, n_a)
-        self._radial = self._exp(-self._decay * self._r_a_norm)                 # shape (n_z, n_y, n_x,   1, n_a)
+        self._r_a = (tip_position - sample_atom_position) * self._AB        # shape (n_z, n_y, n_x,   1, n_a, 3)
+        self._r_a_norm = self._euclidean_norm(self._r_a, axis=-1)           # shape (n_z, n_y, n_x,   1, n_a)
+        self._radial = self._exp(-self._decay * self._r_a_norm)             # shape (n_z, n_y, n_x,   1, n_a)
 
         self._coes = self._to_float(coes)\
                          .reshape(len(eig),
                                   len(Rat),
-                                  self._SAMPLE_ORBITAL_COUNT)                   # shape                (n_e, n_a,    orb_t)
+                                  self._SAMPLE_ORBITAL_COUNT)               # shape                (n_e, n_a,    orb_t)
 
         self._logger = logging.getLogger(self.__class__.__name__)
 
@@ -73,8 +73,10 @@ class ProbeStmVectorized(ABC):
         g_tip_orbs_sum = self._float_zeros((*self._r_a.shape[:3], self._coes.shape[0]))
         for i, g_tip_orb_fn in enumerate(self.g_tip_orb_fns):
             if self._tip_dos[i] > 0.:
-                g_tip_orb = self._broadcasted_dot_last_axis(g_tip_orb_fn(),     # shape (n_z, n_y, n_x, n_e, n_a)
-                                                            self._radial)       # shape (n_z, n_y, n_x, n_e)
+                g_tip_orb = self._broadcasted_dot_last_axis(
+                    g_tip_orb_fn(),                                             # shape (n_z, n_y, n_x, n_e, n_a)
+                    self._radial                                                # shape (n_z, n_y, n_x,   1, n_a)
+                )                                                               # shape (n_z, n_y, n_x, n_e)
 
                 g_tip_orbs_sum += self._tip_dos[i] * g_tip_orb ** 2
 
