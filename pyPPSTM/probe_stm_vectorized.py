@@ -47,21 +47,21 @@ class ProbeStmVectorized(ABC):
         wf = np.float32(WF)
         eta = np.float32(eta)
         self._tip_dos = self._to_float(tip_coes)  # shape (9,)
-        eig = self._to_float(eig)                                                     # shape                (n_e,)
-        self._sample_dos = self._lorentzian(x=eig, loc=v, scale=0.5 * eta)            # shape                (n_e,)
+        eig = self._to_float(eig)                                               # shape                (n_e,)
+        self._sample_dos = self._lorentzian(x=eig, loc=v, scale=0.5 * eta)      # shape                (n_e,)
 
-        sample_atom_position = self._to_float(Rat)                                    # shape                     (n_a, 3)
-        tip_position = self._unsqueeze(self._to_float(R), axis=[3, 4])                # shape (n_z, n_y, n_x,   1,   1, 3)
+        sample_atom_position = self._to_float(Rat)                              # shape                     (n_a, 3)
+        tip_position = self._unsqueeze(self._to_float(R), axis=[3, 4])          # shape (n_z, n_y, n_x,   1,   1, 3)
 
         self._decay = math.sqrt((2 * wf) * self._EV)
-        self._r_a = (tip_position - sample_atom_position) * self._AB                  # shape (n_z, n_y, n_x,   1, n_a, 3)
-        self._r_a_norm = self._norm(self._r_a, ord=2, axis=-1)                        # shape (n_z, n_y, n_x,   1, n_a)
-        self._radial = self._exp(-self._decay * self._r_a_norm)                       # shape (n_z, n_y, n_x,   1, n_a)
+        self._r_a = (tip_position - sample_atom_position) * self._AB            # shape (n_z, n_y, n_x,   1, n_a, 3)
+        self._r_a_norm = self._euclidean_norm(self._r_a, axis=-1)               # shape (n_z, n_y, n_x,   1, n_a)
+        self._radial = self._exp(-self._decay * self._r_a_norm)                 # shape (n_z, n_y, n_x,   1, n_a)
 
         self._coes = self._to_float(coes)\
                          .reshape(len(eig),
                                   len(Rat),
-                                  self._SAMPLE_ORBITAL_COUNT)                         # shape                (n_e, n_a,    orb_t)
+                                  self._SAMPLE_ORBITAL_COUNT)                   # shape                (n_e, n_a,    orb_t)
 
         self._logger = logging.getLogger(self.__class__.__name__)
 
@@ -73,13 +73,13 @@ class ProbeStmVectorized(ABC):
         g_tip_orbs_sum = self._float_zeros((*self._r_a.shape[:3], self._coes.shape[0]))
         for i, g_tip_orb_fn in enumerate(self.g_tip_orb_fns):
             if self._tip_dos[i] > 0.:
-                g_tip_orb = self._broadcasted_dot_last_axis(g_tip_orb_fn(),  # shape (n_z, n_y, n_x, n_e, n_a)
-                                                            self._radial)        # shape (n_z, n_y, n_x, n_e)
+                g_tip_orb = self._broadcasted_dot_last_axis(g_tip_orb_fn(),     # shape (n_z, n_y, n_x, n_e, n_a)
+                                                            self._radial)       # shape (n_z, n_y, n_x, n_e)
 
                 g_tip_orbs_sum += self._tip_dos[i] * g_tip_orb ** 2
 
-        g = self._broadcasted_dot_last_axis(g_tip_orbs_sum, self._sample_dos) \
-            * 16 * math.pi ** 3 * self._decay                               # shape (n_z, n_y, n_x)
+        g = self._broadcasted_dot_last_axis(g_tip_orbs_sum, self._sample_dos)\
+            * 16 * math.pi ** 3 * self._decay                                   # shape (n_z, n_y, n_x)
 
         self._logger.debug(f"dI/dV ( sp(d)-sp(d) ) {self.backend} procedure DONE")
         return g
@@ -267,55 +267,20 @@ class ProbeStmVectorized(ABC):
         pass
 
     @abstractmethod
-    def _norm(self, array, ord: int, axis: int):
-        """Matrix or vector norm.
-
-        This function is able to return one of eight different matrix norms,
-        or one of an infinite number of vector norms (described below), depending
-        on the value of the ``ord`` parameter.
+    def _euclidean_norm(self, array, axis: int):
+        """Compute the Euclidean norm along one array axis.
 
         Parameters
         ----------
         x : array_like
-            Input array.  If `axis` is None, `x` must be 1-D or 2-D, unless `ord`
-            is None. If both `axis` and `ord` are None, the 2-norm of
-            ``x.ravel`` will be returned.
-        ord : {int, float, inf, -inf, 'fro', 'nuc'}, optional
-            Order of the norm (see table under ``Notes`` for what values are
-            supported for matrices and vectors respectively). inf means numpy's
-            `inf` object. The default is None.
-        axis : {None, int, 2-tuple of ints}, optional.
-            If `axis` is an integer, it specifies the axis of `x` along which to
-            compute the vector norms.  If `axis` is a 2-tuple, it specifies the
-            axes that hold 2-D matrices, and the matrix norms of these matrices
-            are computed.  If `axis` is None then either a vector norm (when `x`
-            is 1-D) or a matrix norm (when `x` is 2-D) is returned. The default
-            is None.
+            Input array.
+        axis : int
+            Axis along which to compute the Euclidean norm.
 
         Returns
         -------
         float or array_like
-            Norm of the matrix or vector(s).
-
-        Notes
-        -----
-        The following norms can be calculated:
-
-        =====  ============================  ==========================
-        ord    norm for matrices             norm for vectors
-        =====  ============================  ==========================
-        None   Frobenius norm                2-norm
-        'fro'  Frobenius norm                --
-        'nuc'  nuclear norm                  --
-        inf    max(sum(abs(x), axis=1))      max(abs(x))
-        -inf   min(sum(abs(x), axis=1))      min(abs(x))
-        0      --                            sum(x != 0)
-        1      max(sum(abs(x), axis=0))      as below
-        -1     min(sum(abs(x), axis=0))      as below
-        2      2-norm (largest sing. value)  as below
-        -2     smallest singular value       as below
-        other  --                            sum(abs(x)**ord)**(1./ord)
-        =====  ============================  ==========================
+            Norm values with `axis` removed from the result shape.
         """
         pass
 

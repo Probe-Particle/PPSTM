@@ -60,8 +60,8 @@ class ProbeStmNumpy(ProbeStmVectorized, ABC):
     def _float_zeros(self, size: Sequence[int]):
         return np.zeros(size, dtype=np.float32)
 
-    def _norm(self, array: np.ndarray, ord: int, axis: int):
-        return np.linalg.norm(array, ord=ord, axis=axis)
+    def _euclidean_norm(self, array: np.ndarray, axis: int):
+        return np.linalg.norm(array, ord=2, axis=axis)
 
     def _exp(self, array: np.ndarray):
         return np.exp(array)
