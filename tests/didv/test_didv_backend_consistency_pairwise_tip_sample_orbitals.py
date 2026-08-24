@@ -1,4 +1,5 @@
 import itertools
+from functools import partial
 from typing import Callable, List, Iterator, Tuple
 
 import numpy as np
@@ -19,10 +20,14 @@ class TestDidvBackendConsistencyPairwiseTipSampleOrbitals:
     _TIP_POSITIONS = np.asarray([[[[5.5, 0., 8.7]]]])
 
     _BACKENDS_NAME_FN_RTOL = (
-        ("OpenCL parallel",   ProbeSTMOpenCLParallel.didv,   2e-6),
-        ("OpenCL sequential", ProbeSTMOpenCLSequential.didv, 2e-6),
-        ("NumPy",             ProbeStmNumpy.didv,            9e-6),
-        ("PyTorch",           ProbeStmPytorch.didv,          9e-6),
+        ("OpenCL parallel",            ProbeSTMOpenCLParallel.didv,                             2e-6),
+        ("OpenCL sequential",          ProbeSTMOpenCLSequential.didv,                           2e-6),
+        ("NumPy (default chunking)",   ProbeStmNumpy.didv,                                      9e-6),
+        ("PyTorch (default chunking)", ProbeStmPytorch.didv,                                    9e-6),
+        ("NumPy (no chunking)",        partial(ProbeStmNumpy.didv,    n_tip_position_chunks=1), 9e-6),
+        ("PyTorch (no chunking)",      partial(ProbeStmPytorch.didv,  n_tip_position_chunks=1), 9e-6),
+        ("NumPy (2 chunks)",           partial(ProbeStmNumpy.didv,    n_tip_position_chunks=2), 9e-6),
+        ("PyTorch (2 chunks)",         partial(ProbeStmPytorch.didv,  n_tip_position_chunks=2), 9e-6),
     )
 
     def test_didv_backend_consistency_pairwise_tip_sample_orbitals(self,
