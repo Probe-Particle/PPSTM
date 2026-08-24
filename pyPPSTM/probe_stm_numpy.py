@@ -4,6 +4,7 @@ STM (Scanning Tunneling Microscopy) calculations using NumPy.
 This module provides NumPy-based implementations for computing dI/dV (differential
 conductance) spectra with sp(d)-sp(d) orbital interactions.
 """
+import logging
 from abc import ABC
 from typing import Sequence, List, Tuple
 
@@ -25,7 +26,8 @@ class ProbeStmNumpy(ProbeStmVectorized, ABC):
              coes: np.ndarray,
              tip_coes: np.ndarray,
              orb_t: int,
-             n_tip_position_chunks: int = 1) -> np.ndarray:
+             n_tip_position_chunks: int = 1,
+             logging_level: int = logging.INFO) -> np.ndarray:
         """Compute dI/dV (differential conductance) using NumPy.
 
         Args:
@@ -39,14 +41,15 @@ class ProbeStmNumpy(ProbeStmVectorized, ABC):
             tip_coes (np.ndarray): Orbital coefficients for tip, shape (9,)
             orb_t (int): Orbital type identifier (4 or 9) for sample
             n_tip_position_chunks (int): nr. subsets of tip positions, default 1
+            logging_level (int), default: logging.INFO
 
         Returns:
             np.ndarray: dI/dV spectrum, shape (n_z, n_y, n_x)
         """
         if orb_t == 9:  # 9 sample orbitals = spd
-            probe_stm = ProbeStmNumpySpd(V, WF, eta, eig, R, Rat, coes, tip_coes, n_tip_position_chunks)
+            probe_stm = ProbeStmNumpySpd(V, WF, eta, eig, R, Rat, coes, tip_coes, n_tip_position_chunks, logging_level)
         else:  # 4 sample orbitals = sp
-            probe_stm = ProbeStmNumpySp(V, WF, eta, eig, R, Rat, coes, tip_coes, n_tip_position_chunks)
+            probe_stm = ProbeStmNumpySp(V, WF, eta, eig, R, Rat, coes, tip_coes, n_tip_position_chunks, logging_level)
         return probe_stm()
 
     @property
