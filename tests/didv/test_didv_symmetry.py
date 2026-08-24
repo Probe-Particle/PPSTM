@@ -1,6 +1,7 @@
 """Inspired by examples/orbitals_tests/orbitals.toml."""
 import itertools
 from abc import ABC
+from functools import partial
 from typing import Callable
 
 import numpy as np
@@ -31,6 +32,17 @@ class _TestDidvSymmetry(_test_didv._TestDidv, ABC):
     _TIP = np.asarray([1., ] + [0.0, ] * 8) # TIP_ORB = 's'
 
     _SAMPLE_ATOMS_POSITIONS = np.asarray([[0.0, 0.0, 0.0]])
+
+    _BACKENDS_NAME_FN_RTOL = (
+        ("OpenCL parallel",            ProbeSTMOpenCLParallel.didv,                             1e-7),
+        ("OpenCL sequential",          ProbeSTMOpenCLSequential.didv,                           1e-7),
+        ("NumPy (default chunking)",   ProbeStmNumpy.didv,                                      1e-7),
+        ("PyTorch (default chunking)", ProbeStmPytorch.didv,                                    1e-7),
+        ("NumPy (no chunking)",        partial(ProbeStmNumpy.didv,    n_tip_position_chunks=1), 1e-7),
+        ("PyTorch (no chunking)",      partial(ProbeStmPytorch.didv,  n_tip_position_chunks=1), 1e-7),
+        ("NumPy (2 chunks)",           partial(ProbeStmNumpy.didv,    n_tip_position_chunks=2), 1e-7),
+        ("PyTorch (2 chunks)",         partial(ProbeStmPytorch.didv,  n_tip_position_chunks=2), 1e-7),
+    )
 
     def test_even_symmetry_at_tip_center_for_single_tip_position(self, tip_position: np.ndarray,
                                                                  didv_backend: Callable,
@@ -79,18 +91,8 @@ class _TestDidvSymmetry(_test_didv._TestDidv, ABC):
         if "didv_backend" in metafunc.fixturenames and \
            "rtol" in metafunc.fixturenames:
             metafunc.parametrize(("didv_backend", "rtol"),
-                                 (
-                                         (ProbeSTMOpenCLParallel.didv,   1e-7),
-                                         (ProbeSTMOpenCLSequential.didv, 1e-7),
-                                         (ProbeStmNumpy.didv,            1e-7),
-                                         (ProbeStmPytorch.didv,          1e-7),
-                                 ),
-                                 ids=[
-                                     "OpenCL parallel",
-                                     "OpenCL sequential",
-                                     "NumPy",
-                                     "PyTorch",
-                                 ])
+                                 ((fn, rtol) for _, fn, rtol in self._BACKENDS_NAME_FN_RTOL),
+                                 ids=(name for name, _, _ in self._BACKENDS_NAME_FN_RTOL))
 
     def _sample_tip_positions(self, n_samples: int) -> np.ndarray:
         rng = self._make_rng()
