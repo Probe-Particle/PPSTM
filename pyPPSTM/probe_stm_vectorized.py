@@ -32,7 +32,8 @@ class ProbeStmVectorized(ABC):
                  Rat,
                  coes,
                  tip_coes,
-                 n_tip_position_chunks: int = 1):
+                 n_tip_position_chunks: int = 1,
+                 logging_level: int = logging.INFO):
         """Args:
             V (float): Applied voltage bias
             WF (float): Work function
@@ -44,7 +45,9 @@ class ProbeStmVectorized(ABC):
             tip_coes (array_like): Orbital coefficients for tip, shape (9)
             orb_t (int): Orbital type identifier (4 or 9) for sample
             n_tip_position_chunks (int): nr. subsets of tip positions, default 1
+            logging_level (int), default: logging.INFO
         """
+        logging.basicConfig(level=logging_level)
         self._logger = logging.getLogger(self.__class__.__name__)
 
         v = np.float32(V)
