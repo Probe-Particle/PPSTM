@@ -1,4 +1,6 @@
 import math
+from functools import partial
+from typing import Callable
 from abc import ABC, abstractmethod
 from typing import Callable, Tuple
 
@@ -135,11 +137,15 @@ class TestDidvRaSignSTipOrbital(_TestDidvRaSign):
     _TIP_ORBITAL = np.asarray([1.0] + [0.0] * 8)  # s tip orbital
 
     _BACKENDS_NAME_FN_RTOL = (
-        ("C++",               ProbeSTM.dIdV_sp_sp,           3e-8),
-        ("OpenCL parallel",   ProbeSTMOpenCLParallel.didv,   2e-7),
-        ("OpenCL sequential", ProbeSTMOpenCLSequential.didv, 2e-7),
-        ("NumPy",             ProbeStmNumpy.didv,            2e-7),
-        ("PyTorch",           ProbeStmPytorch.didv,          2e-7),
+        ("C++",                        ProbeSTM.dIdV_sp_sp,                                     3e-8),
+        ("OpenCL parallel",            ProbeSTMOpenCLParallel.didv,                             2e-7),
+        ("OpenCL sequential",          ProbeSTMOpenCLSequential.didv,                           2e-7),
+        ("NumPy (default chunking)",   ProbeStmNumpy.didv,                                      2e-7),
+        ("PyTorch (default chunking)", ProbeStmPytorch.didv,                                    2e-7),
+        ("NumPy (no chunking)",        partial(ProbeStmNumpy.didv,    n_tip_position_chunks=1), 2e-7),
+        ("PyTorch (no chunking)",      partial(ProbeStmPytorch.didv,  n_tip_position_chunks=1), 2e-7),
+        ("NumPy (2 chunks)",           partial(ProbeStmNumpy.didv,    n_tip_position_chunks=2), 2e-7),
+        ("PyTorch (2 chunks)",         partial(ProbeStmPytorch.didv,  n_tip_position_chunks=2), 2e-7),
     )
     _RTOL_REV_R_A_SIGN = 7e-1
 
@@ -166,11 +172,15 @@ class TestDidvRaSignDz2TipOrbital(_TestDidvRaSign):
     _TIP_ORBITAL = np.asarray([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0])  # dz2 tip orbital
 
     _BACKENDS_NAME_FN_RTOL = (
-        ("C++",               ProbeSTM.dIdV_sp_sp,           2e-6),
-        ("OpenCL parallel",   ProbeSTMOpenCLParallel.didv,   4e-6),
-        ("OpenCL sequential", ProbeSTMOpenCLSequential.didv, 4e-6),
-        ("NumPy",             ProbeStmNumpy.didv,            4e-6),
-        ("PyTorch",           ProbeStmPytorch.didv,          4e-6),
+        ("C++",                        ProbeSTM.dIdV_sp_sp,                                     2e-6),
+        ("OpenCL parallel",            ProbeSTMOpenCLParallel.didv,                             4e-6),
+        ("OpenCL sequential",          ProbeSTMOpenCLSequential.didv,                           4e-6),
+        ("NumPy (default chunking)",   ProbeStmNumpy.didv,                                      4e-6),
+        ("PyTorch (default chunking)", ProbeStmPytorch.didv,                                    4e-6),
+        ("NumPy (no chunking)",        partial(ProbeStmNumpy.didv,    n_tip_position_chunks=1), 4e-6),
+        ("PyTorch (no chunking)",      partial(ProbeStmPytorch.didv,  n_tip_position_chunks=1), 4e-6),
+        ("NumPy (2 chunks)",           partial(ProbeStmNumpy.didv,    n_tip_position_chunks=2), 4e-6),
+        ("PyTorch (2 chunks)",         partial(ProbeStmPytorch.didv,  n_tip_position_chunks=2), 4e-6),
     )
     _RTOL_REV_R_A_SIGN = 2e-1
 
