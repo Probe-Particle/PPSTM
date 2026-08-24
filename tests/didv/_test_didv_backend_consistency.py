@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from functools import partial
 from typing import Callable, List
 
 import numpy as np
@@ -32,6 +33,17 @@ class _TestDidvBackendConsistency(_test_didv._TestDidv, ABC):
     _DZ2_TIP_ORB   = np.asarray([ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0])
     _DXZ_TIP_ORB   = np.asarray([ 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0])
     _DXZYZ_TIP_ORB = np.asarray([ 0.0, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.5, 0.0])
+
+    _BACKENDS_NAME_FN_RTOL = (
+        ("OpenCL parallel",            ProbeSTMOpenCLParallel.didv,                             2e-3),
+        ("OpenCL sequential",          ProbeSTMOpenCLSequential.didv,                           2e-3),
+        ("NumPy (default chunking)",   ProbeStmNumpy.didv,                                      4e-3),
+        ("PyTorch (default chunking)", ProbeStmPytorch.didv,                                    3e-3),
+        ("NumPy (no chunking)",        partial(ProbeStmNumpy.didv,    n_tip_position_chunks=1), 4e-3),
+        ("PyTorch (no chunking)",      partial(ProbeStmPytorch.didv,  n_tip_position_chunks=1), 3e-3),
+        ("NumPy (2 chunks)",           partial(ProbeStmNumpy.didv,    n_tip_position_chunks=2), 4e-3),
+        ("PyTorch (2 chunks)",         partial(ProbeStmPytorch.didv,  n_tip_position_chunks=2), 3e-3),
+    )
 
     def test_didv_cpp_matches_other_backends_for_single_tip_position(self,
                                                                      tip_position: np.ndarray,
@@ -95,18 +107,8 @@ class _TestDidvBackendConsistency(_test_didv._TestDidv, ABC):
         if "didv_backend" in metafunc.fixturenames and \
            "rtol" in metafunc.fixturenames:
             metafunc.parametrize(("didv_backend", "rtol"),
-                                 (
-                                         (ProbeSTMOpenCLParallel.didv,   2e-3),
-                                         (ProbeSTMOpenCLSequential.didv, 2e-3),
-                                         (ProbeStmNumpy.didv,            4e-3),
-                                         (ProbeStmPytorch.didv,          3e-3),
-                                 ),
-                                 ids=[
-                                     "OpenCL parallel",
-                                     "OpenCL sequential",
-                                     "NumPy",
-                                     "PyTorch",
-                                 ])
+                                 ((fn, rtol) for _, fn, rtol in self._BACKENDS_NAME_FN_RTOL),
+                                 ids=(name for name, _, _ in self._BACKENDS_NAME_FN_RTOL))
 
     @abstractmethod
     def _sample_tip_positions(self, n_samples: int) -> np.ndarray:

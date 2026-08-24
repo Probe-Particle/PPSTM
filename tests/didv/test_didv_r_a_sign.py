@@ -1,4 +1,5 @@
 import math
+from functools import partial
 from typing import Callable
 
 import numpy as np
@@ -43,11 +44,15 @@ class TestDidvRaSign:
     )
 
     _BACKENDS_NAME_FN_RTOL = (
-        ("C++",               ProbeSTM.dIdV_sp_sp,           5e-8),
-        ("OpenCL parallel",   ProbeSTMOpenCLParallel.didv,   3e-7),
-        ("OpenCL sequential", ProbeSTMOpenCLSequential.didv, 3e-7),
-        ("NumPy",             ProbeStmNumpy.didv,            4e-7),
-        ("PyTorch",           ProbeStmPytorch.didv,          3e-7),
+        ("C++",                   ProbeSTM.dIdV_sp_sp,                                     5e-8),
+        ("OpenCL parallel",       ProbeSTMOpenCLParallel.didv,                             3e-7),
+        ("OpenCL sequential",     ProbeSTMOpenCLSequential.didv,                           3e-7),
+        ("NumPy",                 ProbeStmNumpy.didv,                                      4e-7),
+        ("PyTorch",               ProbeStmPytorch.didv,                                    3e-7),
+        ("NumPy (no chunking)",   partial(ProbeStmNumpy.didv,    n_tip_position_chunks=1), 4e-7),
+        ("PyTorch (no chunking)", partial(ProbeStmPytorch.didv,  n_tip_position_chunks=1), 3e-7),
+        ("NumPy (2 chunks)",      partial(ProbeStmNumpy.didv,    n_tip_position_chunks=2), 4e-7),
+        ("PyTorch (2 chunks)",    partial(ProbeStmPytorch.didv,  n_tip_position_chunks=2), 3e-7),
     )
 
     def test_didv_r_a_sign(self, lcao_coefficients, didv_backend: Callable, rtol: float):
