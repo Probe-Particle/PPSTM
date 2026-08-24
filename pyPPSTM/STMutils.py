@@ -187,6 +187,7 @@ def run_stm_scan(
         'coes': coefs,
         'orbs': config['scan']['sample_orbs'],
         'backend': config['advanced']['didv_backend'] if 'didv_backend' in config['advanced'] else PS.DidvBackend.CPP,
+        'n_tip_position_chunks': config['advanced']['n_tip_position_chunks'] if 'n_tip_position_chunks' in config['advanced'] else 1,
     }
     tip_coefficients = get_tip_coefficients(config['scan']['tip_orb'])
     
