@@ -12,7 +12,43 @@ from pyPPSTM.scan_config_builder import ScanConfigBuilder
 
 
 class TestScanConfigBuilder:
-    _TOML_ARGS = {
+    _CHOICES = {
+        "tip_type": [
+            "fixed",
+            "relaxed",
+        ],
+        "tip_orb": [
+            "s",
+            "pz",
+            "pxy",
+            "spxy",
+            "5spxy",
+            "5spxy",
+            "10spxy",
+            "CO",
+            "dz2",
+            "dxzyz"
+        ],
+        "sample_orbs": [
+            "sp",
+            "spd",
+        ],
+        "dft_code": [
+            "fireball",
+            "cp2k",
+            "gpaw",
+            "aims",
+        ],
+        "pbc": [
+            [0, 0],
+            [0.5, 0.5],
+            [1, 1],
+            [2, 2],
+            [3, 3],
+        ],
+    }
+
+    _TOML_ARG_BY_ID = {
         "scan_type":     "scan_type",
         "tip_type":      "tip_type",
         "scan_window":   "scan_window",
@@ -48,7 +84,7 @@ class TestScanConfigBuilder:
         "save_xsf":      "XSF",
     }
 
-    _ARG_LABELS = {
+    _ARG_LABEL_BY_ID = {
         "scan_type": "scan type",
         "tip_type": "tip type",
         "scan_window": "scan window",
@@ -74,7 +110,7 @@ class TestScanConfigBuilder:
         "cut_max": "cut max",
     }
 
-    _ARGS_GROUP = {
+    _ARG_GROUP_BY_ARG_ID = {
         "scan_type":     "scan",
         "tip_type":      "scan",
         "scan_window":   "scan",
@@ -119,44 +155,6 @@ class TestScanConfigBuilder:
         "lvs": "dft_code",
         "cp2k_name": "dft_code",
     })
-
-    _TIP_TYPE_CHOICES = [
-        "fixed",
-        "relaxed",
-    ]
-
-    _TIP_ORB_CHOICES = [
-        "s",
-        "pz",
-        "pxy",
-        "spxy",
-        "5spxy",
-        "5spxy",
-        "10spxy",
-        "CO",
-        "dz2",
-        "dxzyz"
-    ]
-
-    _SAMPLE_ORBS_CHOICES = [
-        "sp",
-        "spd",
-    ]
-
-    _DFT_CODE_CHOICES = [
-        "fireball",
-        "cp2k",
-        "gpaw",
-        "aims",
-    ]
-
-    _PBC_CHOICES = [
-        [0, 0],
-        [0.5, 0.5],
-        [1, 1],
-        [2, 2],
-        [3, 3],
-    ]
 
     _DEFAULT_ARG_VALUES = {
         "cut_atoms":   -1,
@@ -231,8 +229,8 @@ class TestScanConfigBuilder:
         config_file_path = self._make_toml_file(expected_config, tmp_path, omitted_args=[arg_name])
 
         with pytest.raises(ValueError,
-                           match=rf"^The {self._ARG_LABELS[arg_name]} parameter is required"
-                                 rf"{f' when {self._ARG_LABELS[required_arg_cond]}'
+                           match=rf"^The {self._ARG_LABEL_BY_ID[arg_name]} parameter is required"
+                                 rf"{f' when {self._ARG_LABEL_BY_ID[required_arg_cond]}'
                                      f' is \'{expected_config[required_arg_cond]}\'' 
                                  if (required_arg_cond := self._REQUIRED_ARG_COND[arg_name]) else ''}.$"
                            ):
@@ -263,8 +261,8 @@ class TestScanConfigBuilder:
                                 self._gen_configs(self._build_config_example(tip_type, dft_code)),
                                 self._gen_arg_names(self._build_config_example(tip_type, dft_code)),
                             )
-                            for tip_type, dft_code in itertools.product(self._TIP_TYPE_CHOICES,
-                                                                        self._DFT_CODE_CHOICES)
+                            for tip_type, dft_code in itertools.product(self._CHOICES["tip_type"],
+                                                                        self._CHOICES["dft_code"])
                         ])
                     ],
                     ids=itertools.chain(*[
@@ -272,8 +270,8 @@ class TestScanConfigBuilder:
                             f"{tip_type}-{dft_code}-{subid}-without-{arg_name}"
                             for arg_name in self._gen_arg_names(self._build_config_example(tip_type, dft_code))
                         ]
-                        for tip_type, dft_code, subid in itertools.product(self._TIP_TYPE_CHOICES,
-                                                                           self._DFT_CODE_CHOICES,
+                        for tip_type, dft_code, subid in itertools.product(self._CHOICES["tip_type"],
+                                                                           self._CHOICES["dft_code"],
                                                                            self._gen_config_ids())
                     ])
                 )
@@ -283,14 +281,14 @@ class TestScanConfigBuilder:
                     [
                         *itertools.chain(*[
                             self._gen_configs(self._build_config_example(tip_type, dft_code))
-                            for tip_type, dft_code in itertools.product(self._TIP_TYPE_CHOICES,
-                                                                        self._DFT_CODE_CHOICES)
+                            for tip_type, dft_code in itertools.product(self._CHOICES["tip_type"],
+                                                                        self._CHOICES["dft_code"])
                         ])
                     ],
                     ids=[
                         f"{tip_type}-{dft_code}-{subid}"
-                        for tip_type, dft_code, subid in itertools.product(self._TIP_TYPE_CHOICES,
-                                                                           self._DFT_CODE_CHOICES,
+                        for tip_type, dft_code, subid in itertools.product(self._CHOICES["tip_type"],
+                                                                           self._CHOICES["dft_code"],
                                                                            self._gen_config_ids())
                     ],
                 )
@@ -308,9 +306,9 @@ class TestScanConfigBuilder:
             {**c, **to, **so, **pbc} for c, to, so, pbc in
             itertools.product(
                 [base_config],
-                map(lambda to: {'tip_orb': to}, self._TIP_ORB_CHOICES),
-                map(lambda so: {'sample_orbs': so}, self._SAMPLE_ORBS_CHOICES),
-                map(lambda pbc: {'pbc': pbc}, self._PBC_CHOICES),
+                map(lambda to: {'tip_orb': to}, self._CHOICES["tip_orb"]),
+                map(lambda so: {'sample_orbs': so}, self._CHOICES["sample_orbs"]),
+                map(lambda pbc: {'pbc': pbc}, self._CHOICES["pbc"]),
             )
         ]
 
@@ -318,9 +316,9 @@ class TestScanConfigBuilder:
         return [
             f"{to}-{so}-pbc{pbc[0]}"
             for to, so, pbc in itertools.product(
-                self._TIP_ORB_CHOICES,
-                self._SAMPLE_ORBS_CHOICES,
-                self._PBC_CHOICES,
+                self._CHOICES["tip_orb"],
+                self._CHOICES["sample_orbs"],
+                self._CHOICES["pbc"],
             )
         ]
 
@@ -336,19 +334,19 @@ class TestScanConfigBuilder:
         config = defaultdict(dict)
         for k, v in base_config.items():
             if isinstance(v, np.ndarray):
-                config[self._ARGS_GROUP[k]][self._TOML_ARGS[k]] = v.tolist()
+                config[self._ARG_GROUP_BY_ARG_ID[k]][self._TOML_ARG_BY_ID[k]] = v.tolist()
             else:
-                config[self._ARGS_GROUP[k]][self._TOML_ARGS[k]] = v
+                config[self._ARG_GROUP_BY_ARG_ID[k]][self._TOML_ARG_BY_ID[k]] = v
 
-        config[self._ARGS_GROUP['pbc']][self._TOML_ARGS['pbc']] = \
-            list(map(float, config[self._ARGS_GROUP['pbc']][self._TOML_ARGS['pbc']]))
+        config[self._ARG_GROUP_BY_ARG_ID['pbc']][self._TOML_ARG_BY_ID['pbc']] = \
+            list(map(float, config[self._ARG_GROUP_BY_ARG_ID['pbc']][self._TOML_ARG_BY_ID['pbc']]))
 
-        if config[self._ARGS_GROUP['dft_code']][self._TOML_ARGS['dft_code']].lower() != 'cp2k':
-            config[self._ARGS_GROUP['cp2k_name']][self._TOML_ARGS['cp2k_name']] = self._DEFAULT_ARG_VALUES["cp2k_name"]
+        if config[self._ARG_GROUP_BY_ARG_ID['dft_code']][self._TOML_ARG_BY_ID['dft_code']].lower() != 'cp2k':
+            config[self._ARG_GROUP_BY_ARG_ID['cp2k_name']][self._TOML_ARG_BY_ID['cp2k_name']] = self._DEFAULT_ARG_VALUES["cp2k_name"]
 
         for k in self._DEFAULT_ARG_VALUES.keys():
-            if self._TOML_ARGS[k] not in config[self._ARGS_GROUP[k]]:
-                config[self._ARGS_GROUP[k]][self._TOML_ARGS[k]] = self._DEFAULT_ARG_VALUES[k]
+            if self._TOML_ARG_BY_ID[k] not in config[self._ARG_GROUP_BY_ARG_ID[k]]:
+                config[self._ARG_GROUP_BY_ARG_ID[k]][self._TOML_ARG_BY_ID[k]] = self._DEFAULT_ARG_VALUES[k]
 
         return config
 
@@ -360,11 +358,11 @@ class TestScanConfigBuilder:
         for k, v in config.items():
             if k not in omitted_args:
                 if isinstance(v, Path):
-                    toml_config[self._ARGS_GROUP[k]][self._TOML_ARGS[k]] = str(v)
+                    toml_config[self._ARG_GROUP_BY_ARG_ID[k]][self._TOML_ARG_BY_ID[k]] = str(v)
                 elif isinstance(v, np.ndarray):
-                    toml_config[self._ARGS_GROUP[k]][self._TOML_ARGS[k]] = v.tolist()
+                    toml_config[self._ARG_GROUP_BY_ARG_ID[k]][self._TOML_ARG_BY_ID[k]] = v.tolist()
                 else:
-                    toml_config[self._ARGS_GROUP[k]][self._TOML_ARGS[k]] = v
+                    toml_config[self._ARG_GROUP_BY_ARG_ID[k]][self._TOML_ARG_BY_ID[k]] = v
 
         with open(toml_file_path, 'w') as f:
             toml.dump(toml_config, f)
