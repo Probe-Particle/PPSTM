@@ -13,6 +13,7 @@ from pyPPSTM.probe_stm_pytorch import ProbeStmPytorch
 class _TestDidvRaSign(ABC):
     _TIP_ORBITAL: np.ndarray
     _BACKENDS_NAME_FN_RTOL: Tuple[Tuple[str, Callable, float]]
+    _RTOL_REV_R_A_SIGN: float
 
     _AB = 1.889725989
     _EV = 0.036749034
@@ -59,18 +60,39 @@ class _TestDidvRaSign(ABC):
         expected_didv = self._expected_didv(lcao_coefficients)
         np.testing.assert_allclose(actual_didv, expected_didv, rtol=rtol, atol=0.)
 
-    def _expected_didv(self, lcao_coefficients: np.ndarray):
-        """Compute dI/dV (differential conductance)."""
+    def test_reversing_r_a_sign_changes_didv(self, lcao_coefficients: np.ndarray):
+        """Verify that dI/dV differs when r_a sign is reversed.
+
+        Args:
+            lcao_coefficients (np.ndarray): Orbital coefficients for sample, shape (1, 4)
+        """
+        expected_didv = self._expected_didv(lcao_coefficients)
+        reverse_r_a_sign_didv = self._expected_didv(lcao_coefficients, reverse_r_a_sign=True)
+        assert not np.allclose(reverse_r_a_sign_didv, expected_didv, rtol=self._RTOL_REV_R_A_SIGN, atol=0.)
+
+    def _expected_didv(self, lcao_coefficients: np.ndarray, reverse_r_a_sign: bool = False):
+        """Compute dI/dV (differential conductance).
+
+        Args:
+            lcao_coefficients (np.ndarray): Orbital coefficients for sample, shape (1, 4)
+            reverse_r_a_sign (bool): True when the correct sign of r_a should be reversed,
+            False when the correct sign of r_a should be kept. Default is False.
+        """
+        if not reverse_r_a_sign:
+            r_a = self._R_A
+        else:
+            r_a = -self._R_A
         radial = np.exp(-self._R_A_NORM)
-        g = 16 * math.pi ** 3 * (self._g_tip_orb(lcao_coefficients) * radial) ** 2
+        g = 16 * math.pi ** 3 * (self._g_tip_orb(lcao_coefficients, r_a) * radial) ** 2
         return g.reshape(1, 1, 1)
 
     @abstractmethod
-    def _g_tip_orb(self, lcao_coefficients: np.ndarray):
+    def _g_tip_orb(self, lcao_coefficients: np.ndarray, r_a: np.ndarray):
         """Orbital conductances for different sp orbitals of sample on an orbital tip.
 
         Args:
             lcao_coefficients (np.ndarray): Orbital coefficients for sample, shape (1, 4)
+            r_a (np.ndarray): shape (1, 1, 1, 3)
 
         Returns:
             np.ndarray, shape (1, 1, 1)
@@ -119,20 +141,22 @@ class TestDidvRaSignSTipOrbital(_TestDidvRaSign):
         ("NumPy",             ProbeStmNumpy.didv,            2e-7),
         ("PyTorch",           ProbeStmPytorch.didv,          2e-7),
     )
+    _RTOL_REV_R_A_SIGN = 7e-1
 
-    def _g_tip_orb(self, lcao_coefficients: np.ndarray):
+    def _g_tip_orb(self, lcao_coefficients: np.ndarray, r_a: np.ndarray):
         """Orbital conductances for different sp orbitals of sample on an s orbital tip.
 
         Args:
             lcao_coefficients (np.ndarray): Orbital coefficients for sample, shape (1, 4)
+            r_a (np.ndarray): shape (1, 1, 1, 3)
 
         Returns:
             np.ndarray, shape (1, 1, 1)
         """
         t = lcao_coefficients[..., 0] / self._N_P              # s  orb. of sample
-        t = t + lcao_coefficients[..., 1] * self._R_A[..., 1]  # py orb. of sample
-        t = t + lcao_coefficients[..., 2] * self._R_A[..., 2]  # pz orb. of sample
-        t = t + lcao_coefficients[..., 3] * self._R_A[..., 0]  # px orb. of sample
+        t = t + lcao_coefficients[..., 1] * r_a[..., 1]  # py orb. of sample
+        t = t + lcao_coefficients[..., 2] * r_a[..., 2]  # pz orb. of sample
+        t = t + lcao_coefficients[..., 3] * r_a[..., 0]  # px orb. of sample
         return t * self._N_P
 
 
@@ -148,18 +172,20 @@ class TestDidvRaSignDz2TipOrbital(_TestDidvRaSign):
         ("NumPy",             ProbeStmNumpy.didv,            4e-6),
         ("PyTorch",           ProbeStmPytorch.didv,          4e-6),
     )
+    _RTOL_REV_R_A_SIGN = 2e-1
 
-    def _g_tip_orb(self, lcao_coefficients: np.ndarray):
+    def _g_tip_orb(self, lcao_coefficients: np.ndarray, r_a: np.ndarray):
         """Orbital conductances for different sp orbitals of sample on a dz2 orbital tip.
 
         Args:
             lcao_coefficients (np.ndarray): Orbital coefficients for sample, shape (1, 4)
+            r_a (np.ndarray): shape (1, 1, 1, 3)
 
         Returns:
             np.ndarray, shape (1, 1, 1)
         """
-        t = lcao_coefficients[..., 0] * (2 * self._R_A[..., 2] ** 2 - 1. - self._I_3) / self._N_P              # s  orb. of sample
-        t = t + lcao_coefficients[..., 1] * self._R_A[..., 1] * (7 * self._R_A[..., 2] ** 2 - 2. - self._I_3)  # py orb. of sample
-        t = t + lcao_coefficients[..., 2] * self._R_A[..., 2] * (7 * self._R_A[..., 2] ** 2 - 6. - self._I_3)  # pz orb. of sample
-        t = t + lcao_coefficients[..., 3] * self._R_A[..., 0] * (7 * self._R_A[..., 2] ** 2 - 2. - self._I_3)  # px orb. of sample
+        t = lcao_coefficients[..., 0] * (2 * r_a[..., 2] ** 2 - 1. - self._I_3) / self._N_P              # s  orb. of sample
+        t = t + lcao_coefficients[..., 1] * r_a[..., 1] * (7 * r_a[..., 2] ** 2 - 2. - self._I_3)  # py orb. of sample
+        t = t + lcao_coefficients[..., 2] * r_a[..., 2] * (7 * r_a[..., 2] ** 2 - 6. - self._I_3)  # pz orb. of sample
+        t = t + lcao_coefficients[..., 3] * r_a[..., 0] * (7 * r_a[..., 2] ** 2 - 2. - self._I_3)  # px orb. of sample
         return t * self._N_P
