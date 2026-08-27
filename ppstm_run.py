@@ -13,7 +13,7 @@ from pyPPSTM import visualization
 
 logger = logging.getLogger(__name__)
 
-_MIN_SAMPLE_ATOM_HEIGHTS_GAP = 2.0
+_MIN_TIP_SAMPLE_HEIGHT_GAP = 2.0  # Angstroms
 
 def main(config: dict):
     # ppafm needed for relaxed tip scans and npy+xsf output
@@ -59,9 +59,9 @@ def main(config: dict):
 
     if not _is_tip_above_sample(tip_positions=tip_r,
                                 sample_atom_positions=atoms,
-                                min_gap=_MIN_SAMPLE_ATOM_HEIGHTS_GAP):
+                                min_gap=_MIN_TIP_SAMPLE_HEIGHT_GAP):
         logger.warning(f"Detected minimum tip height below the maximum sample height "
-                       f"within {_MIN_SAMPLE_ATOM_HEIGHTS_GAP} Å")
+                       f"within {_MIN_TIP_SAMPLE_HEIGHT_GAP} Å")
 
     # Run STM scan
     current, didv = STMutils.run_stm_scan(
