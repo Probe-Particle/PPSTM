@@ -64,7 +64,7 @@ def dIdV( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0
     eig - eigenenergies of sample states (=molecular orbitals)
     R input of points in whish you calculate dI/dV (relaxed via PP afm, or nonrelaxed via mkSpaceGrid)
     coes -- LCAO coefficients from read_fire_coes (Fireball, maybe FHI-AIMS & mathematica) or read_GPAW_all
-    orbs = 'sp' orbitals of the sample (spd don't work at the moment
+    orbs = 'sp' or 'spd' orbitals of the sample. Defaults to 'spd'.
     s and/or px and/or py and/or pz orbitals at the PP
     unification of all the predefined dI/dV procedures from C++, you can choose, whatever PP orbital you want
     '''
