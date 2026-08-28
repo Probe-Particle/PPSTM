@@ -1,13 +1,19 @@
 import argparse
+import logging
 import os
 from pathlib import Path
 
+import numpy as np
 import tomli
 
 from pyPPSTM import basUtils as bU
 from pyPPSTM import ReadSTM
 from pyPPSTM import STMutils
 from pyPPSTM import visualization
+
+logger = logging.getLogger(__name__)
+
+_MIN_TIP_SAMPLE_HEIGHT_GAP = 2.0  # Angstroms
 
 def main(config: dict):
     # ppafm needed for relaxed tip scans and npy+xsf output
@@ -51,6 +57,12 @@ def main(config: dict):
     ) = STMutils.get_tip_positions(config)
     print(f"Tip positions read for a {config['scan']['tip_type']} scan.")
 
+    if not _is_tip_above_sample(tip_positions=tip_r,
+                                sample_atom_positions=atoms,
+                                min_gap=_MIN_TIP_SAMPLE_HEIGHT_GAP):
+        logger.warning(f"Detected minimum tip height below the maximum sample height "
+                       f"within {_MIN_TIP_SAMPLE_HEIGHT_GAP} Å")
+
     # Run STM scan
     current, didv = STMutils.run_stm_scan(
         config,
@@ -81,6 +93,15 @@ def main(config: dict):
 
     print(f"Output finished, exiting.")
 
+def _is_tip_above_sample(tip_positions: np.ndarray, sample_atom_positions: np.ndarray, min_gap: float) -> bool:
+    """Checks if the lowest tip point is safely above the highest sample point.
+
+    Precondition: Both input arrays must be non-empty.
+    """
+    lowest_tip_height = np.min(tip_positions[...,2])
+    highest_sample_height = np.max(sample_atom_positions[:,2])
+    return bool(lowest_tip_height >= highest_sample_height + min_gap)
+
 def _existing_toml_file(value: str) -> Path:
     path = Path(value)
 
@@ -93,6 +114,7 @@ def _existing_toml_file(value: str) -> Path:
     return path
 
 if __name__=='__main__':
+    logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
     parser = argparse.ArgumentParser(
         description="Execute PP-STM simulation scan",
     )
