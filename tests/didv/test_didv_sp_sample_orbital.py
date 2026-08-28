@@ -262,8 +262,8 @@ class TestDidvSpSampleOrbitalPyTipOrbital(_TestDidvSpSampleOrbital):
             np.ndarray, shape (1, 1, 1)
         """
         t = lcao_coefficients[0] * r_a[1]                                  # s  orb. of sample
-        t = t + lcao_coefficients[1] * self._N_P * (-1 + 2 * r_a[1] ** 2)     # py orb. of sample
-        t = t + lcao_coefficients[2] * self._N_P * r_a[1] * r_a[2] * 2  # pz orb. of sample
+        t = t + lcao_coefficients[1] * self._N_P * (-1 + 2 * r_a[1] ** 2)  # py orb. of sample
+        t = t + lcao_coefficients[2] * self._N_P * r_a[1] * r_a[2] * 2     # pz orb. of sample
         t = t + lcao_coefficients[3] * self._N_P * r_a[1] * r_a[0] * 2     # px orb. of sample
         if len(lcao_coefficients) > 4 and sample_orbital_insertion == "dxy":
              t = t + lcao_coefficients[4] * self._N_D * r_a[0] * (3 * r_a[1] ** 2 - 1)
@@ -275,4 +275,46 @@ class TestDidvSpSampleOrbitalPyTipOrbital(_TestDidvSpSampleOrbital):
             t = t + lcao_coefficients[7] * self._N_D * r_a[0] * r_a[1] * r_a[2] * 3
         if len(lcao_coefficients) > 8 and sample_orbital_insertion == "dx2y2":
             t = t + lcao_coefficients[8] * self._N_D * r_a[1] * ((r_a[0] ** 2 - r_a[1] ** 2) * 1.5 + 1)
+        return t
+
+class TestDidvSpSampleOrbitalPxTipOrbital(_TestDidvSpSampleOrbital):
+    _TIP_ORBITAL = np.asarray([0.0, 0.0, 0.0, 1.0] + [0.0] * 5)
+
+    _BACKENDS_NAME_FN_RTOL = (
+        ("C++",                        ProbeSTM.dIdV_sp_sp,                                             4e-8),
+        ("OpenCL parallel",            ProbeSTMOpenCLParallel.didv,                                     2e-7),
+        ("OpenCL sequential",          ProbeSTMOpenCLSequential.didv,                                   2e-7),
+        ("NumPy (default chunking)",   ProbeStmNumpy.didv,                                              1e-7),
+        ("PyTorch (default chunking)", ProbeStmPytorch.didv,                                            2e-7),
+        ("NumPy (no chunking)",        partial(ProbeStmNumpy.didv,   n_tip_position_chunks=1), 1e-7),
+        ("PyTorch (no chunking)",      partial(ProbeStmPytorch.didv, n_tip_position_chunks=1), 2e-7),
+        ("NumPy (2 chunks)",           partial(ProbeStmNumpy.didv,   n_tip_position_chunks=2), 1e-7),
+        ("PyTorch (2 chunks)",         partial(ProbeStmPytorch.didv, n_tip_position_chunks=2), 2e-7),
+    )
+
+    _RTOL_WRONG_SAMPLE_ORBITALS = 7e-1
+
+    def _g_tip_orb(self, lcao_coefficients: np.ndarray, r_a: np.ndarray, sample_orbital_insertion: str|None = None):
+        """Orbital conductances for different sp orbitals of sample on an s orbital tip.
+
+        Args:
+            lcao_coefficients (np.ndarray): Orbital coefficients for sample, shape (1, 4)
+
+        Returns:
+            np.ndarray, shape (1, 1, 1)
+        """
+        t = lcao_coefficients[0] * r_a[0]                                  # s  orb. of sample
+        t = t + lcao_coefficients[1] * self._N_P * r_a[0] * r_a[1] * 2     # py orb. of sample
+        t = t + lcao_coefficients[2] * self._N_P * r_a[0] * r_a[2] * 2     # pz orb. of sample
+        t = t + lcao_coefficients[3] * self._N_P * (-1 + 2 * r_a[0] ** 2)  # px orb. of sample
+        if len(lcao_coefficients) > 4 and sample_orbital_insertion == "dxy":
+             t = t + lcao_coefficients[4] * self._N_D * r_a[1] * (3 * r_a[0] ** 2 - 1)
+        if len(lcao_coefficients) > 5 and sample_orbital_insertion == "dyz":
+            t = t + lcao_coefficients[5] * self._N_D * r_a[0] * r_a[1] * r_a[2] * 3
+        if len(lcao_coefficients) > 6 and sample_orbital_insertion == "dz2":
+            t = t + lcao_coefficients[6] * self._N_D2 * r_a[0] * (6 * r_a[2] ** 2 + (3 * r_a[2] ** 2 - 1))
+        if len(lcao_coefficients) > 7 and sample_orbital_insertion == "dxz":
+             t = t + lcao_coefficients[7] * self._N_D * r_a[2] * (3 * r_a[0] ** 2 - 1)
+        if len(lcao_coefficients) > 8 and sample_orbital_insertion == "dx2y2":
+            t = t + lcao_coefficients[8] * self._N_D * r_a[0] * ((r_a[0] ** 2 - r_a[1] ** 2) * 1.5 - 1)
         return t
