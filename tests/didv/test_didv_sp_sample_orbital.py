@@ -14,6 +14,7 @@ from pyPPSTM.probe_stm_pytorch import ProbeStmPytorch
 class _TestDidvSpSampleOrbital(ABC):
     _TIP_ORBITAL: np.ndarray
     _BACKENDS_NAME_FN_RTOL: Tuple[Tuple[str, Callable, float]]
+    _RTOL_WRONG_SAMPLE_ORBITALS: float
 
     _AB = 1.889725989
     _EV = 0.036749034
@@ -50,8 +51,6 @@ class _TestDidvSpSampleOrbital(ABC):
         ("dxz",       "dxz",   np.array([[0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0.]])),  # target: g for dxz sample orbital
         ("dxy|dx2y2", "dx2y2", np.array([[0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0.]])),  # target: g for dxy or dx2y2 sample orbitals
     )
-
-    _RTOL_WRONG_SAMPLE_ORBITALS = 3e-1
 
     def test_correct_didv_sample_orbital(self, lcao_coefficients: np.ndarray, didv_backend: Callable, rtol: float):
         """Verify the correctness of dI/dV for a single sample orbital.
@@ -153,7 +152,7 @@ class _TestDidvSpSampleOrbital(ABC):
                                           for sample_orbitals, _, _ in self._SAMPLE_ORBITALS_LCAO_COEFFICIENTS))
 
 class TestDidvSpSampleOrbitalSTipOrbital(_TestDidvSpSampleOrbital):
-    _TIP_ORBITAL = np.asarray([1.0] + [0.0] * 8)  # s tip orbital
+    _TIP_ORBITAL = np.asarray([1.0] + [0.0] * 8)
 
     _BACKENDS_NAME_FN_RTOL = (
         ("C++",                        ProbeSTM.dIdV_sp_sp,                                             4e-8),
@@ -166,6 +165,8 @@ class TestDidvSpSampleOrbitalSTipOrbital(_TestDidvSpSampleOrbital):
         ("NumPy (2 chunks)",           partial(ProbeStmNumpy.didv,   n_tip_position_chunks=2), 3e-7),
         ("PyTorch (2 chunks)",         partial(ProbeStmPytorch.didv, n_tip_position_chunks=2), 2e-7),
     )
+
+    _RTOL_WRONG_SAMPLE_ORBITALS = 3e-1
 
     def _g_tip_orb(self, lcao_coefficients: np.ndarray, r_a: np.ndarray, sample_orbital_insertion: str|None = None):
         """Orbital conductances for different sp orbitals of sample on an s orbital tip.
@@ -190,4 +191,46 @@ class TestDidvSpSampleOrbitalSTipOrbital(_TestDidvSpSampleOrbital):
             t = t + lcao_coefficients[7] * self._N_D * r_a[0] * r_a[2]
         if len(lcao_coefficients) > 8 and sample_orbital_insertion == "dx2y2":
             t = t + lcao_coefficients[8] * self._N_D * .5 * (r_a[0] ** 2 - r_a[1] ** 2)
+        return t
+
+class TestDidvSpSampleOrbitalPzTipOrbital(_TestDidvSpSampleOrbital):
+    _TIP_ORBITAL = np.asarray([0.0, 0.0, 1.0] + [0.0] * 6)
+
+    _BACKENDS_NAME_FN_RTOL = (
+        ("C++",                        ProbeSTM.dIdV_sp_sp,                                             4e-8),
+        ("OpenCL parallel",            ProbeSTMOpenCLParallel.didv,                                     3e-7),
+        ("OpenCL sequential",          ProbeSTMOpenCLSequential.didv,                                   3e-7),
+        ("NumPy (default chunking)",   ProbeStmNumpy.didv,                                              1e-7),
+        ("PyTorch (default chunking)", ProbeStmPytorch.didv,                                            3e-7),
+        ("NumPy (no chunking)",        partial(ProbeStmNumpy.didv,   n_tip_position_chunks=1), 1e-7),
+        ("PyTorch (no chunking)",      partial(ProbeStmPytorch.didv, n_tip_position_chunks=1), 3e-7),
+        ("NumPy (2 chunks)",           partial(ProbeStmNumpy.didv,   n_tip_position_chunks=2), 1e-7),
+        ("PyTorch (2 chunks)",         partial(ProbeStmPytorch.didv, n_tip_position_chunks=2), 3e-7),
+    )
+
+    _RTOL_WRONG_SAMPLE_ORBITALS = 8e-2
+
+    def _g_tip_orb(self, lcao_coefficients: np.ndarray, r_a: np.ndarray, sample_orbital_insertion: str|None = None):
+        """Orbital conductances for different sp orbitals of sample on an s orbital tip.
+
+        Args:
+            lcao_coefficients (np.ndarray): Orbital coefficients for sample, shape (1, 4)
+
+        Returns:
+            np.ndarray, shape (1, 1, 1)
+        """
+        t = lcao_coefficients[0] * r_a[2]                                  # s  orb. of sample
+        t = t + lcao_coefficients[1] * self._N_P * r_a[2] * r_a[1] * 2     # py orb. of sample
+        t = t + lcao_coefficients[2] * self._N_P * (-1 + 2 * r_a[2] ** 2)  # pz orb. of sample
+        t = t + lcao_coefficients[3] * self._N_P * r_a[2] * r_a[0] * 2     # px orb. of sample
+        if len(lcao_coefficients) > 4 and sample_orbital_insertion == "dxy":
+             t = t + lcao_coefficients[4] * self._N_D * r_a[0] * r_a[1] * r_a[2] * 3
+        if len(lcao_coefficients) > 5 and sample_orbital_insertion == "dyz":
+             t = t + lcao_coefficients[5] * self._N_D * r_a[1] * (3 * r_a[2] ** 2 - 1)
+        if len(lcao_coefficients) > 6 and sample_orbital_insertion == "dz2":
+            t = t + lcao_coefficients[6] * self._N_D2 * (6 * (r_a[2] ** 3 - r_a[2]) + 3 * r_a[2] ** 2 - 1)
+        if len(lcao_coefficients) > 7 and sample_orbital_insertion == "dxz":
+            t = t + lcao_coefficients[7] * self._N_D * r_a[0] * (3 * r_a[2] ** 2 - 1)
+        if len(lcao_coefficients) > 8 and sample_orbital_insertion == "dx2y2":
+            t = t + lcao_coefficients[8] * self._N_D * r_a[2] * (r_a[0] ** 2 - r_a[1] ** 2) * 1.5
         return t
