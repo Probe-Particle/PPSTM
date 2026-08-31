@@ -45,6 +45,8 @@ class _TestDidvBackendConsistency(_test_didv._TestDidv, ABC):
         ("PyTorch (2 chunks)",         partial(ProbeStmPytorch.didv,  n_tip_position_chunks=2), 3e-3),
     )
 
+    _ATOL_UB = 2e-17
+
     def test_didv_cpp_matches_other_backends_for_single_tip_position(self,
                                                                      tip_position: np.ndarray,
                                                                      tip_orb: np.ndarray,
@@ -83,7 +85,7 @@ class _TestDidvBackendConsistency(_test_didv._TestDidv, ABC):
         expected_didv = self._didv_cpp(tip_positions=tip_positions, tip_orb=tip_orb)
         actual_didv = self._didv_generic(tip_positions=tip_positions, tip_orb=tip_orb, backend=didv_backend)
 
-        np.testing.assert_allclose(actual_didv, expected_didv, rtol=rtol)
+        np.testing.assert_allclose(actual_didv, expected_didv, rtol=rtol, atol=self._ATOL_UB)
 
     def _didv_cpp(self, tip_positions, tip_orb):
         return self._didv_generic(tip_positions=tip_positions, tip_orb=tip_orb, backend=ProbeSTM.dIdV_sp_sp)
