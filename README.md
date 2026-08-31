@@ -36,11 +36,14 @@ python -m ipykernel install --user --name=ppstm
 More details can be found on a [dedicated Wikipage](https://github.com/Probe-Particle/PPSTM/wiki/Installation).
 
 ### Tests
-After activating the `ppstm-dev` environment, you can run the test suite with:
-```bash
-pytest tests -v
-```
-This runs all tests in verbose mode.
+* **Run all tests (verbose):**
+  ```bash
+  pytest tests -v
+  ```
+* **Run only fast tests (skips tests marked as slow)**:
+  ```bash
+  pytest tests -v -m "not slow"
+  ```
 
 #### Test Coverage
 Measure code coverage to identify untested code paths.

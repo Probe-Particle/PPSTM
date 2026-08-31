@@ -118,6 +118,7 @@ class TestDidvBackendConsistencyWithRealTipPositionsSpSampleOrbitals4NCoronene(
     _LCAO_COEFFICIENTS = np.loadtxt(Path(__file__).parent / "lcao_coefficients_4n_coronene.csv", delimiter=",")
 
 
+@pytest.mark.slow
 class _TestDidvBackendConsistencyWithRealTipPositionsSi7x7(_TestDidvBackendConsistencyWithRealTipPositions, ABC):
     """Tests dI/dV backend consistency with real (STMutils-sourced) tip positions.
     Inspired by examples/Si_7x7."""
