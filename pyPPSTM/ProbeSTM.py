@@ -3,6 +3,7 @@
 import os
 import sys
 from enum import StrEnum
+from functools import partial
 
 import numpy as np
 from   scipy.ndimage import uniform_filter
@@ -54,7 +55,7 @@ class DidvBackend(StrEnum):
     PYTORCH = "pytorch"
 
 def dIdV( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxy=0.0, dxz=0.0, dyz=0.0, dz2=0.0,
-          backend: DidvBackend = DidvBackend.CPP):
+          backend: DidvBackend = DidvBackend.CPP, n_tip_position_chunks: int = 1):
     '''
     dIdV( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=1.0, px =0.0, py=0.0, pz=0.0):
     V - voltage = (energy vs. the Fermi Level in eV);
@@ -63,7 +64,7 @@ def dIdV( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0
     eig - eigenenergies of sample states (=molecular orbitals)
     R input of points in whish you calculate dI/dV (relaxed via PP afm, or nonrelaxed via mkSpaceGrid)
     coes -- LCAO coefficients from read_fire_coes (Fireball, maybe FHI-AIMS & mathematica) or read_GPAW_all
-    orbs = 'sp' orbitals of the sample (spd don't work at the moment
+    orbs = 'sp' or 'spd' orbitals of the sample. Defaults to 'spd'.
     s and/or px and/or py and/or pz orbitals at the PP
     unification of all the predefined dI/dV procedures from C++, you can choose, whatever PP orbital you want
     '''
@@ -73,9 +74,9 @@ def dIdV( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0
     elif backend == DidvBackend.CPP:
         _didv_spd_spd = dIdV_sp_sp
     elif backend == DidvBackend.PYTORCH:
-        _didv_spd_spd = ProbeStmPytorch.didv
+        _didv_spd_spd = partial(ProbeStmPytorch.didv, n_tip_position_chunks=n_tip_position_chunks)
     else:  # backend == DidvBackend.NUMPY:
-        _didv_spd_spd = ProbeStmNumpy.didv
+        _didv_spd_spd = partial(ProbeStmNumpy.didv, n_tip_position_chunks=n_tip_position_chunks)
     cur = _didv_spd_spd( V, WF, eta, eig, R, Rat, coes, tip, orb_t )
     return cur
 
@@ -108,7 +109,7 @@ def dIdV_tilt( V, WF, eta ,eig, R, R0, Rat, coes, orbs='sp', pz=0.0, pxy =0.0, d
     return cur;
 
 def STM( V, nV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxy=0.0, dxz=0.0, dyz=0.0, dz2=0.0, WF_decay=1.0,
-         backend: DidvBackend = DidvBackend.CPP):
+         backend: DidvBackend = DidvBackend.CPP, n_tip_position_chunks: int = 1):
     '''
     STM( V, nV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=1.0, px =0.0, py=0.0, pz=0.0, WF_decay=1.0):
     summing more dI/dV via rectangle integration, be aware Work Function is changing with Voltage!
@@ -123,7 +124,7 @@ def STM( V, nV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, p
         assert (WF-v_*WF_decay> 0.1), "Non-physical Work Function or Voltage, together WF <= 0.1 eV	"
         print("WF for this step is: " , WF-v_*WF_decay, " eV")
         i_ = dIdV( v_, WF-v_*WF_decay, eta ,eig, R, Rat, coes, orbs=orbs, s=s, px =px, py=py, pz=pz, dxy=dxy, dxz=dxz, dyz=dyz, dz2=dz2,
-                   backend=backend)
+                   backend=backend, n_tip_position_chunks=n_tip_position_chunks)
         #print "maximal dI/dV: " , max(i_)
         if (v_ == 0):
             cur = i_
@@ -134,7 +135,7 @@ def STM( V, nV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, p
     return cur;
 
 def MSTM( Vmin, Vmax, dV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=1.0, px =0.0, py=0.0, pz=0.0, dxy=0.0, dxz=0.0, dyz=0.0, dz2=0.0, WF_decay=1.0,
-          backend: DidvBackend = DidvBackend.CPP):
+          backend: DidvBackend = DidvBackend.CPP, n_tip_position_chunks: int = 1):
     '''
     MSTM( Vmin, Vmax,  dV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=1.0, px =0.0, py=0.0, pz=0.0, WF_decay=1.0):
     summing more dI/dV via rectangle integration, be aware Work Function is changing with Voltage!
@@ -151,7 +152,7 @@ def MSTM( Vmin, Vmax, dV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=1.0, px =0.0,
         assert (WF-v_*WF_decay> 0.1), "Non-physical Work Function or Voltage, together WF <= 0.1 eV	"
         print("WF for this step is: " , WF-v_*WF_decay, " eV")
         i_ = dIdV( v_, WF-v_*WF_decay, eta ,eig, R, Rat, coes, orbs=orbs, s=s, px =px, py=py, pz=pz, dxy=dxy, dxz=dxz, dyz=dyz, dz2=dz2,
-                   backend=backend)
+                   backend=backend, n_tip_position_chunks=n_tip_position_chunks)
         dIdVs = np.array([i_]) if v_ == Vmin else np.append(dIdVs, np.array([i_]),axis=0)
         if -0.005 < v_ < 0.005:
             v0 = ii
