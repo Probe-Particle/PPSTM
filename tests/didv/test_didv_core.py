@@ -1,8 +1,13 @@
 from abc import ABC
+from functools import partial
 from typing import Callable
 
 import numpy as np
 import pytest
+
+from pyPPSTM.probe_stm_opencl import ProbeSTMOpenCLParallel, ProbeSTMOpenCLSequential
+from pyPPSTM.probe_stm_pytorch import ProbeStmPytorch
+from pyPPSTM.probe_stm_numpy import ProbeStmNumpy
 
 # Register assert rewrite BEFORE import to enable better error messages in inherited tests
 pytest.register_assert_rewrite("tests.didv._test_didv")
@@ -29,6 +34,17 @@ class _TestDidvCore(_test_didv._TestDidv, ABC):
     )
 
     _ATOL_UB = 1e-7
+
+    _BACKENDS_NAME_FN = (
+        ("OpenCL parallel",            ProbeSTMOpenCLParallel.didv),
+        ("OpenCL sequential",          ProbeSTMOpenCLSequential.didv),
+        ("NumPy (default chunking)",   ProbeStmNumpy.didv),
+        ("PyTorch (default chunking)", ProbeStmPytorch.didv),
+        ("NumPy (no chunking)",        partial(ProbeStmNumpy.didv,    n_tip_position_chunks=1)),
+        ("PyTorch (no chunking)",      partial(ProbeStmPytorch.didv,  n_tip_position_chunks=1)),
+        ("NumPy (2 chunks)",           partial(ProbeStmNumpy.didv,    n_tip_position_chunks=2)),
+        ("PyTorch (2 chunks)",         partial(ProbeStmPytorch.didv,  n_tip_position_chunks=2)),
+    )
 
     def test_didv_returns_one_conductance_per_tip_position(self,
                                                            single_tip_position: np.ndarray,
@@ -95,7 +111,7 @@ class _TestDidvCore(_test_didv._TestDidv, ABC):
                                             backend=didv_backend)
                                  for i in range(x_len) for j in range(y_len) for k in range(z_len)])
 
-        np.testing.assert_allclose(out_multi, out_singles.reshape(x_len, y_len, z_len))
+        np.testing.assert_equal(out_multi, out_singles.reshape(x_len, y_len, z_len))
 
     @pytest.fixture(scope="class")
     def single_tip_position(self):
@@ -129,6 +145,11 @@ class _TestDidvCore(_test_didv._TestDidv, ABC):
             else:
                 metafunc.parametrize(("x_len", "y_len", "z_len"),
                                      self._SAME_TIP_POSITIONS_BATCH_SHAPES)
+
+        if "didv_backend" in metafunc.fixturenames:
+            metafunc.parametrize("didv_backend",
+                                 (fn for _, fn in self._BACKENDS_NAME_FN),
+                                 ids=(name for name, _, in self._BACKENDS_NAME_FN))
 
     def _didv(self, tip_positions: np.ndarray, backend: Callable) -> np.ndarray:
         """Compute differential conductance using the specified backend.
