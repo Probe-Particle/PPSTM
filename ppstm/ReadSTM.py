@@ -1,18 +1,15 @@
-#!/usr/bin/python
-
+import logging
 import os
-import sys
 import numpy as np
 from . import basUtils as bU
 from . import elements
 
-from   ctypes import c_int, c_double, c_char_p
-import ctypes
+from   ctypes import c_int, c_char_p
 from . import cpp_utils as cu
 
-import time
-
 from typing import Tuple
+
+logger = logging.getLogger(__name__)
 
 # this library has functions for reading STM coefficients and make a grid for non-relaxed 3D scan
 
@@ -38,7 +35,7 @@ dOrbRes_ = True
 # ==============================
 
 LIB_PATH = os.path.dirname( os.path.realpath(__file__) )
-print(" ProbeParticle Library DIR = ", LIB_PATH)
+logger.debug(" ProbeParticle Library DIR = ", LIB_PATH)
 
 cpp_name='IO'
 lib = cu.ctypes_make(cpp_name, cpp_name) # make_name and cpp_name are the same # load dynamic librady object using ctypes 
@@ -73,7 +70,7 @@ def mkSpaceGrid(xmin,xmax,dx,ymin,ymax,dy,zmin,zmax,dz):
     h = np.mgrid[xmin:xmax+0.0001:dx,ymin:ymax+0.0001:dy,zmin:zmax+0.0001:dz]
     f = np.transpose(h)
     sh = f.shape
-    print("Grid has dimensios: ", sh)
+    logger.debug("Grid has dimensios: ", sh)
     return f;	#, sh;
 
 # preparing procedures:
@@ -84,7 +81,7 @@ def initial_check(orbs = 'sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_
     '''
     assert ((orbs == 'sp')or(orbs == 'spd')), "sorry I can't do different orbitals" 
     assert (imaginary == False), "sorry imaginary version is under development" 	
-    print("reading FHI-AIMS LCAO coefficients for basis: ",orbs)	
+    logger.debug("reading FHI-AIMS LCAO coefficients for basis: ",orbs)
     global cut_at_ ; cut_at_ = -1 if cut_at == None else cut_at
     global pbc_    ; pbc_ = pbc
     global cut_min_ ; cut_min_ = cut_min
@@ -116,7 +113,7 @@ def for_PBC(atoms,lvs):
     '''
     if (pbc_ != ((0,0)or(0.,0.))):
         assert lvs is not None and lvs.size != 0, "Lattice vectors (cell) not specified"
-        print("Applying PBC")
+        logger.debug("Applying PBC")
         if (pbc_ == (0.5,0.5)):
             atoms = bU.multCell( atoms, lvs, m=(2,2,1) )
             Rs = np.array([atoms[1],atoms[2],atoms[3]])
@@ -125,7 +122,7 @@ def for_PBC(atoms,lvs):
             Rs = np.array([atoms[1],atoms[2],atoms[3]]); 
             Rs[0] -= int(pbc_[0])*lvs[0,0]+int(pbc_[1])*lvs[1,0]
             Rs[1] -= int(pbc_[0])*lvs[0,1]+int(pbc_[1])*lvs[1,1]
-        print(" Number of atoms after PBC: ", len(Rs[0]))
+        logger.debug(" Number of atoms after PBC: ", len(Rs[0]))
     else:
         Rs = np.array([atoms[1],atoms[2],atoms[3]])
     Ratin    = np.transpose(Rs).copy()
@@ -137,21 +134,21 @@ def get_FIREBALL_geom(geom='answer.bas', lvs=None, sl=False):
     '''
     Prepares geometry from the FIREBALL files format, sl = means automatically skip line in the xyz file
     '''
-    print(" # ============ define atoms ============")
+    logger.debug(" # ============ define atoms ============")
     atoms, nDim, tmp = bU.loadAtoms(geom, sl=sl)
     #print "DEBUG: atoms", atoms
     del nDim, tmp
     atoms = cut_atoms(atoms)
-    print(" Number of atoms: ", num_at_)
+    logger.debug(" Number of atoms: ", num_at_)
     Ratin = for_PBC(atoms,lvs)
-    print("atomic geometry read")
+    logger.debug("atomic geometry read")
     return Ratin ;
 
 def get_AIMS_geom(geom='geometry.in'):
     '''
     Prepares geometry from the FHI-AIMS files format
     '''
-    print(" # ============ define atoms ============")
+    logger.debug(" # ============ define atoms ============")
     atoms, nDim, lvs = bU.loadGeometryIN(geom)
     lvs = np.array(lvs)
     del nDim
@@ -159,25 +156,25 @@ def get_AIMS_geom(geom='geometry.in'):
     at_num = []
     for i in atoms[0]:
         at_num.append(elements.ELEMENT_DICT[i][0])
-    print(" Number of atoms: ", num_at_)
+    logger.debug(" Number of atoms: ", num_at_)
     Ratin = for_PBC(atoms,lvs)
-    print("atomic geometry read")
+    logger.debug("atomic geometry read")
     return Ratin, np.array(at_num);
 
 def get_GPAW_geom(geom=None):
     '''
     Prepares geometry from the ASE atoms binary
     '''
-    print(" # ============ define atoms ============")
+    logger.debug(" # ============ define atoms ============")
     from ase import Atoms
     tmp = geom.get_positions()
     atoms = [geom.get_atomic_numbers(), tmp[:,0], tmp[:,1], tmp[:,2] ]
     lvs = geom.get_cell()
     del tmp
     atoms = cut_atoms(atoms)
-    print(" Number of atoms: ", num_at_)
+    logger.debug(" Number of atoms: ", num_at_)
     Ratin = for_PBC(atoms,lvs)
-    print("atomic geometry read")
+    logger.debug("atomic geometry read")
     return Ratin ;
 
 # procedures for sorting eigenstates:
@@ -187,7 +184,7 @@ def to_fermi(eig, fermi, orig_fermi=0.0):
     Shift the fermi level & shift the eigenenergy to the Fermi-Level
     '''
     fermi = orig_fermi if (fermi == None) else fermi + orig_fermi
-    print("The Fermi Level: ", fermi, " eV; in FHI-AIMS is the Fermi automatically 0.")
+    logger.debug("The Fermi Level: ", fermi, " eV; in FHI-AIMS is the Fermi automatically 0.")
     eig -= fermi
     return eig;
 
@@ -209,7 +206,7 @@ def lower_Allorb(coef):
     Lowering hoppings for some atoms predefined by user
     '''
     if (lower_atoms_ != []):
-        print('lowering atoms hoppings for atoms:', lower_atoms_)
+        logger.debug('lowering atoms hoppings for atoms:', lower_atoms_)
         i_coef = 0;
         for j in lower_atoms_:
             coef[:,j,:] *= lower_coefs_[i_coef]
@@ -222,8 +219,8 @@ def lower_Dorb(coef):
     '''
     d_rescale=0.2
     if (Ynum_ > 4) and dOrbRes_: #(orbs=='spd') & and d-orbital-rescalling:
-        print("!!! Be aware d-orbs are now rescaled by factor of" ,d_rescale) 
-        print("This is due to a faster decay of d-orbs in the original basis sets, but simple rescaling is nasty !!!")
+        logger.debug("!!! Be aware d-orbs are now rescaled by factor of" ,d_rescale)
+        logger.debug("This is due to a faster decay of d-orbs in the original basis sets, but simple rescaling is nasty !!!")
         coef[:,:,4:] *= d_rescale
     coeff = coef.flatten()
     return coeff.reshape((n_max_-n_min_,num_at_*Ynum_));
@@ -241,7 +238,7 @@ def pbc_coef(coeffs):
     Applying PBC to the LCAO Coefficients
     '''
     if ((pbc_ != (0,0))or(pbc_ != (0.0,0.0))) :
-        print("applying pbc")
+        logger.debug("applying pbc")
         coeff =np.repeat(coeffs,int(pbc_[0]*2+1)*int(pbc_[1]*2+1),0).flatten()
         global num_at_;	num_at_ *=int(pbc_[0]*2+1)*int(pbc_[1]*2+1)
         coeffs = coeff.reshape((n_max_-n_min_,num_at_*Ynum_))
@@ -296,7 +293,7 @@ def	read_AIMS_all(name = 'KS_eigenvectors.band_1.kpt_1.out', geom='geometry.in',
     del pre_eig, tmp;
     eig = to_fermi(eig, fermi, orig_fermi=0.0)
     eig = cut_eigenenergies(eig, cut_min, cut_max)
-    print("eigenenergies read")
+    logger.debug("eigenenergies read")
     # ****** TO BE REMOVED ********
     """
     # old slow python procedure
@@ -358,7 +355,7 @@ def	read_AIMS_all(name = 'KS_eigenvectors.band_1.kpt_1.out', geom='geometry.in',
     # lowering over atoms and applying PBC
     coef = read_AIMS_coefs(name, at_num ) # Maximal error between C++ and python reading ~1.5E-08; reading procedure ~100x faster
     coeffs = handle_coef(coef)
-    print("All coefficients read")
+    logger.debug("All coefficients read")
     return eig.copy(), coeffs.copy(), Ratin.copy();
 
 def	read_GPAW_all(name = 'OUTPUT.gpw', fermi = None, orbs = 'sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lower_atoms=[], lower_coefs=[] ):
@@ -388,14 +385,14 @@ def	read_GPAW_all(name = 'OUTPUT.gpw', fermi = None, orbs = 'sp', pbc=(1,1), ima
     at_num = slab.get_atomic_numbers()
     eig = to_fermi(eig, fermi, orig_fermi=calc.get_fermi_level())
     eig = cut_eigenenergies(eig, cut_min, cut_max)
-    print("eigen-energies read")
+    logger.debug("eigen-energies read")
     # obtaining the LCAO coefficients (automatically removed unwanted states - molecular orbitals - and atoms)
     coef = np.zeros((n_max_-n_min_,num_at_,Ynum_))
     if (orbs=='spd'):
-        print("!!! WARNING: d-orbitals should be in principle working, but coefficients can be wrong, according to my experiences !!!")
-        print("DEBUG: going to crazy procedure, which finds, where the d-orbs starts")
-        print("from gpaw.utilities.dos import print_projectors; print_projectors('X')")
-        print("this prints you where the d-orb should start")
+        logger.debug("!!! WARNING: d-orbitals should be in principle working, but coefficients can be wrong, according to my experiences !!!")
+        logger.debug("going to crazy procedure, which finds, where the d-orbs starts")
+        logger.debug("from gpaw.utilities.dos import print_projectors; print_projectors('X')")
+        logger.debug("this prints you where the d-orb should start")
         from gpaw.setup_data import SetupData
         chem_sym=slab.get_chemical_symbols()
         d_orb=np.zeros((num_at_));
@@ -430,7 +427,7 @@ def	read_GPAW_all(name = 'OUTPUT.gpw', fermi = None, orbs = 'sp', pbc=(1,1), ima
     # lowering tunneling for predefined atoms
     # lowering over atoms and applying PBC
     coeffs = handle_coef(coef)
-    print("All coefficients read")
+    logger.debug("All coefficients read")
     return eig.copy(), coeffs.copy(), Ratin.copy();
 
 def	read_FIREBALL_all(name = 'phi_' , geom='answer.bas', fermi=None, orbs = 'sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_max=5.0, cut_at=-1, lvs = None, lower_atoms=[], lower_coefs=[]):
@@ -464,9 +461,9 @@ def	read_FIREBALL_all(name = 'phi_' , geom='answer.bas', fermi=None, orbs = 'sp'
     eig = to_fermi(eig, fermi, orig_fermi=float(pre_eig[2]))
     del pre_eig;
     eig = cut_eigenenergies(eig, cut_min, cut_max)
-    print("eigen-energies read")
+    logger.debug("eigen-energies read")
 
-    print(" loading the LCAO coefficients")
+    logger.debug(" loading the LCAO coefficients")
     coef = np.zeros((n_bands,num_at_,Ynum_))
     if (num_at_ > 1):
         coef[:,:,0] = np.loadtxt(name+'s.dat',skiprows=1,usecols=tuple(range(1, num_at_*2+1, 2)) )
@@ -495,7 +492,7 @@ def	read_FIREBALL_all(name = 'phi_' , geom='answer.bas', fermi=None, orbs = 'sp'
     coef=coef[n_min_:n_max_,:,:]
     # lowering over atoms and applying PBC
     coeffs = handle_coef(coef)
-    print("All coefficients read")
+    logger.debug("All coefficients read")
     return eig.copy(), coeffs.copy(), Ratin.copy();
 
 
@@ -586,13 +583,13 @@ def read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), imaginary = False, cut
     # lowering tunneling for predefined atoms
     # lowering over atoms and applying PBC
     coeffs = handle_coef(coef)
-    print("All coefficients read")
+    logger.debug("All coefficients read")
     return eig.copy(), coeffs.copy(), Ratin.copy();
 
 #===============================================================================
 def read_cp2k_MO_file(fn, spin):
     '''reads files with basis decomposition of states==Molecular orbitals - it can read closed-shell systems, alpha or beta spin separately, meaning you need to run it twice to get both spins,'''
-    print(("Reading CP2K MOs from:"+fn))
+    logger.debug(("Reading CP2K MOs from:"+fn))
 
     # read all lines into memory
     f = open(fn)
@@ -614,7 +611,7 @@ def read_cp2k_MO_file(fn, spin):
     natoms = int(parts[1])
     nmos = int(lines[-nbasis-2+tmp_i].split()[-1])
     nlines_per_spin = (nbasis+3) * ((nmos+3)//4) + 0 # 2 originally but at the end of the file, there can be different endings - I try to run everything flexible
-    print(("Found %d MOs spanned by %d basis functions centered on %d atoms."%(nmos, nbasis, natoms)))
+    logger.debug("Found %d MOs spanned by %d basis functions centered on %d atoms."%(nmos, nbasis, natoms))
     del tmp_i;
 
     # handle spin

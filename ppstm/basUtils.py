@@ -1,3 +1,7 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
 # procedures for loading geometry from different files:
 
 def loadAtoms( name , sl=False):
@@ -16,7 +20,7 @@ def loadAtoms( name , sl=False):
         i = 0;
         for line in f:
             if sl :
-                print(" forced skipped line : ", line)
+                logger.debug(" forced skipped line : ", line)
                 sl = False
             else:
                 words=line.split()
@@ -32,14 +36,14 @@ def loadAtoms( name , sl=False):
                 else:
                     q.append( 0.0 )
             except:
-                print(" skipped line : ", line)
+                logger.debug(" skipped line : ", line)
     f.close()
     nDim = []
     lvec = [] 
     return [ e,x,y,z,q ], nDim, lvec
 
 def loadGeometryIN( fname ):
-    print("importin atoms from FHI-AIMS input")
+    logger.debug("importin atoms from FHI-AIMS input")
     f = open(fname )
     e=[];x=[];y=[]; z=[]; q=[]
     lvec = [] 

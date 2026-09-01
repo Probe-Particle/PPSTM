@@ -1,3 +1,5 @@
+import logging
+
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -17,6 +19,8 @@ from matplotlib.figure import Figure
 from ppstm.guiMethods import newPPSTM_simple, conv2float, importData
 import ppstm.basUtils as Bu
 import ppstm.elements as elements
+
+logger = logging.getLogger(__name__)
 
 ######################### Canvas classes for plotting ####################
 
@@ -64,9 +68,9 @@ class MplCanvas(FigureCanvasQTAgg):
 
         if fileName:
             if fext == '(*.xsf)':
-                print("For XSF or NPY outputs or tip_type = relaxed you have to have installed PPAFM in your PPSTM directory ")
+                self._logger.debug("For XSF or NPY outputs or tip_type = relaxed you have to have installed PPAFM in your PPSTM directory ")
                 import ppstm.GridUtils as GU
-                print("writing XSF files")
+                self._logger.debug("writing XSF files")
                 geom_plot = self.parent.plotData['geom_plot']
                 lvec = self.parent.plotData['lvec']
                 xsf_head = Bu.At2XSF(geom_plot) #if plot_atoms else GU.XSF_HEAD_DEFAULT
@@ -76,12 +80,12 @@ class MplCanvas(FigureCanvasQTAgg):
                 elif mapType == 'STM':
                     current = self.parent.plotData['current']
                     GU.saveXSF(fileName, current[vv], lvec, head=xsf_head )
-                print("XSF files written")
+                self._logger.debug("XSF files written")
 
             elif fext == '(*.npy)':
-                print("For XSF or NPY outputs or tip_type = relaxed you have to have installed PPAFM in your PPSTM directory ")
+                self._logger.debug("For XSF or NPY outputs or tip_type = relaxed you have to have installed PPAFM in your PPSTM directory ")
                 import ppstm.GridUtils as GU
-                print("writing npy binary files")
+                self._logger.debug("writing npy binary files")
                 lvec = self.parent.plotData['lvec']
                 if mapType == 'dIdV':
                     didv = self.parent.plotData['didv']
@@ -89,11 +93,11 @@ class MplCanvas(FigureCanvasQTAgg):
                 elif mapType == 'STM':
                     current = self.parent.plotData['current']
                     GU.saveNpy(fileName, current[vv], lvec)#, head=XSF_HEAD_DEFAULT )
-                print("npy files written")
+                self._logger.debug("npy files written")
 
             else:
                 # default write in WSxM
-                print("writing WSxM files")
+                self._logger.debug("writing WSxM files")
                 tip_r0 = self.parent.plotData['tip_r0']
                 if mapType == 'dIdV':
                     didv = self.parent.plotData['didv']
@@ -123,9 +127,9 @@ class MplCanvas(FigureCanvasQTAgg):
                     print("", file=f)
                     np.savetxt(f, out_curr)
                     f.close()
-                print("WSxM files written")
+                self._logger.debug("WSxM files written")
 
-        print ("Data saved")
+        self._logger.debug("Data saved")
 
     def saveFigure(self):
         plotData = self.parent.plotData
@@ -137,14 +141,14 @@ class MplCanvas(FigureCanvasQTAgg):
             fileName, _ = QFileDialog.getSaveFileName(self,"QFileDialog.getSaveFileName()",'didv_'+plotData['namez'][vv]+"_tip_"+plotData['tip_type']+"-"+"_WF_"+str(plotData['WorkFunction']-plotData['Voltages'][vv]*plotData['WF_decay'])+"_eta_"+str(eta)+'_%03d.png' %k,"Image files (*.png)")
             if fileName:
                 fileName = self.correct_ext(fileName, ".png")
-                print(("saving image to :", fileName))
+                self._logger.debug(("saving image to :", fileName))
                 plt.fig = plt.gcf()
                 plt.fig.savefig(fileName)
         else:
             fileName, _ = QFileDialog.getSaveFileName(self,"QFileDialog.getSaveFileName()",'STM_'+plotData['namez'][vv]+"_tip_"+plotData['tip_type']+"-"+"_WF_"+str(plotData['WorkFunction'])+"_WF_decay_"+str(round(plotData['WF_decay'],1))+"_eta_"+str(eta)+'_%03d.png' %k,"Image files (*.png)")
             if fileName:
                 fileName = self.correct_ext(fileName, ".png")
-                print(("saving image to :", fileName))
+                self._logger.debug(("saving image to :", fileName))
                 plt.savefig(fileName)
 
 ######################## Application Window Class ########################
@@ -615,13 +619,13 @@ class Window(QMainWindow):
         if self.runClicked:
             self.myCanvas.saveFigure()
         else:
-            print('Error, no plot exists. Run first.')
+            self._logger.debug('Error, no plot exists. Run first.')
     
     def saveData(self):
         if self.runClicked:
             self.myCanvas.saveData()
         else:
-            print('Error. Run first.')
+            self._logger.debug('Error. Run first.')
     
     def saveOptions(self):
         fileName, fext = QFileDialog.getSaveFileName(self, "QFileDialog.getSaveFileName()", "", "ASCII File (*.txt)")
@@ -725,7 +729,7 @@ class Window(QMainWindow):
         cp2kName = self.name.text()
 
         if len(inputPath) == 0 or len(cp2kName) == 0 or len(geometry_file) == 0:
-            print ('Path/name/file not given')
+            self._logger.debug('Path/name/file not given')
             return 
 
         lower_coefs = self.lowcoeffs.text()
@@ -744,12 +748,12 @@ class Window(QMainWindow):
         self.importData = importData(self.myDict, self.paths)
 
         if self.importData:
-            print("energies prepared, coeffecients read")
+            self._logger.debug("energies prepared, coeffecients read")
 
     def load(self):
         filePath, ext = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "", "ASCII File (*.txt)")
         if filePath:
-            print (" >> OVERWRITING SETTINGS by "+ filePath) 
+            self._logger.debug(" >> OVERWRITING SETTINGS by "+ filePath)
             fin = open(filePath, 'r')
             for line in fin:
                 copiedLine = re.sub('\[|\]|\:|\,|\)|\(|\'|\}|\{', '', line)
@@ -806,12 +810,12 @@ class Window(QMainWindow):
             self.updateWidgets()
             
             if len(self.paramList) != 0:
-                print('Following parameters where not changed and remained default:')
+                self._logger.debug('Following parameters where not changed and remained default:')
                 for p in self.paramList:
                     if p == 'paths':
-                        print (p + '(input files path, geometry file name, CP2K/GPAW) = ' + str(self.paths))
+                        self._logger.debug(p + '(input files path, geometry file name, CP2K/GPAW) = ' + str(self.paths))
                     else:
-                        print(p + ' = ' + self.myDict[p])
+                        self._logger.debug(p + ' = ' + self.myDict[p])
 
             self.paramList = []            
             self.paramList = list(self.myDict.keys())
@@ -845,7 +849,7 @@ class Window(QMainWindow):
         if self.paths and self.importData:
             self.plotData = newPPSTM_simple(self.myDict, self.paths, self.importData)
         else:
-            print ('Error. Not all the parameters were given (paths - click import button).')
+            self._logger.debug('Error. Not all the parameters were given (paths - click import button).')
             return 
         if self.plotData:
             # Update plot
@@ -862,7 +866,7 @@ class Window(QMainWindow):
                 self.layout.replaceWidget(self.myCanvas, canvas)
                 self.myCanvas = canvas
         else:
-            print('Error. Run first.')
+            self._logger.debug('Error. Run first.')
     
     def plotGeom(self, atomSize=0.1, edge=True, ec='k'):
         atoms, tmp1, tmp2 = Bu.loadAtoms(os.path.join(self.paths['inputPath'], 'input_plot.xyz')); del tmp1, tmp2;
@@ -880,25 +884,25 @@ class Window(QMainWindow):
 
         if mapType == 'dIdV':
             if plotData['didv'] is None:
-                print('Error. didv does not exist.')
+                self._logger.debug('Error. didv does not exist.')
                 return None
             if height >= plotData['NoH_didv']:
-                print ('Error. Height out of index')
+                self._logger.debug('Error. Height out of index')
                 return None
             elif voltage >= plotData['NoV_didv']:
-                print ('Error. Voltage out of index')
+                self._logger.debug('Error. Voltage out of index')
                 return None
         elif mapType == 'STM':
             if plotData['current'] is None:
-                print('Error. current does not exist.')
+                self._logger.debug('Error. current does not exist.')
                 return None
             if height >= plotData['NoH_STM']:
-                print ('Error. Height out of index')
+                self._logger.debug('Error. Height out of index')
                 return None
             elif voltage >= plotData['NoV_STM']:
-                print ('Error. Voltage out of index')
+                self._logger.debug('Error. Voltage out of index')
                 return None
-        print("We go to plotting ")
+        self._logger.debug("We go to plotting ")
         # print "DEBUG: long name:::", namez[vv],';height:%03d;tip:'  %k,tip_type,';',tip_orb
         #name_plot=namez[voltage]+';height:'+str(height)+';tip:'+tip_type+';'+tip_orb
         plt.close()

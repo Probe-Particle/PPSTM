@@ -1,11 +1,10 @@
-#!/usr/bin/python
-
+import logging
 import numpy as np
-from   ctypes import c_int, c_double, c_char_p
-import ctypes
+from   ctypes import c_int, c_char_p
 import os
-import sys
 from . import cpp_utils as cu
+
+logger = logging.getLogger(__name__)
 
 # ============================== 
 
@@ -14,7 +13,7 @@ bohrRadius2angstroem = 0.5291772109217
 # ============================== interface to C++ core 
 
 LIB_PATH = os.path.dirname( os.path.realpath(__file__) )
-print(" ProbeParticle Library DIR = ", LIB_PATH)
+logger.debug(" ProbeParticle Library DIR = ", LIB_PATH)
 cpp_name ='IO'
 lib = cu.ctypes_make(cpp_name, cpp_name) # make_name and cpp_name are the same # load dynamic librady object using ctypes
 
@@ -102,11 +101,11 @@ def loadXSF(fname):
     nDim = np.array( nDim)
     lvec = readmat(filein, 4)                                       # reading 4 lines where 1st line is origin of datagrid and 3 next lines are the cell vectors
     filein.close()
-    print("nDim xsf (= nDim + [1,1,1] ):", nDim)
-    print("GridUtils| Load "+fname+" using readNumsUpTo ")    
+    logger.debug("nDim xsf (= nDim + [1,1,1] ):", nDim)
+    logger.debug("GridUtils| Load "+fname+" using readNumsUpTo ")
     F = readNumsUpTo(fname,nDim.astype(np.int32).copy(), startline+5)
     
-    print("GridUtils| Done")
+    logger.debug("GridUtils| Done")
     FF = np.reshape (F, nDim )
     return FF[:-1,:-1,:-1],lvec, nDim-1, head
 
@@ -146,12 +145,12 @@ def loadCUBE(fname):
         lvec[1,jj]=float(sth1[jj+1])*int(sth1[0])*bohrRadius2angstroem  # bohr_radius ?
         lvec[2,jj]=float(sth2[jj+1])*int(sth2[0])*bohrRadius2angstroem
         lvec[3,jj]=float(sth3[jj+1])*int(sth3[0])*bohrRadius2angstroem
-    print("GridUtils| Load "+fname+" using readNumsUpTo")  
+    logger.debug("GridUtils| Load "+fname+" using readNumsUpTo")
     noline = 6+int(sth0[0])
     F = readNumsUpTo(fname,nDim.astype(np.int32).copy(),noline)
-    print("GridUtils| np.shape(F): ",np.shape(F))
-    print("GridUtils| nDim: ",nDim)
-    print(nDim)
+    logger.debug("GridUtils| np.shape(F): ",np.shape(F))
+    logger.debug("GridUtils| nDim: ",nDim)
+    logger.debug(nDim)
     FF = np.reshape(F, nDim ).transpose((2,1,0)).copy()  # Transposition of the array to have the same order of data as in XSF file
     nDim=[nDim[2],nDim[1],nDim[0]]                          # Setting up the corresponding dimensions. 
     head = []
@@ -184,7 +183,7 @@ def saveWSxM_3D( prefix, data, extent, slices=None ):
     ys=np.linspace( extent[2], extent[3], int(nDim[1]) )
     Xs, Ys = np.meshgrid(xs,ys)
     for i in slices:
-        print("slice no: ", i)
+        logger.debug("slice no: ", i)
         fname = prefix+'_%03d.xyz' %i
         saveWSxM_2D(fname, data[i], Xs, Ys)
 
@@ -258,7 +257,7 @@ def save_vec_field(fname, data, lvec, data_format="xsf", xsfHead = XSF_HEAD_DEFA
     elif (data_format=="npy"):
         saveVecFieldNpy(fname, data, lvec)
     else:
-        print("I cannot save this format!")
+        logger.debug("I cannot save this format!")
 
 
 def load_vec_field(fname, data_format="xsf"):
@@ -271,7 +270,7 @@ def load_vec_field(fname, data_format="xsf"):
         data, lvec = loadVecFieldNpy(fname)
         ndim = np.delete(data.shape,3)
     else:
-        print("I cannot load this format!")
+        logger.debug("I cannot load this format!")
     return data, lvec, ndim;
 
 
@@ -286,7 +285,7 @@ def save_scal_field(fname, data, lvec, data_format="xsf", xsfHead = XSF_HEAD_DEF
     elif (data_format=="npy"):
         saveNpy(fname, data, lvec)
     else:
-        print("I cannot save this format!")
+        logger.debug("I cannot save this format!")
 
 
 def load_scal_field(fname, data_format="xsf"):
@@ -299,7 +298,7 @@ def load_scal_field(fname, data_format="xsf"):
         data, lvec = loadNpy(fname)
         ndim = data.shape
     else:
-        print("I cannot load this format!")
+        logger.debug("I cannot load this format!")
     return data.copy(), lvec, ndim;
 
 # =============== Other Utils
@@ -310,7 +309,7 @@ def multArray( F, nx=2,ny=2 ):
     it is usefull to visualization of images computed in periodic supercell ( PBC )
     '''
     nF = np.shape(F)
-    print("nF: ",nF)
+    logger.debug("nF: ",nF)
     F_ = np.zeros( (nF[0],nF[1]*ny,nF[2]*nx) )
     for iy in range(ny):
         for ix in range(nx):

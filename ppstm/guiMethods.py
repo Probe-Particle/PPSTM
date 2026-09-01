@@ -9,7 +9,10 @@
 # ***** System information: *****
 
 # Converting 1D and 2D string arrays to arrays of floats
+import logging
 import re
+
+logger = logging.getLogger(__name__)
 
 def conv1Darray(array1D):
     array1D = re.sub('\[|\]', '', array1D)
@@ -43,7 +46,7 @@ def importData(myDict, paths):
         else:
             lvs = files_path + lvs
     except:
-        print('lvs input not correct')
+        logger.debug('lvs input not correct')
 
     # E.G. 'input.xyz' , 'input.bas' , 'geometry.in'; None for GPAW #
     geometry_file = paths['geometry_file']
@@ -63,7 +66,7 @@ def importData(myDict, paths):
         else:
             lower_atoms = list(map(int,conv1Darray(lower_atoms)))
     except:
-        print('lower Atoms input not corrct')
+        logger.debug('lower Atoms input not corrct')
     
     try:
         lower_coefs = myDict['lower_coefs']             # [] = None -- No lowering of the hoppings  ; [0.5] -- lowering of the 1st atom hopping to 0.5                           ; [0.5,0.5,0.5,0.5] -- lowering of 1st 4 atoms to 0.5 ... #
@@ -71,7 +74,7 @@ def importData(myDict, paths):
         else:
             lower_coefs = conv1Darray(lower_coefs)
     except:
-        print('lower_coefs input not correct')
+        logger.debug('lower_coefs input not correct')
 
     # None=0.0 -- no change to the Fermi Level ; -0.1 -- shifts the Fermi Level by 0.1 eV lower ... #
     fermi = None
@@ -82,7 +85,7 @@ def importData(myDict, paths):
     sample_orbs = myDict['sample_orbs']
     spin = myDict['spin']
     if spin == 'None': spin = None
-    print("Reading electronic & geometry structure files")
+    logger.debug("Reading electronic & geometry structure files")
     import numpy as np
 
     if ((dft_code == 'fireball') or (dft_code == 'Fireball') or (dft_code == 'FIREBALL') or (dft_code == 'cp2k') or (dft_code == 'CP2K')):
@@ -94,7 +97,7 @@ def importData(myDict, paths):
         elif ((pbc == (0, 0)) or (pbc == (0., 0.))):
                     cell = np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]])
         else:
-            print("PBC required, but lattice vector not specified. What can I do with that? I rather go to eat something.")
+            logger.debug("PBC required, but lattice vector not specified. What can I do with that? I rather go to eat something.")
             return None
     
     from . import ReadSTM as RS
@@ -116,7 +119,7 @@ def importData(myDict, paths):
         elif ((spin == 'down') or (spin == 'beta') or (spin == 'dn')):
                     name = 'KS_eigenvectors_dn.band_1.kpt_1.out'
         else:
-            print("unknown spin, I'm going to sleep. Good Night")
+            logger.debug("unknown spin, I'm going to sleep. Good Night")
             return None
 
         eigEn, coefs, Ratin = RS.read_AIMS_all(name=files_path + name, geom=files_path + geometry_file, fermi=fermi, orbs=sample_orbs,
@@ -147,7 +150,7 @@ def importData(myDict, paths):
             eigEn, coefs, Ratin = RS.read_CP2K_all(name=files_path + cp2k_name, lvs=cell, fermi=fermi, orbs=sample_orbs, pbc=pbc,
                                                 cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='beta');
         else:
-            print("unknown spin, I'm going to sleep. Good Night")
+            logger.debug("unknown spin, I'm going to sleep. Good Night")
             return None
     
     return {'eigEn': eigEn, 'coefs': coefs, 'Ratin': Ratin}
@@ -224,7 +227,7 @@ def newPPSTM_simple(myDict, paths, importData):
     #                                                                                                                        #
     ##########################################################################################################################
 
-    print("Importing libraries")
+    logger.debug("Importing libraries")
     
     import os
     from . import ReadSTM as RS
@@ -235,13 +238,13 @@ def newPPSTM_simple(myDict, paths, importData):
 
     if (ncpu > 1):
         os.environ['OMP_NUM_THREADS'] = str(ncpu)
-        print('OMP_NUM_THREADS:', os.environ['OMP_NUM_THREADS'])
+        logger.debug('OMP_NUM_THREADS:', os.environ['OMP_NUM_THREADS'])
 
     if (tip_type == 'relaxed') or (tip_type == 'r'):
-        print("For XSF or NPY outputs or tip_type = relaxed you have to have installed PPAFM in your PPSTM directory ")
+        logger.debug("For XSF or NPY outputs or tip_type = relaxed you have to have installed PPAFM in your PPSTM directory ")
         import ppafm.io as io
     
-    print("Libraries imported")
+    logger.debug("Libraries imported")
     # --- Initial check --- #
 
     # assert(PNG or WSxM or XSF or NPY), "No output set to be True; I'm not going to do anything if there is no output. I'm too lazy like a Gartfield. "
@@ -272,7 +275,7 @@ def newPPSTM_simple(myDict, paths, importData):
     # elif (tip_orb == 'dxzyz'):
     #  tc = [s, px, py, 0., 0., 0.5, 0.5]  # [s, px, py, pz, dz2, dxz, dyz ]
     # else:
-    #  print("Don't know what kind of tip you mean. I rather going to exit."); return None
+    #  logger.debug("Don't know what kind of tip you mean. I rather going to exit."); return None
 
     # print "DEBUG: tc ", tc , " [s, px, py, pz, dz2, dxz, dyz ] "
 
@@ -280,15 +283,15 @@ def newPPSTM_simple(myDict, paths, importData):
 
     if tip_type == 'relaxed':
         try:
-            print("Importing positions of PP from the PP-AFM calculations. Path for the data:")
+            logger.debug("Importing positions of PP from the PP-AFM calculations. Path for the data:")
             path_pos = "Q%1.2fK%1.2f/" % (Q, K)
-            print(path_pos)
+            logger.debug(path_pos)
             tip_r, lvec, nDim, atomic_info_or_head = io.load_vec_field(
                 os.path.join(paths['inputPath'], path_pos+'PPpos'), data_format=data_format)
             extent = (lvec[0, 0], lvec[0, 0]+lvec[1, 0],
                     lvec[0, 1], lvec[0, 1]+lvec[2, 1])
             # print "DEBUG: extent", extent
-            print("PP postions imported")
+            logger.debug("PP postions imported")
             dx = lvec[1, 0]/(nDim[2]-1); dy = lvec[2, 1] / \
                             (nDim[1]-1); dz = lvec[3, 2]/(nDim[0]-1);
             tip_r0 = RS.mkSpaceGrid(lvec[0, 0], lvec[0, 0]+lvec[1, 0], dx, lvec[0, 1],
@@ -296,10 +299,10 @@ def newPPSTM_simple(myDict, paths, importData):
             # print "DEBUG: dx, dy, dz", dx, dy, dz
             # print "DEBUG: tip_r.shape, tip_r0.shape", tip_r.shape, tip_r0.shape
         except:
-            print('Relaxed scan not possible. Firstly you neeed to install PPAFM code and run < ./run_test to create pre-calculated positions.')
+            logger.debug('Relaxed scan not possible. Firstly you neeed to install PPAFM code and run < ./run_test to create pre-calculated positions.')
             return None
     else:
-        print("Priparing the scan grid for fixed scan")
+        logger.debug("Priparing the scan grid for fixed scan")
         extent = (x[0], x[1], y[0], y[1])
         tip_r = RS.mkSpaceGrid(x[0], x[1], x[2], y[0],
                             y[1], y[2], z[0], z[1], z[2])
@@ -308,7 +311,7 @@ def newPPSTM_simple(myDict, paths, importData):
         # print "DEBUG: extent", extent
         # print "DEBUG: lvec", lvec
         tip_r0 = tip_r
-        print("scan grids prepared")
+        logger.debug("scan grids prepared")
     
     # --- the Main calculations --- #
     # 'didv'='dIdV''='didv-single' -- only dIdV for one voltage = V ; 'v-scan'='V-scan'='Voltage-scan' -- both STM & dIdV scan - V .. Vmax; 'STM'='STM-single' -- STM for one Voltage = V, use V-scan rather #
@@ -324,7 +327,7 @@ def newPPSTM_simple(myDict, paths, importData):
         states = np.sort(eigEn); mask = states >= V; states = states[mask]; del mask;
         mask = states <= V_max; states = states[mask]; del mask;
         fst = True
-        print("DEBUG: states:", states)
+        logger.debug("states:", states)
         for isi in states:
             if fst:
                 didv = np.array([PS.dIdV(isi, WorkFunction, eta, eigEn, tip_r, Ratin, coefs, orbs=sample_orbs,
@@ -353,7 +356,7 @@ def newPPSTM_simple(myDict, paths, importData):
 
     Voltages= np.arange(V,V_max+0.001,dV) if not states_b else states # this part is important for scans over slabs at different voltages
     round_index = 2 if not states_b else 5
-    print("Voltages", Voltages)
+    logger.debug("Voltages", Voltages)
     namez = []
     for V in Voltages:
         namez.append(str(round(V,round_index)))
@@ -378,10 +381,7 @@ def newPPSTM_simple(myDict, paths, importData):
     except:
         plotData['current'] = None
 
-    print() 
-    print()
-    print("Done")
-    print()
+    logger.debug("Done")
 
     plotData.update({'namez': namez,
                 'tip_type': tip_type,
