@@ -260,8 +260,14 @@ make_name = 'STM'
 try:
     ncpu = int(os.environ['OMP_NUM_THREADS'])
 except:
-    ncpu = 1;
-    logger.debug("OMP_NUM_THREADS not defined - serial calculations")
+    logger.debug("OMP_NUM_THREADS not defined")
+    ncpu = 8;
+
+if ncpu > 1:
+    os.environ['OMP_NUM_THREADS'] = str(ncpu)
+    logger.debug(f"Enabled parallel C++ calculations over {ncpu} threads")
+else:
+    logger.debug("Enabled serial C++ calculations")
 
 make_name_end ='PAR' if ncpu > 1.01 else ''
 del ncpu;
