@@ -259,9 +259,16 @@ cpp_name='ProbeSTM_spd'
 make_name = 'STM'
 try:
     ncpu = int(os.environ['OMP_NUM_THREADS'])
+    if ncpu > 1:
+        logger.debug(f"Using {ncpu} threads for parallel C++ calculations")
+    else:
+        logger.debug("Running calculations in serial C++ mode")
 except:
-    ncpu = 1;
-    logger.debug("OMP_NUM_THREADS not defined - serial calculations")
+    ncpu = 8
+    logger.warning(f"OMP_NUM_THREADS is not set. Using {ncpu} threads for parallel C++ calculations")
+
+if ncpu > 1:
+    os.environ['OMP_NUM_THREADS'] = str(ncpu)
 
 make_name_end ='PAR' if ncpu > 1.01 else ''
 del ncpu;
