@@ -1,4 +1,3 @@
-from ase import *
 from ase.visualize import *
 from ase.io import*
 from gpaw import *
