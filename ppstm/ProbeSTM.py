@@ -10,11 +10,11 @@ from   scipy.ndimage import uniform_filter
 from   ctypes import c_int, c_double, c_char_p
 import ctypes
 
-from pyPPSTM.probe_stm_opencl import ProbeSTMOpenCLParallel
-from pyPPSTM.probe_stm_numpy import ProbeStmNumpy
-from pyPPSTM.probe_stm_pytorch import ProbeStmPytorch
+from ppstm.probe_stm_opencl import ProbeSTMOpenCLParallel
+from ppstm.probe_stm_numpy import ProbeStmNumpy
+from ppstm.probe_stm_pytorch import ProbeStmPytorch
 
-from pyPPSTM import cpp_utils as cu
+from ppstm import cpp_utils as cu
 
 #important constants:
 

@@ -8,8 +8,8 @@ import numpy as np
 #import ppafm.io as io # --- not needed at all for the rigid tip scans
 import sys
 sys.path.append('../../')
-import pyPPSTM                   as PS
-import pyPPSTM.ReadSTM           as RS
+import ppstm                   as PS
+import ppstm.ReadSTM           as RS
 
 import matplotlib
 # matplotlib.use('Agg') # Force matplotlib to not use any Xwindows backend. ## !!! important for working on clusters !!!!

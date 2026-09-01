@@ -51,13 +51,13 @@ Measure code coverage to identify untested code paths.
 ##### View coverage in the terminal
 To show coverage statistics by file and list lines not covered by tests:
 ```bash
-pytest --cov=pyPPSTM --cov-report term-missing tests
+pytest --cov=ppstm --cov-report term-missing tests
 ```
 
 ##### Generate an interactive HTML report
 To create a detailed HTML report with coverage by file, function, and class:
 ```bash
-pytest --cov=pyPPSTM --cov-report html:coverage tests
+pytest --cov=ppstm --cov-report html:coverage tests
 ```
 Open `coverage/index.html` in your browser to explore the results interactively.
 

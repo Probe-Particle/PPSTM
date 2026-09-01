@@ -5,10 +5,10 @@ from typing import Callable, List
 import numpy as np
 import pytest
 
-from pyPPSTM import ProbeSTM
-from pyPPSTM.probe_stm_numpy import ProbeStmNumpy
-from pyPPSTM.probe_stm_opencl import ProbeSTMOpenCLParallel, ProbeSTMOpenCLSequential
-from pyPPSTM.probe_stm_pytorch import ProbeStmPytorch
+from ppstm import ProbeSTM
+from ppstm.probe_stm_numpy import ProbeStmNumpy
+from ppstm.probe_stm_opencl import ProbeSTMOpenCLParallel, ProbeSTMOpenCLSequential
+from ppstm.probe_stm_pytorch import ProbeStmPytorch
 from tests.didv import _test_didv
 
 

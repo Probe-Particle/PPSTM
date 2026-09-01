@@ -5,9 +5,9 @@ from typing import Callable
 import numpy as np
 import pytest
 
-from pyPPSTM.probe_stm_opencl import ProbeSTMOpenCLParallel, ProbeSTMOpenCLSequential
-from pyPPSTM.probe_stm_pytorch import ProbeStmPytorch
-from pyPPSTM.probe_stm_numpy import ProbeStmNumpy
+from ppstm.probe_stm_opencl import ProbeSTMOpenCLParallel, ProbeSTMOpenCLSequential
+from ppstm.probe_stm_pytorch import ProbeStmPytorch
+from ppstm.probe_stm_numpy import ProbeStmNumpy
 
 # Register assert rewrite BEFORE import to enable better error messages in inherited tests
 pytest.register_assert_rewrite("tests.didv._test_didv")

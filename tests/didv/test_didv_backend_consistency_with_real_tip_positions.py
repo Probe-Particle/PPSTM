@@ -6,10 +6,10 @@ from typing import List
 import numpy as np
 import pytest
 
-from pyPPSTM import STMutils
-from pyPPSTM.probe_stm_opencl import ProbeSTMOpenCLParallel
-from pyPPSTM.probe_stm_pytorch import ProbeStmPytorch
-from pyPPSTM.probe_stm_numpy import ProbeStmNumpy
+from ppstm import STMutils
+from ppstm.probe_stm_opencl import ProbeSTMOpenCLParallel
+from ppstm.probe_stm_pytorch import ProbeStmPytorch
+from ppstm.probe_stm_numpy import ProbeStmNumpy
 from tests.didv._test_didv_backend_consistency import _TestDidvBackendConsistencySpdSampleOrbitalsOrbital, \
     _TestDidvBackendConsistencySpSampleOrbitalsOrbital, _TestDidvBackendConsistencySpSampleOrbitals, \
     _TestDidvBackendConsistencySpdSampleOrbitals
