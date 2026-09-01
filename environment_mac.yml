@@ -14,11 +14,12 @@ dependencies:
   - tomli=2.4.1
   - ase=3.28.0  # optional
   - jupyter=1.1.1  # optional
-  - pyopencl=2026.1.1
-  - ocl_icd_wrapper_apple=1.0.0
+  - pyopencl=2026.1.1  # optional
+  - ocl_icd_wrapper_apple=1.0.0  # optional
+  - pyqt=5.15.11  # optional
   - pip=26.1.2
   - pip:
     - ppafm==0.4.0
-    - torch==2.13.0 
+    - torch==2.13.0  # optional
     - gpaw==25.7.0 # optional - not working from conda-forge directly
 
