@@ -7,10 +7,6 @@ import numpy as np
 from   scipy.ndimage import uniform_filter
 from   ctypes import c_int, c_double
 
-from ppstm.probe_stm_opencl import ProbeSTMOpenCLParallel
-from ppstm.probe_stm_numpy import ProbeStmNumpy
-from ppstm.probe_stm_pytorch import ProbeStmPytorch
-
 from ppstm import cpp_utils as cu
 
 logger = logging.getLogger(__name__)
@@ -69,13 +65,16 @@ def dIdV( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0
     '''
     tip, orb_t = standart_check(orbs=orbs, s=s, px=px, py=py, pz=pz, dxy=dxy, dxz=dxz, dyz=dyz, dz2=dz2)
     if backend == DidvBackend.OPENCL:
+        from ppstm.probe_stm_opencl import ProbeSTMOpenCLParallel
         _didv_spd_spd = ProbeSTMOpenCLParallel.didv
-    elif backend == DidvBackend.CPP:
-        _didv_spd_spd = dIdV_sp_sp
     elif backend == DidvBackend.PYTORCH:
+        from ppstm.probe_stm_pytorch import ProbeStmPytorch
         _didv_spd_spd = partial(ProbeStmPytorch.didv, n_tip_position_chunks=n_tip_position_chunks)
-    else:  # backend == DidvBackend.NUMPY:
+    elif backend == DidvBackend.NUMPY:
+        from ppstm.probe_stm_numpy import ProbeStmNumpy
         _didv_spd_spd = partial(ProbeStmNumpy.didv, n_tip_position_chunks=n_tip_position_chunks)
+    else:  # backend == DidvBackend.CPP
+        _didv_spd_spd = dIdV_sp_sp
     cur = _didv_spd_spd( V, WF, eta, eig, R, Rat, coes, tip, orb_t )
     return cur
 
