@@ -20,6 +20,7 @@ dependencies:
   - pyopencl=2026.1.1  # optional
   - ocl-icd-system=1.0.0  # optional
   - scipy-stubs=1.17.1.5  # optional
+  - pyqt=5.15.11  # optional
   - pytz=2026.2  # optional (required for pandas 3 before python 3.14)
   - pandas=3.0.3  # optional
   - pandas-stubs=3.0.3.260530  # optional
