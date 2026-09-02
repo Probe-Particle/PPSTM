@@ -54,7 +54,6 @@ def readNumsUpTo(filename, dimensions, noline):
 
 def parseNameString( name ):
     words = name.split("_")
-    #print words
     prefix = words[0]
     shape = [ int(word) for word in words[1:] ]
     return prefix,shape
@@ -62,7 +61,6 @@ def parseNameString( name ):
 def loadFromDbl( name ):
     prefix,ndim = parseNameString( name )
     F = np.fromfile ( name+'.dbl' )
-    #print "ndim", ndim
     F = np.reshape  ( F, (ndim[2],ndim[1],ndim[0]) )
     F = np.transpose( F, (2,1,0) )
     return np.ascontiguousarray( F )
@@ -257,7 +255,10 @@ def save_vec_field(fname, data, lvec, data_format="xsf", xsfHead = XSF_HEAD_DEFA
     elif (data_format=="npy"):
         saveVecFieldNpy(fname, data, lvec)
     else:
-        logger.debug("I cannot save this format!")
+        logger.error(
+            "Unsupported data format for saving: %r",
+            data_format,
+        )
 
 
 def load_vec_field(fname, data_format="xsf"):
@@ -270,7 +271,10 @@ def load_vec_field(fname, data_format="xsf"):
         data, lvec = loadVecFieldNpy(fname)
         ndim = np.delete(data.shape,3)
     else:
-        logger.debug("I cannot load this format!")
+        logger.error(
+            "Unsupported data format for loading: %r",
+            data_format,
+        )
     return data, lvec, ndim;
 
 
@@ -285,7 +289,10 @@ def save_scal_field(fname, data, lvec, data_format="xsf", xsfHead = XSF_HEAD_DEF
     elif (data_format=="npy"):
         saveNpy(fname, data, lvec)
     else:
-        logger.debug("I cannot save this format!")
+        logger.error(
+            "Unsupported data format for saving: %r",
+            data_format,
+        )
 
 
 def load_scal_field(fname, data_format="xsf"):
@@ -298,7 +305,10 @@ def load_scal_field(fname, data_format="xsf"):
         data, lvec = loadNpy(fname)
         ndim = data.shape
     else:
-        logger.debug("I cannot load this format!")
+        logger.error(
+            "Unsupported data format for loading: %r",
+            data_format,
+        )
     return data.copy(), lvec, ndim;
 
 # =============== Other Utils

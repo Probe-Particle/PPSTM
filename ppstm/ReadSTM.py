@@ -52,8 +52,7 @@ def read_AIMS_coefs(fname, at_nums ):
     #eigs = ReadSTM.getAimsEigenE(fname)
     #nMO = len(eigs)
     periods = np.array([ elements.ELEMENTS[iZ][2] for iZ in at_nums ], dtype=np.int32)
-    #for iZ,per in zip(at_nums,periods): print iZ,per # for DEBUG
-    coefs = np.zeros( (n_max_ - n_min_ ,num_at_ , Ynum_) ); # print "DEBUG: coefs.shape", coefs.shape
+    coefs = np.zeros( (n_max_ - n_min_ ,num_at_ , Ynum_) );
     lib.read_AIMS_coefs( str.encode(fname),coefs, periods, n_max_, n_min_ , num_at_ , Ynum_ );
     return coefs.copy()#, eigs.copy()
 
@@ -88,9 +87,7 @@ def initial_check(orbs = 'sp', pbc=(1,1), imaginary = False, cut_min=-15.0, cut_
     global cut_max_ ; cut_max_ = cut_max
     global Ynum_    ; Ynum_ = 4 if (orbs =='sp') else 9
     global lower_atoms_ ; lower_atoms_ = lower_atoms if lower_atoms != 'no-d-rescalling' else []
-    #print  "DEBUG: lower_atoms_", lower_atoms_
     global dOrbRes_     ; dOrbRes_     = True        if lower_atoms != 'no-d-rescalling' else False
-    #print  "DEBUG: dOrbRes_", dOrbRes_
     global lower_coefs_ ; lower_coefs_ = lower_coefs
 
 # geometries underprocedures: 
@@ -136,7 +133,6 @@ def get_FIREBALL_geom(geom='answer.bas', lvs=None, sl=False):
     '''
     logger.debug(" # ============ define atoms ============")
     atoms, nDim, tmp = bU.loadAtoms(geom, sl=sl)
-    #print "DEBUG: atoms", atoms
     del nDim, tmp
     atoms = cut_atoms(atoms)
     logger.debug(" Number of atoms: ", num_at_)
@@ -166,7 +162,6 @@ def get_GPAW_geom(geom=None):
     Prepares geometry from the ASE atoms binary
     '''
     logger.debug(" # ============ define atoms ============")
-    from ase import Atoms
     tmp = geom.get_positions()
     atoms = [geom.get_atomic_numbers(), tmp[:,0], tmp[:,1], tmp[:,2] ]
     lvs = geom.get_cell()
@@ -219,8 +214,9 @@ def lower_Dorb(coef):
     '''
     d_rescale=0.2
     if (Ynum_ > 4) and dOrbRes_: #(orbs=='spd') & and d-orbital-rescalling:
-        logger.debug("!!! Be aware d-orbs are now rescaled by factor of" ,d_rescale)
-        logger.debug("This is due to a faster decay of d-orbs in the original basis sets, but simple rescaling is nasty !!!")
+        logger.warning(f"Be aware d-orbs are now rescaled by factor of {d_rescale}"
+                       "\nThis is due to a faster decay of d-orbs in the original basis sets, "
+                       "but simple rescaling is nasty")
         coef[:,:,4:] *= d_rescale
     coeff = coef.flatten()
     return coeff.reshape((n_max_-n_min_,num_at_*Ynum_));
@@ -271,7 +267,6 @@ def	read_AIMS_all(name = 'KS_eigenvectors.band_1.kpt_1.out', geom='geometry.in',
     initial_check(orbs=orbs, pbc=pbc, imaginary=imaginary, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs)
     # obtaining the geometry :
     Ratin, at_num = get_AIMS_geom(geom=geom)
-    #print "at_num:",at_num
 
     # getting eigen-energies:
     filein = open(name )
@@ -294,64 +289,6 @@ def	read_AIMS_all(name = 'KS_eigenvectors.band_1.kpt_1.out', geom='geometry.in',
     eig = to_fermi(eig, fermi, orig_fermi=0.0)
     eig = cut_eigenenergies(eig, cut_min, cut_max)
     logger.debug("eigenenergies read")
-    # ****** TO BE REMOVED ********
-    """
-    # old slow python procedure
-    # finding position of the LCAO coeficients in the AIMS output file & its phase - sign
-    tmp = np.genfromtxt(name,skip_header=skip_header, usecols=(1,2,3,4,5),dtype=None)
-    orb_pos=np.zeros((num_at_,Ynum_), dtype=np.int)
-    orb_sign=np.zeros((num_at_,Ynum_), dtype=np.int)
-    orb_pos += -1
-    el = elements.ELEMENTS
-    for j in range(num_at_):
-        Z = at_num[j];
-        per = el[Z][2]
-        temp=int((np.mod(per,2)-0.5)*2)	# phase of radial function in long distance for l=0: if n even - +1, if odd - -1
-        if (orbs == 'sp'):
-            orb_sign[j]=[temp,-1*temp,-1*temp,temp]		# {1, 1, 1, -1};(*Dont change, means - +s, +py +pz -px*) but l=1 has opposite phase than l=0 ==>  sign[s]*{1, -1, -1, 1};
-        else: # (orbs == 'spd'):
-            orb_sign[j]=[temp,-1*temp,-1*temp,temp,-1*temp,-1*temp,-1*temp,temp,-1*temp]		# {1, 1, 1, -1, 1, 1, 1, 1, -1, 1};(*Dont change, means - +s, +py +pz -px +dxy +dyz +dz2 -dxz +dx2y2)
-            # but l=1 has opposite phase than l=0 and l=2 is n-1 - the same phase as l=1 ==>  sign[s]*{1, -1, -1, 1, -1, -1, -1, 1, -1};
-    for i in range(len(tmp)):
-        for j in range(num_at_):
-            Z = at_num[j];
-            per = el[Z][2]
-            if ((tmp[i][0]==j+1)and(tmp[i][1]=='atomic')):
-                if (tmp[i][2]==per):
-                    if 	(tmp[i][3]=='s'):
-                        orb_pos[j,0]=i
-                    elif (tmp[i][3]=='p'):
-                        if  (tmp[i][4]==-1):
-                            orb_pos[j,1]=i
-                        elif (tmp[i][4]==0):
-                            orb_pos[j,2]=i
-                        elif (tmp[i][4]==1):
-                            orb_pos[j,3]=i
-                elif ((tmp[i][2]==per-1)and(orbs=='spd')and(per>3)):
-                    if (tmp[i][3]=='d'):
-                        if   (tmp[i][4]==-2):
-                            orb_pos[j,4]=i
-                        elif (tmp[i][4]==-1):
-                            orb_pos[j,5]=i
-                        elif (tmp[i][4]==0):
-                            orb_pos[j,6]=i
-                        elif (tmp[i][4]==1):
-                            orb_pos[j,7]=i
-                        elif (tmp[i][4]==2):
-                            orb_pos[j,8]=i
-    # Reading the coefficients and assigning proper sign, just for wanted eigen-energies
-    print "The main reading procedure, it can take some time, numpy reading txt can be slow."
-    del tmp; del temp;
-    tmp = np.genfromtxt(name,skip_header=skip_header, usecols=tuple(xrange(6, n_bands*2+6, 2))) #tmp = np.genfromtxt(name,skip_header=5)#, usecols=(6,))
-    tmp = tmp[:,n_min_:n_max_]
-    coef = np.zeros((n_max_-n_min_,num_at_,Ynum_))
-    for j in range(num_at_):
-        for l in range(Ynum_):
-            if (orb_pos[j,l]!=-1):
-                coef[:,j,l] = tmp[orb_pos[j,l],:]
-                coef[:,j,l] *= orb_sign[j,l]
-    del tmp;
-    """
     # lowering over atoms and applying PBC
     coef = read_AIMS_coefs(name, at_num ) # Maximal error between C++ and python reading ~1.5E-08; reading procedure ~100x faster
     coeffs = handle_coef(coef)
@@ -389,7 +326,7 @@ def	read_GPAW_all(name = 'OUTPUT.gpw', fermi = None, orbs = 'sp', pbc=(1,1), ima
     # obtaining the LCAO coefficients (automatically removed unwanted states - molecular orbitals - and atoms)
     coef = np.zeros((n_max_-n_min_,num_at_,Ynum_))
     if (orbs=='spd'):
-        logger.debug("!!! WARNING: d-orbitals should be in principle working, but coefficients can be wrong, according to my experiences !!!")
+        logger.warning("d-orbitals should be in principle working, but coefficients can be wrong, according to my experiences")
         logger.debug("going to crazy procedure, which finds, where the d-orbs starts")
         logger.debug("from gpaw.utilities.dos import print_projectors; print_projectors('X')")
         logger.debug("this prints you where the d-orb should start")
@@ -418,12 +355,6 @@ def	read_GPAW_all(name = 'OUTPUT.gpw', fermi = None, orbs = 'sp', pbc=(1,1), ima
                     coef[ii,j,7] = calc.wfs.kpt_u[0].C_nM[i,h+d_orb[j]+3]
                     coef[ii,j,8] = calc.wfs.kpt_u[0].C_nM[i,h+d_orb[j]+4]
             h += calc.wfs.setups[j].nao
-    #from gpaw.utilities.dos import print_projectors; print_projectors('Cu')
-    #print "DEBUG: Cu coeffs:"
-    #for i in range(n_min,n_max):
-    #	for j in range(15):
-    #		print j, calc.wfs.kpt_u[0].C_nM[i,j]
-    #	print "DEBUG: coef[sth,0,:]" , coef[i-n_min,0,:] 
     # lowering tunneling for predefined atoms
     # lowering over atoms and applying PBC
     coeffs = handle_coef(coef)
@@ -453,7 +384,6 @@ def	read_FIREBALL_all(name = 'phi_' , geom='answer.bas', fermi=None, orbs = 'sp'
     filein = open(name+'s.dat' )
     pre_eig = filein.readline().split()
     filein.close()
-    #print "DEBUG: num_at_  and pre_eig[0] " , num_at_ ,pre_eig[0], type(num_at_), type(pre_eig[0][0]), "int(pre_eig[0])", int(pre_eig[0]) , "(num_at_<=int(pre_eig[0][0]))", (num_at_<=int(pre_eig[0]))
     assert (num_at_<=int(pre_eig[0])),"coefficients for lower amount of atoms, that atoms in geometry file";
     n_bands= int(pre_eig[1]);
     eig = np.loadtxt(name+'s.dat',skiprows=1, usecols=(0,))
@@ -533,9 +463,7 @@ def read_CP2K_all(name, fermi=None, orbs='sp', pbc=(1,1), imaginary = False, cut
         ii = i-n_min_
         for j, label in enumerate(labels):
             iatom = int(label[1]) - 1
-            #print "DEBUG: j, label, iatom", j, label, iatom
             if (iatom >= num_at_):
-                #print "DEBUG iatom>= num_at_", iatom, num_at_
                 break
             func = label[3]
             if func.endswith("s"):
@@ -722,7 +650,7 @@ def read_dft(
         elif pbc == [0, 0]:
             cell = np.zeros((3,3))
         else:
-            raise ValueError("pbc requested, but lvs not specified")
+            raise ValueError("Missing lattice vectors. They are required when periodic boundary conditions (PBC) are enabled.")
 
     if ((dft_code == 'fireball') or(dft_code == 'Fireball') or (dft_code == 'FIREBALL')):
         eigEn, coefs, Ratin = read_FIREBALL_all(
@@ -749,7 +677,7 @@ def read_dft(
             name_up = 'KS_eigenvectors_up.band_1.kpt_1.out'
             name_dn = 'KS_eigenvectors_dn.band_1.kpt_1.out'
         else :
-            raise ValueError(f"Unknown spin: {spin}")
+            raise ValueError(f"Unknown spin: {spin!r}")
         
         if spin != 'both':
             eigEn, coefs, Ratin = read_AIMS_all(
@@ -808,10 +736,10 @@ def read_dft(
                 **common_params
             )
         else :
-            raise ValueError(f"Unknown spin: {spin}")
+            raise ValueError(f"Unknown spin: {spin!r}")
         
     else:
-        raise ValueError(f"Unknown DFT code: {dft_code}")
+        raise ValueError(f"Unknown DFT code: {dft_code!r}")
     
     return eigEn, coefs, Ratin
 

@@ -47,7 +47,7 @@ def main(config: dict):
                 )
             ) 
         except FileNotFoundError:
-            logger.debug("WARNING: Atom plotting disabled due to missing input_plot.xyz file.")
+            logger.warning("Atom plotting disabled due to missing `input_plot.xyz` file.")
 
     # Get tip positions
     (

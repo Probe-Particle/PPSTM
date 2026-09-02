@@ -115,7 +115,7 @@ def STM( V, nV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, p
     '''
     assert (float(V) != 0.0),"you cannot have zero Voltage"
     logger.debug("STM simulation via more dI/dV calculations")
-    logger.debug("Be aware Work Function is changing with Voltage by a factor: ",  WF_decay)
+    logger.warning(f"Be aware Work Function is changing with Voltage by a factor: {WF_decay}")
     ii=1;
     for v_ in np.linspace(0.,V,nV):
         logger.debug("Start to calculate voltage step %d of %d in total." %(ii, nV))
@@ -124,7 +124,6 @@ def STM( V, nV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, p
         logger.debug("WF for this step is: " , WF-v_*WF_decay, " eV")
         i_ = dIdV( v_, WF-v_*WF_decay, eta ,eig, R, Rat, coes, orbs=orbs, s=s, px =px, py=py, pz=pz, dxy=dxy, dxz=dxz, dyz=dyz, dz2=dz2,
                    backend=backend, n_tip_position_chunks=n_tip_position_chunks)
-        #print "maximal dI/dV: " , max(i_)
         if (v_ == 0):
             cur = i_
         else:
@@ -141,7 +140,7 @@ def MSTM( Vmin, Vmax, dV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=1.0, px =0.0,
     '''
     #assert (float(V) != 0.0),"you cannot have zero Voltage" # You has to have 0 voltage in this scan
     logger.debug("Multiple STM simulation via more dI/dV calculations, store - all STMs and dIdVs")
-    logger.debug("Be aware Work Function is changing with Voltage by a factor: ",  WF_decay)
+    logger.warning("Be aware Work Function is changing with Voltage by a factor: ",  WF_decay)
     Vmin = Vmin if Vmin <= 0.0 else 0.0;
     Vmax = Vmax if Vmax >= 0.0 else 0.0;
     ii=0;
@@ -164,18 +163,15 @@ def MSTM( Vmin, Vmax, dV, WF, eta ,eig, R, Rat, coes, orbs='sp', s=1.0, px =0.0,
         logger.debug("Sample bias Voltage:" , v_)
         cur = dIdVs[v0]
         if (v_ < -0.005):
-            #print "DEBUG: Voltages for STM without zero:", np.arange(ii,v0,1) ;
             for i in np.arange(ii,v0,1):
                 cur +=dIdVs[int(i)] 
         if (v_ > 0.005):
-            #print "DEBUG: Voltages for STM without zero:", np.arange(v0+1,ii+0.001,1) ;
             for i in np.arange(v0+1,ii+0.001,1):
                 cur +=dIdVs[int(i)] 
         cur *= abs(0.001)*G2Amp if -0.005 < v_ < 0.005 else abs(v_)*G2Amp;
         STMs = np.array([cur]) if v_ == Vmin else np.append(STMs, np.array([cur]) , axis=0)
         del cur; ii += 1;
     logger.debug("All dI/dV steps done, current rescalled into Ampers")
-    #print "DEBUG: size of STMs and dIdVs arrays:", STMs.shape , dIdVs.shape
     return STMs, dIdVs;
 
 def IETS_simple( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.0, pz=0.0, dxz=0.0, dyz=0.0, dz2=0.0, Amp=0.05):
@@ -194,7 +190,7 @@ def IETS_simple( V, WF, eta ,eig, R, Rat, coes, orbs='sp', s=0.0, px =0.0, py=0.
     IETS = (dI/dV)/dx+(dI/dV)/dy
     '''
     tip, orb_t = standart_check(orbs=orbs, s=s, px=px, py=py, pz=pz, dxz=dxz, dyz=dyz, dz2=dz2)
-    logger.debug("!!! Not full IETS calculations !!!: It is calculating only the electronic part of the full IETS.")
+    logger.warning("Not full IETS calculations! It is calculating only the electronic part of the full IETS.")
     logger.debug("You entered very approximative IETS calculations that consist of dT/dx calc. in different positoins of PP")
     logger.debug("Vibration (x,y) Amplitude - for numerical derivation - is:",Amp)
     logger.debug("approx IETS = (dI/dV)/dx+(dI/dV)/dy")
@@ -220,12 +216,11 @@ def IETS_complex( V, WF, eta ,eig, R, eigenEner, eigenVec1, eigenVec2, eigenVec3
     last part: 1/w_vib3^2 *d(dI/dV)/dvib3 is not connected with Frustrated translation
     '''
     tip, orb_t = standart_check(orbs=orbs, s=s, px=px, py=py, pz=pz, dxz=dxz, dyz=dyz, dz2=dz2)
-    logger.debug("You entered complex IETS calculations that consist of IETS calculations in different positoins of PP")
-    logger.debug("Vibration (x,y) Amplitude - for numerical derivation - is:",Amp)
-    logger.debug("IETS = 1/w_vib1^2 * d(dI/dV)/dvib1+ 1/w_vib2^2 *d(dI/dV)/dvib2")
+    logger.debug("You entered complex IETS calculations that consist of IETS calculations in different positoins of PP"
+                 f"\nVibration (x,y) Amplitude - for numerical derivation - is: {Amp}"
+                 "\nIETS = 1/w_vib1^2 * d(dI/dV)/dvib1+ 1/w_vib2^2 *d(dI/dV)/dvib2")
     sh1 = np.array(R.shape)
     sh2 = np.array(eigenEner.shape)
-    #print "dimensions of arrays:", sh1, sh2 # DEBUG only
     assert ((sh1[0]==sh2[0])and(sh1[1]==sh2[1])and(sh1[2]==sh2[2])and(sh1[3]==sh2[3])) , "different shape of R (tip positions ) & eigenEner(gies)"
     tmp = eigenEner.copy()
     #due to negative eigen-energies in special points:
@@ -250,12 +245,6 @@ def before_C( eig, R, Rat, coes, orb_t):
     Npoints = sh[0]*sh[1]*sh[2]	#len(R)/3
     assert (NoOrb == len(coes)), "Different eigennumbers, than basis"
     if (len(coes) != 0):
-        #DEBUG:#
-        #print "NoAt",NoAt
-        #print "NoOrb", NoOrb
-        #print "orb_t", orb_t
-        #print "len(coes)", len(coes)
-        #print "len(coes[0])", len(coes[0])
         assert (NoOrb == len(coes)*len(coes[0])/(orb_t*NoAt)), "Different eigennumbers, than basis"
     logger.debug("We're going to C++")
     return NoAt, NoOrb, Npoints, cur_1d, sh;
@@ -275,7 +264,6 @@ except:
     ncpu = 1;
     logger.debug("OMP_NUM_THREADS not defined - serial calculations")
 
-#print "DEBUG: ncpu:", ncpu
 make_name_end ='PAR' if ncpu > 1.01 else ''
 del ncpu;
 make_name += make_name_end
