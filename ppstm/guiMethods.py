@@ -227,6 +227,7 @@ def newPPSTM_simple(myDict, paths, importData):
     #                                                                                                                        #
     ##########################################################################################################################
 
+    logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
     logger.debug("Importing libraries")
     
     import os

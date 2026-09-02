@@ -73,6 +73,9 @@ lower_atoms  = 'no-d-rescalling' # normally d-orbs are rescalled by factor of 0.
 
 print("Importing libraries")
 
+import logging
+logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
+
 import os
 import sys
 sys.path.append(ppstm_path) 

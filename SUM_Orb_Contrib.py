@@ -49,6 +49,9 @@ files_path   = ''            # where are files from 1st two PPSTM runs ; rather 
 
 print("Importing libraries")
 
+import logging
+logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
+
 import os
 import sys
 sys.path.append(ppstm_path) 

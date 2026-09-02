@@ -1,4 +1,5 @@
 import logging
+logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -927,7 +928,6 @@ class Window(QMainWindow):
         return True
 
 if __name__ == "__main__":
-
     app = QApplication(sys.argv)
 
     window = Window()
