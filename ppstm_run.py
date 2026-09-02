@@ -6,10 +6,10 @@ from pathlib import Path
 import numpy as np
 import tomli
 
-from pyPPSTM import basUtils as bU
-from pyPPSTM import ReadSTM
-from pyPPSTM import STMutils
-from pyPPSTM import visualization
+from ppstm import basUtils as bU
+from ppstm import ReadSTM
+from ppstm import STMutils
+from ppstm import visualization
 
 logger = logging.getLogger(__name__)
 

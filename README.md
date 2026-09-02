@@ -36,11 +36,14 @@ python -m ipykernel install --user --name=ppstm
 More details can be found on a [dedicated Wikipage](https://github.com/Probe-Particle/PPSTM/wiki/Installation).
 
 ### Tests
-After activating the `ppstm-dev` environment, you can run the test suite with:
-```bash
-pytest tests -v
-```
-This runs all tests in verbose mode.
+* **Run all tests (verbose):**
+  ```bash
+  pytest tests -v
+  ```
+* **Run only fast tests (skips tests marked as slow)**:
+  ```bash
+  pytest tests -v -m "not slow"
+  ```
 
 #### Test Coverage
 Measure code coverage to identify untested code paths.
@@ -48,13 +51,13 @@ Measure code coverage to identify untested code paths.
 ##### View coverage in the terminal
 To show coverage statistics by file and list lines not covered by tests:
 ```bash
-pytest --cov=pyPPSTM --cov-report term-missing tests
+pytest --cov=ppstm --cov-report term-missing tests
 ```
 
 ##### Generate an interactive HTML report
 To create a detailed HTML report with coverage by file, function, and class:
 ```bash
-pytest --cov=pyPPSTM --cov-report html:coverage tests
+pytest --cov=ppstm --cov-report html:coverage tests
 ```
 Open `coverage/index.html` in your browser to explore the results interactively.
 

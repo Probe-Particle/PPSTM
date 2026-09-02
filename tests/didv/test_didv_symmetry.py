@@ -7,9 +7,9 @@ from typing import Callable
 import numpy as np
 import pytest
 
-from pyPPSTM.probe_stm_opencl import ProbeSTMOpenCLParallel, ProbeSTMOpenCLSequential
-from pyPPSTM.probe_stm_numpy import ProbeStmNumpy
-from pyPPSTM.probe_stm_pytorch import ProbeStmPytorch
+from ppstm.probe_stm_opencl import ProbeSTMOpenCLParallel, ProbeSTMOpenCLSequential
+from ppstm.probe_stm_numpy import ProbeStmNumpy
+from ppstm.probe_stm_pytorch import ProbeStmPytorch
 from tests.didv import _test_didv
 
 

@@ -78,16 +78,16 @@ import sys
 sys.path.append(ppstm_path) 
 
 import numpy as np
-#import pyPPSTM                   as PS
-import pyPPSTM.ReadSTM           as RS
-import pyPPSTM.PreSTMutils       as SU
+#import ppstm                   as PS
+import ppstm.ReadSTM           as RS
+import ppstm.PreSTMutils       as SU
 import matplotlib
 matplotlib.use('Agg') # Force matplotlib to not use any Xwindows backend. ## !!! important for working on clusters !!!!
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
 #if (plot_atoms):
-#    import pyPPSTM.basUtils as Bu
-#    import pyPPSTM.elements as elements
+#    import ppstm.basUtils as Bu
+#    import ppstm.elements as elements
 
 
 print("Libraries imported")

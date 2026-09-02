@@ -14,9 +14,9 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
 
-from pyPPSTM.guiMethods import newPPSTM_simple, conv2float, importData
-import pyPPSTM.basUtils as Bu
-import pyPPSTM.elements as elements
+from ppstm.guiMethods import newPPSTM_simple, conv2float, importData
+import ppstm.basUtils as Bu
+import ppstm.elements as elements
 
 ######################### Canvas classes for plotting ####################
 
@@ -65,7 +65,7 @@ class MplCanvas(FigureCanvasQTAgg):
         if fileName:
             if fext == '(*.xsf)':
                 print("For XSF or NPY outputs or tip_type = relaxed you have to have installed PPAFM in your PPSTM directory ")
-                import pyPPSTM.GridUtils as GU
+                import ppstm.GridUtils as GU
                 print("writing XSF files")
                 geom_plot = self.parent.plotData['geom_plot']
                 lvec = self.parent.plotData['lvec']
@@ -80,7 +80,7 @@ class MplCanvas(FigureCanvasQTAgg):
 
             elif fext == '(*.npy)':
                 print("For XSF or NPY outputs or tip_type = relaxed you have to have installed PPAFM in your PPSTM directory ")
-                import pyPPSTM.GridUtils as GU
+                import ppstm.GridUtils as GU
                 print("writing npy binary files")
                 lvec = self.parent.plotData['lvec']
                 if mapType == 'dIdV':

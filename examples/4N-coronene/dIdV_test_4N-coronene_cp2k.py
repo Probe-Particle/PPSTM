@@ -6,8 +6,8 @@ import numpy as np
 import ppafm.io as io
 import sys
 sys.path.append('../../')
-import pyPPSTM                   as PS
-import pyPPSTM.ReadSTM           as RS
+import ppstm                   as PS
+import ppstm.ReadSTM           as RS
 
 import matplotlib
 # matplotlib.use('Agg') # Force matplotlib to not use any Xwindows backend. ## !!! important for working on clusters !!!!

@@ -35,13 +35,13 @@ class TestTipSampleHeightGapWarning:
         assert (ppstm_run.logger.name, logging.WARNING, self._WARNING_MESSAGE) not in caplog.record_tuples
 
     def _run_ppstm(self, tip_positions):
-        with patch("pyPPSTM.STMutils.get_tip_positions", return_value=(tip_positions, None, None, None, None)), \
-             patch("pyPPSTM.ReadSTM.read_dft", return_value=(None, None, self._SAMPLE_ATOM_POSITIONS)), \
-             patch("pyPPSTM.STMutils.get_tip_coefficients"), \
-             patch("pyPPSTM.STMutils.run_stm_scan", return_value=(None, None)), \
-             patch("pyPPSTM.visualization.get_voltages_and_names", return_value=(None, None)), \
-             patch("pyPPSTM.visualization.plot_png"), \
-             patch("pyPPSTM.visualization.plot_wsxm"), \
-             patch("pyPPSTM.visualization.save_xsf"), \
-             patch("pyPPSTM.visualization.save_npz"):
+        with patch("ppstm.STMutils.get_tip_positions", return_value=(tip_positions, None, None, None, None)), \
+             patch("ppstm.ReadSTM.read_dft", return_value=(None, None, self._SAMPLE_ATOM_POSITIONS)), \
+             patch("ppstm.STMutils.get_tip_coefficients"), \
+             patch("ppstm.STMutils.run_stm_scan", return_value=(None, None)), \
+             patch("ppstm.visualization.get_voltages_and_names", return_value=(None, None)), \
+             patch("ppstm.visualization.plot_png"), \
+             patch("ppstm.visualization.plot_wsxm"), \
+             patch("ppstm.visualization.save_xsf"), \
+             patch("ppstm.visualization.save_npz"):
             ppstm_run.main(config=MagicMock())

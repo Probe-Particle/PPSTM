@@ -3,8 +3,8 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 
-from pyPPSTM import elements
-from pyPPSTM import basUtils as Bu
+from ppstm import elements
+from ppstm import basUtils as Bu
 
 
 def plotAtoms( atoms, atomSize: float = 0.15, edge=True, ec='k', color='w' ):

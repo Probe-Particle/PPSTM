@@ -5,10 +5,10 @@ from typing import Callable, Tuple
 
 import numpy as np
 
-from pyPPSTM import ProbeSTM
-from pyPPSTM.probe_stm_numpy import ProbeStmNumpy
-from pyPPSTM.probe_stm_opencl import ProbeSTMOpenCLSequential, ProbeSTMOpenCLParallel
-from pyPPSTM.probe_stm_pytorch import ProbeStmPytorch
+from ppstm import ProbeSTM
+from ppstm.probe_stm_numpy import ProbeStmNumpy
+from ppstm.probe_stm_opencl import ProbeSTMOpenCLSequential, ProbeSTMOpenCLParallel
+from ppstm.probe_stm_pytorch import ProbeStmPytorch
 
 
 class _TestDidvRaSign(ABC):

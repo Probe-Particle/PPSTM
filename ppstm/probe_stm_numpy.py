@@ -10,7 +10,7 @@ from typing import Sequence, List, Tuple
 
 import numpy as np
 
-from pyPPSTM.probe_stm_vectorized import ProbeStmVectorized, ProbeStmVectorizedSp, ProbeStmVectorizedSpd
+from ppstm.probe_stm_vectorized import ProbeStmVectorized, ProbeStmVectorizedSp, ProbeStmVectorizedSpd
 
 
 class ProbeStmNumpy(ProbeStmVectorized, ABC):

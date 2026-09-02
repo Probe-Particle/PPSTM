@@ -3,9 +3,9 @@ import numpy as np
 
 from typing import Dict, Tuple
 
-import pyPPSTM.ReadSTM as RS
-import pyPPSTM.ProbeSTM as PS
-import pyPPSTM.basUtils as BU
+import ppstm.ReadSTM as RS
+import ppstm.ProbeSTM as PS
+import ppstm.basUtils as BU
 
 def get_tip_coefficients(tip_orb: str) -> Dict:
     """

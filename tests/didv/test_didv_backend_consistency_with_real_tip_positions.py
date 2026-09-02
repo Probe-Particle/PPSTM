@@ -1,11 +1,15 @@
 from abc import ABC
+from functools import partial
 from pathlib import Path
 from typing import List
 
 import numpy as np
 import pytest
 
-from pyPPSTM import STMutils
+from ppstm import STMutils
+from ppstm.probe_stm_opencl import ProbeSTMOpenCLParallel
+from ppstm.probe_stm_pytorch import ProbeStmPytorch
+from ppstm.probe_stm_numpy import ProbeStmNumpy
 from tests.didv._test_didv_backend_consistency import _TestDidvBackendConsistencySpdSampleOrbitalsOrbital, \
     _TestDidvBackendConsistencySpSampleOrbitalsOrbital, _TestDidvBackendConsistencySpSampleOrbitals, \
     _TestDidvBackendConsistencySpdSampleOrbitals
@@ -114,6 +118,7 @@ class TestDidvBackendConsistencyWithRealTipPositionsSpSampleOrbitals4NCoronene(
     _LCAO_COEFFICIENTS = np.loadtxt(Path(__file__).parent / "lcao_coefficients_4n_coronene.csv", delimiter=",")
 
 
+@pytest.mark.slow
 class _TestDidvBackendConsistencyWithRealTipPositionsSi7x7(_TestDidvBackendConsistencyWithRealTipPositions, ABC):
     """Tests dI/dV backend consistency with real (STMutils-sourced) tip positions.
     Inspired by examples/Si_7x7."""
@@ -125,6 +130,17 @@ class _TestDidvBackendConsistencyWithRealTipPositionsSi7x7(_TestDidvBackendConsi
     _SCAN_DIM = [100, 60, 1]  # Points per dimension
 
     _V = -2.0  # voltage
+
+    _BACKENDS_NAME_FN_RTOL = (
+        ("OpenCL parallel",            ProbeSTMOpenCLParallel.didv,                                      8e-6),
+        # ("OpenCL sequential",          ProbeSTMOpenCLSequential.didv,                                    8e-6),  # skip to prevent test-suite state poisoning (#86)
+        ("NumPy (default chunking)",   ProbeStmNumpy.didv,                                               8e-6),
+        ("PyTorch (default chunking)", ProbeStmPytorch.didv,                                             8e-6),
+        ("NumPy (no chunking)",        partial(ProbeStmNumpy.didv,    n_tip_position_chunks=1), 8e-6),
+        ("PyTorch (no chunking)",      partial(ProbeStmPytorch.didv,  n_tip_position_chunks=1), 8e-6),
+        ("NumPy (2 chunks)",           partial(ProbeStmNumpy.didv,    n_tip_position_chunks=2), 8e-6),
+        ("PyTorch (2 chunks)",         partial(ProbeStmPytorch.didv,  n_tip_position_chunks=2), 8e-6),
+    )
 
 
 class TestDidvBackendConsistencyWithRealTipPositionsSpdSampleOrbitalsSi7x7(

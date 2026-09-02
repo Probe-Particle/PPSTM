@@ -11,7 +11,7 @@ from typing import Sequence, List, Tuple
 import numpy as np
 import torch
 
-from pyPPSTM.probe_stm_vectorized import ProbeStmVectorized, ProbeStmVectorizedSp, ProbeStmVectorizedSpd
+from ppstm.probe_stm_vectorized import ProbeStmVectorized, ProbeStmVectorizedSp, ProbeStmVectorizedSpd
 
 
 class ProbeStmPytorch(ProbeStmVectorized, ABC):

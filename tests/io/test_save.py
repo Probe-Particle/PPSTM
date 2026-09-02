@@ -5,7 +5,7 @@ from typing import Optional, List, Tuple
 import numpy as np
 import pytest
 
-from pyPPSTM import visualization
+from ppstm import visualization
 
 
 class _TestSave(ABC):
