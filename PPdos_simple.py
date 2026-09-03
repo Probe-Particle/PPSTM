@@ -71,33 +71,24 @@ lower_atoms  = 'no-d-rescalling' # normally d-orbs are rescalled by factor of 0.
 #                                                                                                                        #
 ##########################################################################################################################
 
-print("Importing libraries")
+import logging
+logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-import os
+logger.debug("Importing libraries")
+
 import sys
 sys.path.append(ppstm_path) 
 
 import numpy as np
-#import ppstm                   as PS
 import ppstm.ReadSTM           as RS
 import ppstm.PreSTMutils       as SU
 import matplotlib
 matplotlib.use('Agg') # Force matplotlib to not use any Xwindows backend. ## !!! important for working on clusters !!!!
 import matplotlib.pyplot as plt
-from matplotlib.font_manager import FontProperties
-#if (plot_atoms):
-#    import ppstm.basUtils as Bu
-#    import ppstm.elements as elements
 
 
-print("Libraries imported")
-
-# --- some function definition --- #
-
-def printf(*args):
-    together = ''.join(map(str, args))    # avoid the arg is not str
-    #print together
-    return together
+logger.debug("Libraries imported")
 
 # --- Initial check --- #
 
@@ -105,7 +96,7 @@ assert( PNG or TXT ), "No output set to be True; I'm not going to do anything if
 
 # --- reading of the eigen-energies, the LCAO coefficients and geometry --- #
 
-print("Reading electronic & geometry structure files")
+logger.debug("Reading electronic & geometry structure files")
 
 cell=[[0,0],[0,0]];pbc=(0,0);lower_coefs=[];
 
@@ -123,7 +114,7 @@ elif ((dft_code == 'aims') or(dft_code == 'AIMS') or (dft_code == 'FHI-AIMS')):
     elif ((spin == 'down')or(spin == 'beta')or(spin == 'dn')):
         name = 'KS_eigenvectors_dn.band_1.kpt_1.out'
     else :
-        print("unknown spin, I'm going to sleep. Good Night"); exit()
+        raise ValueError(f"Unknown spin: {spin!r}")
     eigEn, coefs, Ratin = RS.read_AIMS_all(name = files_path + name , geom= files_path + geometry_file, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs);
     if (spin == 'both'):
         name = 'KS_eigenvectors_dn.band_1.kpt_1.out'
@@ -142,21 +133,17 @@ elif ((dft_code == 'cp2k') or(dft_code == 'CP2K')):
     elif ((spin == 'down')or(spin == 'beta')or(spin == 'dn')):
         eigEn, coefs, Ratin  = RS.read_CP2K_all(name = files_path + cp2k_name , lvs=cell, fermi=fermi, orbs = sample_orbs, pbc=pbc, cut_min=cut_min, cut_max=cut_max, cut_at=cut_atoms, lower_atoms=lower_atoms, lower_coefs=lower_coefs, spin='beta');
     else :
-        print("unknown spin, I'm going to sleep. Good Night"); exit()
-
-#print "DEBUG: eigEn.shape ", eigEn.shape
-#print "DEBUG: coefs.shape ", coefs.shape
-#print "DEBUG: Ratin.shape ", Ratin.shape
+        raise ValueError(f"Unknown spin: {spin!r}")
 
 energies = np.arange(V_min,V_max,dV)
 
-print("energies prepared, coeffecients read")
+logger.debug("energies prepared, coeffecients read")
 
 # --- the PDOS calculations --- #
 
 plot = True if ( (red_line_atoms != None)or(blue_line_atoms != None)or(green_line_atoms != None)or(orange_line_atoms != None)or(black_line_atoms != None)or(yellow_line_atoms != None)or (gray_line_atoms != None) ) else False
 
-print("DEBUG: plot", plot)
+logger.debug("plot", plot)
 
 assert plot!=False, "No lines to plot"
 
@@ -166,7 +153,7 @@ if (red_line_atoms != None) :
     atoms=red_line_atoms
     PDOS1 = SU.pPDOS(eigEn,coefs, energies, eta=eta, orbs= sample_orbs, atoms=atoms   , spherical=red_line_shell   )
     red_line_legend     = ','.join(map(str, atoms)) if len(atoms) < latomslegend else str(atoms[0])+".."+str(atoms[-1])
-    print("DEBUG: red_line_legend", red_line_legend)
+    logger.debug("red_line_legend", red_line_legend)
 else:	#(red_line_atoms != None) :
     PDOS1 = None
 
@@ -213,7 +200,7 @@ else:	#(gray_line_atoms != None) :
     PDOS7 = None
 
 if spin=='both' :
-    print("DEBUG: printing spin down in both spins")
+    logger.debug("printing spin down in both spins")
 
     PDOS1d = -1*SU.pPDOS(eigEn2,coefs2, energies, eta=eta, orbs= sample_orbs, atoms=red_line_atoms   , spherical=red_line_shell   ) if (red_line_atoms != None) else None
     PDOS2d = -1*SU.pPDOS(eigEn2,coefs2, energies, eta=eta, orbs= sample_orbs, atoms=blue_line_atoms  , spherical=blue_line_shell  ) if (blue_line_atoms != None) else None
@@ -224,7 +211,7 @@ if spin=='both' :
     PDOS7d = -1*SU.pPDOS(eigEn2,coefs2, energies, eta=eta, orbs= sample_orbs, atoms=gray_line_atoms  , spherical=gray_line_shell  ) if (gray_line_atoms != None) else None
 
 else: 
-    print("DEBUG: both spins are not used")
+    logger.debug("both spins are not used")
     PDOS1d = PDOS2d = PDOS3d = PDOS4d = PDOS5d = PDOS6d = PDOS7d = None
 
 # --- plotting part here, plots all calculated signals --- #
@@ -270,8 +257,4 @@ if (plot and PNG) :
 
 # --- the end --- #
 
-print() 
-print()
-print("Done")
-print()
-
+logger.debug("Done")

@@ -11,7 +11,7 @@ def plotAtoms( atoms, atomSize: float = 0.15, edge=True, ec='k', color='w' ):
     plt.fig = plt.gcf()
     es = atoms[0]; xs = atoms[1]; ys = atoms[2]
     for i in range(len(xs)):
-        fc = '#%02x%02x%02x' % elements.ELEMENT_DICT[es[i]][7] #; print "DEBUG: fc", fc ; ##fc = '#FFFFFF' ##
+        fc = '#%02x%02x%02x' % elements.ELEMENT_DICT[es[i]][7]
         if not edge:
             ec=fc
         circle=plt.Circle( ( xs[i], ys[i] ), atomSize, fc=fc, ec=ec  )
@@ -66,7 +66,6 @@ def plot_png(config, current, didv, voltages, names, lvec, extent, geom_plot, at
     nV, nH = get_number_of_voltages_and_heights(config, current, didv)
     for vv in range(nV):
         for k in range(nH):
-            #print "DEBUG: long name:::", namez[vv],';height:%03d;tip:'  %k,tip_type,';',tip_orb
             name_plot = f'{names[vv]};height:{k};tip:{tip_type};{tip_orb}'
             if didv is not None:
                 # ploting part here:

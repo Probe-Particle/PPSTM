@@ -63,7 +63,6 @@ def pPDOS(eig, coeffs, energies, eta=0.1, atoms=[], orbs='sp' ,spherical='all'):
     elif (spherical=='dx2y2'):
         sp = np.array([8])
     klist = np.arange(sh[1]) if (atoms==[] or atoms=='all') else np.array(atoms);
-    #print "sp:",sp,"klist:",klist
 
     for i in range(len(energies)):
         lor = Lorentz(energies[i],eig[:],eta)
@@ -72,8 +71,7 @@ def pPDOS(eig, coeffs, energies, eta=0.1, atoms=[], orbs='sp' ,spherical='all'):
             for k in klist:		# loop over atoms
                 part_sum += np.sum(np.absolute(coef[j,k,sp])) #summing over different atomic orbitals
             PDOS[i] += lor[j]*part_sum
-    
-    #print PDOS
+
     return PDOS;
 
 

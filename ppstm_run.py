@@ -1,5 +1,7 @@
-import argparse
 import logging
+logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
+
+import argparse
 import os
 from pathlib import Path
 
@@ -28,11 +30,11 @@ def main(config: dict):
     # Set tip coefficients
     tip_orb = config['scan']['tip_orb']
     tip_coeffs = STMutils.get_tip_coefficients(tip_orb)
-    print(f"Set tip coefficients for {tip_orb}: {tip_coeffs}")
+    logger.debug(f"Set tip coefficients for {tip_orb}: {tip_coeffs}")
 
     # Read eigenenergies and coefficients
     eigenenergies, coefs, atoms = ReadSTM.read_dft(config)
-    print(f"Read eigenenergies and coefficients.")
+    logger.debug(f"Read eigenenergies and coefficients.")
 
     # Set up atom plotting if enabled
     geom_plot = None
@@ -45,7 +47,7 @@ def main(config: dict):
                 )
             ) 
         except FileNotFoundError:
-            print("WARNING: Atom plotting disabled due to missing input_plot.xyz file.")
+            logger.warning("Atom plotting disabled due to missing `input_plot.xyz` file.")
 
     # Get tip positions
     (
@@ -55,7 +57,7 @@ def main(config: dict):
         extent,
         atomic_head_or_info
     ) = STMutils.get_tip_positions(config)
-    print(f"Tip positions read for a {config['scan']['tip_type']} scan.")
+    logger.debug(f"Tip positions read for a {config['scan']['tip_type']} scan.")
 
     if not _is_tip_above_sample(tip_positions=tip_r,
                                 sample_atom_positions=atoms,
@@ -71,7 +73,7 @@ def main(config: dict):
         tip_r,
         atoms
     )
-    print(f"STM scan complete for scan type {config['scan']['scan_type']}.")
+    logger.debug(f"STM scan complete for scan type {config['scan']['scan_type']}.")
 
     # Get voltages and names
     voltages, names = visualization.get_voltages_and_names(config, eigenenergies)
@@ -80,18 +82,18 @@ def main(config: dict):
     if config['output']['PNG']:
         atom_size = config['output'].get('atom_size', 0.15)
         visualization.plot_png(config, current, didv, voltages, names, lvec, extent, geom_plot, atom_size)
-        print(f"PNG output complete.")
+        logger.debug(f"PNG output complete.")
     if config['output']['WSxM']:
         visualization.plot_wsxm(config, current, didv, voltages, names, tip_r0)
-        print(f"WSXM output complete.")
+        logger.debug(f"WSXM output complete.")
     if config['output']['XSF']:
         visualization.save_xsf(config, current, didv, voltages, names, geom_plot, lvec)
-        print(f"XSF output complete.")
+        logger.debug(f"XSF output complete.")
     if config['output']['NPY']:
         visualization.save_npz(config, current, didv, voltages, names, lvec, atomic_head_or_info)
-        print(f"NPY output complete.")
+        logger.debug(f"NPY output complete.")
 
-    print(f"Output finished, exiting.")
+    logger.debug(f"Output finished, exiting.")
 
 def _is_tip_above_sample(tip_positions: np.ndarray, sample_atom_positions: np.ndarray, min_gap: float) -> bool:
     """Checks if the lowest tip point is safely above the highest sample point.
@@ -114,7 +116,6 @@ def _existing_toml_file(value: str) -> Path:
     return path
 
 if __name__=='__main__':
-    logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
     parser = argparse.ArgumentParser(
         description="Execute PP-STM simulation scan",
     )
@@ -132,7 +133,7 @@ if __name__=='__main__':
     with open(config_file, 'rb') as f:
         config = tomli.load(f)
     
-    print(f"Loaded config from {config_file}")
-    print(f"Config: {config}")
+    logger.debug(f"Loaded config from {config_file}")
+    logger.debug(f"Config: {config}")
 
     main(config)

@@ -1,6 +1,7 @@
 """PP-STM code plotting DOS of Si(111) 7x7 reconstruction"""
 
-#!/usr/bin/python
+import logging
+logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 
 import os
 import numpy as np

@@ -47,9 +47,12 @@ files_path   = ''            # where are files from 1st two PPSTM runs ; rather 
 #                                                                                                                        #
 ##########################################################################################################################
 
-print("Importing libraries")
+import logging
+logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-import os
+logger.debug("Importing libraries")
+
 import sys
 sys.path.append(ppstm_path) 
 
@@ -57,14 +60,14 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg') # Force matplotlib to not use any Xwindows backend. ## !!! important for working on clusters !!!!
 import matplotlib.pyplot as plt
-print("For XSF or NPY outputs and inputs you have to have installed PPAFM in your PPSTM directory ")
+logger.warning("For XSF or NPY outputs and inputs you have to have installed PPAFM in your PPSTM directory ")
 import ppstm.ReadSTM           as RS
 import ppafm.io as io
 if (plot_atoms):
     import ppstm.basUtils as Bu
     import ppstm.elements as elements
 
-print("Libraries imported")
+logger.debug("Libraries imported")
 
 # --- Initial check --- #
 
@@ -88,7 +91,6 @@ if (plot_atoms):
     geom_plot, tmp1, tmp2 = Bu.loadAtoms('input_plot.xyz'); del tmp1, tmp2;
 else:
     geom_plot = None
-#print "DEBUG: geom_plot", geom_plot
 
 # --- importing STM (dIdV) calculated signal on the grid --- #
 
@@ -97,42 +99,31 @@ namez = []
 for V in Voltages:
     namez.append(str(round(V,2)))
 
-#print "DEBUG: Voltages", Voltages
-
 for i in range(len(Voltages)):
     if didv_b :
-        print("Importing dIdV data for V:", namez[i])
-        #print("DEBUG:WF:", WorkFunction , "Voltages[i]:", Voltages[i], "WF_decay", WF_decay  )
+        logger.debug("Importing dIdV data for V:", namez[i])
         name_file1 =  'didv_'+namez[i]+"_tip_"+tip_type+"-"+tip_orb1+"_WF_"+str(WorkFunction-Voltages[i]*WF_decay)+"_eta_"+str(eta) # WorkFunction gets higher with lower (higher negative) sample bias
         name_file2 =  'didv_'+namez[i]+"_tip_"+tip_type+"-"+tip_orb2+"_WF_"+str(WorkFunction-Voltages[i]*WF_decay)+"_eta_"+str(eta)
-        #print ("DEBUG: name_file1", name_file1)
         tmp_dIdV1, lvec1, nDim1, atomic_info_or_head = io.load_scal_field( files_path+name_file1 ,data_format=data_format)
         didv1 =  np.array([tmp_dIdV1]) if i == 0 else np.append(didv1, np.array([tmp_dIdV1]),axis=0)
-        #print "DEBUG: name_file2", name_file2
         tmp_dIdV2, lvec2, nDim2, atomic_info_or_head = io.load_scal_field( files_path+name_file2 ,data_format=data_format)
         didv2 =  np.array([tmp_dIdV2]) if i == 0 else np.append(didv2, np.array([tmp_dIdV2]),axis=0)
         assert np.array(lvec1).all() == np.array(lvec2).all(), "lvec1 != lvec2 control your input files"; assert np.array(nDim2).all() == np.array(nDim2).all(), "nDim1 != nDim2 control your input files"
-        print("dIdV for V:",namez[i]," imported")
-        #print "DEBUG: didv1.shape", didv1.shape
+        logger.debug("dIdV for V:",namez[i]," imported")
     if STM_b :
-        print("Importing STM data for V:", namez[i])
+        logger.debug("Importing STM data for V:", namez[i])
         name_file1 =  'STM_'+namez[i]+"_tip_"+tip_type+"-"+tip_orb1+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)
         name_file2 =  'STM_'+namez[i]+"_tip_"+tip_type+"-"+tip_orb2+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)
-        #print "DEBUG: name_file1", name_file1
         tmp_stm1, lvec1, nDim1, atomic_info_or_head = io.load_scal_field( files_path+name_file1 ,data_format=data_format)
         current1 =  np.array([tmp_stm1]) if i == 0 else np.append(current1, np.array([tmp_stm1]),axis=0)
-        #print "DEBUG: name_file2", name_file2
         tmp_stm2, lvec2, nDim2, atomic_info_or_head = io.load_scal_field( files_path+name_file2 ,data_format=data_format)
         current2 =  np.array([tmp_stm2]) if i == 0 else np.append(current2, np.array([tmp_stm2]),axis=0)
         assert np.array(lvec1).all() == np.array(lvec2).all(), "lvec1 != lvec2 control your input files"; assert np.array(nDim2).all() == np.array(nDim2).all(), "nDim1 != nDim2 control your input files"
-        print("STM for V:",namez[i]," imported")
-        #print "DEBUG: current1.shape", current1.shape
+        logger.debug("STM for V:",namez[i]," imported")
 lvec = lvec1; nDim = nDim1;
 extent = (lvec[0,0],lvec[0,0]+lvec[1,0],lvec[0,1],lvec[0,1]+lvec[2,1])
-#print "DEBUG: extent", extent
 dx=lvec[1,0]/(nDim[2]-1); dy=lvec[2,1]/(nDim[1]-1); dz=lvec[3,2]/(nDim[0]-1);
 tip_r0 = RS.mkSpaceGrid(lvec[0,0],lvec[0,0]+lvec[1,0],dx,lvec[0,1],lvec[0,1]+lvec[2,1],dy,lvec[0,2],lvec[0,2]+lvec[3,2],dz)
-#print "DEBUG: tip_r0", tip_r0
 
 # --- main part --- #
 
@@ -147,7 +138,7 @@ def plotAtoms( atoms, atomSize=0.1, edge=True, ec='k', color='w' ):
     plt.fig = plt.gcf()
     es = atoms[0]; xs = atoms[1]; ys = atoms[2]
     for i in range(len(xs)):
-        fc = '#%02x%02x%02x' % elements.ELEMENT_DICT[es[i]][7] #; print "DEBUG: fc", fc ; ##fc = '#FFFFFF' ##
+        fc = '#%02x%02x%02x' % elements.ELEMENT_DICT[es[i]][7]
         if not edge:
             ec=fc
         circle=plt.Circle( ( xs[i], ys[i] ), atomSize, fc=fc, ec=ec  )
@@ -162,16 +153,10 @@ def plotGeom( atoms=None, atomSize=0.1 ):
 NoV = len(didv) if didv_b else len(current)
 NoH = len(didv[0]) if didv_b else len(current[0])
 
-#print "DEBUG: Voltages", Voltages
-#print "DEBUG: namez", namez
-#print "DEBUG: NoV", NoV
-#print "DEBUG: NoH", NoH
-
 if PNG :
-    print("We go to plotting ")
+    logger.debug("We go to plotting ")
     for vv in range(NoV):
         for k in range(NoH):
-            #print "DEBUG: long name:::", namez[vv],';height:%03d;tip:'  %k,tip_type,';',tip_orb
             name_plot=namez[vv]+';height:'+str(k)+';tip:'+tip_type+';'+tip_orb1+tip_orb2
             if didv_b :
                 # ploting part here:
@@ -193,9 +178,9 @@ if PNG :
                 plt.title("STM:"+name_plot)
                 plt.savefig( 'STM_'+namez[vv]+"_tip_"+tip_type+"-"+str(tip_orb1_amount)+tip_orb1+"-"+str(tip_orb2_amount)+tip_orb2+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)+'_%03d.png' %k , bbox_inches='tight' )
                 plt.close()
-    print("Everything plotted")
+    logger.debug("Everything plotted")
 if WSxM :
-    print("writing WSxM files")
+    logger.debug("writing WSxM files")
     for vv in range(NoV):
         for k in range(NoH):
             if didv_b :
@@ -228,10 +213,10 @@ if WSxM :
                 np.savetxt(f, out_curr)
                 f.close()
                 #
-    print("WSxM files written")
+    logger.debug("WSxM files written")
 
 if XSF :
-    print("writing XSF files")
+    logger.debug("writing XSF files")
     xsf_head = Bu.At2XSF(geom_plot) if plot_atoms else io.XSF_HEAD_DEFAULT
     for vv in range(NoV):
         if didv_b :
@@ -240,10 +225,10 @@ if XSF :
         if STM_b :
             name_file =  'STM_'+namez[vv]+"_tip_"+tip_type+"-"+str(tip_orb1_amount)+tip_orb1+"-"+str(tip_orb2_amount)+tip_orb2+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)+'.xsf'
             io.saveXSF(name_file, current[vv], lvec, head=xsf_head )
-    print("XSF files written")
+    logger.debug("XSF files written")
 
 if NPY :
-    print("writing npy binary files")
+    logger.debug("writing npy binary files")
     for vv in range(NoV):
         if didv_b :
             name_file =  'didv_'+namez[vv]+"_tip_"+tip_type+"-"+str(tip_orb1_amount)+tip_orb1+"-"+str(tip_orb2_amount)+tip_orb2+"_WF_"+str(WorkFunction+Voltages[vv]*WF_decay)+"_eta_"+str(eta)
@@ -251,11 +236,8 @@ if NPY :
         if STM_b :
             name_file =  'STM_'+namez[vv]+"_tip_"+tip_type+"-"+str(tip_orb1_amount)+tip_orb1+"-"+str(tip_orb2_amount)+tip_orb2+"_WF_"+str(WorkFunction)+"_WF_decay_"+str(round(WF_decay,1))+"_eta_"+str(eta)
             io.saveNpy(name_file, current[vv], lvec)#, head=XSF_HEAD_DEFAULT )
-    print("npy files written")
+    logger.debug("npy files written")
 
 # --- the end --- #
 
-print() 
-print()
-print("Done")
-print()
+logger.debug("Done")

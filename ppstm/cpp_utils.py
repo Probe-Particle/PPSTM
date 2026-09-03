@@ -1,7 +1,9 @@
-
+import logging
 import os, sys
 import ctypes
 import numpy as np
+
+logger = logging.getLogger(__name__)
 
 if "PPSTM_RECOMPILE" in os.environ and os.environ["PPSTM_RECOMPILE"] != "":
     _recompile = True
@@ -23,8 +25,8 @@ def work_dir( v__file__ ):
 PACKAGE_PATH = work_dir( __file__ )
 CPP_PATH     = os.path.normpath( PACKAGE_PATH + '../../cpp/' )
 
-print(" PACKAGE_PATH = ", PACKAGE_PATH)
-print(" CPP_PATH     = ", CPP_PATH)
+logger.debug(" PACKAGE_PATH = ", PACKAGE_PATH)
+logger.debug(" CPP_PATH     = ", CPP_PATH)
 
 def ctypes_make( make_name: str , lib_name:str ):
     '''
@@ -35,7 +37,7 @@ def ctypes_make( make_name: str , lib_name:str ):
     lib_path    =   CPP_PATH + "/" + lib_name + _lib_ext
     if _recompile or not os.path.exists(lib_path) : # checks if the libraries exist
         what = 'M' + make_name if system =='darwin' else make_name # different recompilation for mac !
-        print ("DEBUG: make command:",what)
+        logger.debug("make command:",what)
         current_directory = os.getcwd()
         os.chdir ( CPP_PATH          )
         os.system( "make "+what       )

@@ -1,10 +1,13 @@
+import logging
+
+logger = logging.getLogger(__name__)
+
 # procedures for loading geometry from different files:
 
 def loadAtoms( name , sl=False):
     f = open(name,"r")
     n=0;
     l = f.readline()
-    #print "--",l,"--"
     try:
         n=int(l)
     except:
@@ -16,7 +19,7 @@ def loadAtoms( name , sl=False):
         i = 0;
         for line in f:
             if sl :
-                print(" forced skipped line : ", line)
+                logger.debug(" forced skipped line : ", line)
                 sl = False
             else:
                 words=line.split()
@@ -32,14 +35,14 @@ def loadAtoms( name , sl=False):
                 else:
                     q.append( 0.0 )
             except:
-                print(" skipped line : ", line)
+                logger.debug(" skipped line : ", line)
     f.close()
     nDim = []
     lvec = [] 
     return [ e,x,y,z,q ], nDim, lvec
 
 def loadGeometryIN( fname ):
-    print("importin atoms from FHI-AIMS input")
+    logger.debug("importing atoms from FHI-AIMS input")
     f = open(fname )
     e=[];x=[];y=[]; z=[]; q=[]
     lvec = [] 
@@ -53,8 +56,6 @@ def loadGeometryIN( fname ):
             elif (ws[0]=='trust_radius'):
                 break
     f.close()
-    #print "lvec", lvec
-    #print "e,x,y,z", e,x,y,z
     nDim = []
     return [ e,x,y,z,q ], nDim, lvec
 
@@ -98,6 +99,4 @@ def At2XSF(atoms):
     for i in range(len(atoms[0])):
         XSF_HEAD_1 = XSF_HEAD_1+str(atoms[0][i])+" "+str(atoms[1][i])+" "+str(atoms[2][i])+" "+str(atoms[3][i])+"\n "
     XSF_HEAD=XSF_HEAD_1 + XSF_HEAD_2
-    #print "DEBUG: XSF_HEAD:"
-    #print XSF_HEAD
     return XSF_HEAD ;

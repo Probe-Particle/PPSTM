@@ -1,4 +1,6 @@
-#!/usr/bin/python
+import logging
+logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
+
 import math
 import os
 import numpy as np
