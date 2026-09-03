@@ -9,15 +9,15 @@ echo "OMP_NUM_THREADS:"
 echo $OMP_NUM_THREADS
 echo "Now the tests:"
 
-python3 ../../ppstm_run.py orbitals.toml # s vs spd
-python3 ../../ppstm_run.py s_sp.toml
-python3 ../../ppstm_run.py pxy_sp.toml
-python3 ../../ppstm_run.py pxy_spd.toml
-python3 ../../ppstm_run.py pz_sp.toml
-python3 ../../ppstm_run.py pz_spd.toml
-python3 ../../ppstm_run.py dz2_sp.toml
-python3 ../../ppstm_run.py dxyz_sp.toml
-python3 ../../ppstm_run.py s_spy_high_eta.toml
-python3 ../../ppstm_run.py high_wf.toml
+ppstm-run orbitals.toml # s vs spd
+ppstm-run s_sp.toml
+ppstm-run pxy_sp.toml
+ppstm-run pxy_spd.toml
+ppstm-run pz_sp.toml
+ppstm-run pz_spd.toml
+ppstm-run dz2_sp.toml
+ppstm-run dxyz_sp.toml
+ppstm-run s_spy_high_eta.toml
+ppstm-run high_wf.toml
 
 echo "Now all things made, before submiting, please run clean.sh!"
