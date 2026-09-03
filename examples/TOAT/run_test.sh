@@ -13,7 +13,7 @@ ppafm-generate-ljff -i TOAT.xyz -f npy
 ppafm-relaxed-scan --pos -f npy
 ppafm-plot-results --pos --df --save_df -f npy
 python PPdos_simple.py
-python ../../ppstm_run.py fixed.toml
-python ../../ppstm_run.py relaxed_s.toml
-python ../../ppstm_run.py relaxed_pxy.toml
+python ../../ppstm/cli/ppstm_run.py fixed.toml
+python ../../ppstm/cli/ppstm_run.py relaxed_s.toml
+python ../../ppstm/cli/ppstm_run.py relaxed_pxy.toml
 echo "Now all things made, before submiting please run clean.sh"

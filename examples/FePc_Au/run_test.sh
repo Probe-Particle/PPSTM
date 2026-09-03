@@ -16,6 +16,6 @@ ppafm-plot-results --pos --df --iets 16 0.0015 0.001 -f npy --WSxM --save_df
 
 python3 IETS_test_FePc.py
 python3 PPdos_simple.py
-python3 ../../ppstm_run.py fepc.toml
+python3 ../../ppstm/cli/ppstm_run.py fepc.toml
 
 echo "Now all things made, before submiting, please run clean.sh!"

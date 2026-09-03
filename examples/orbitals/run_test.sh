@@ -9,6 +9,6 @@ echo "OMP_NUM_THREADS:"
 echo $OMP_NUM_THREADS
 echo "Now the tests:"
 
-python3 ../../ppstm_run.py orbitals.toml
+python3 ../../ppstm/cli/ppstm_run.py orbitals.toml
 
 echo "Now all things made, before submiting, please run clean.sh!"

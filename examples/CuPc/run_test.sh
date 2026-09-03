@@ -13,7 +13,7 @@ echo "test for the PP-STM code on the example of spin-polarized CuPc molecule, p
 python3 dIdV_test_CuPc.py
 python3 dIdV_test_CuPc_cp2k.py
 python3 PPdos_simple.py
-python3 ../../ppstm_run.py cupc.toml
-python3 ../../ppstm_run.py cupc-aims-fixed-npy.toml
+python3 ../../ppstm/cli/ppstm_run.py cupc.toml
+python3 ../../ppstm/cli/ppstm_run.py cupc-aims-fixed-npy.toml
 echo "Now all things made, before submiting pleas run clean.sh"
 

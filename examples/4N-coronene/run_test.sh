@@ -18,10 +18,10 @@ ppafm-plot-results --pos --df --save_df -f npy
 
 python3 dIdV_test_4N-coronene.py
 python3 dIdV_test_4N-coronene_cp2k.py
-python3 ../../ppstm_run.py s-relaxed-png.toml
-python3 ../../ppstm_run.py pxy-relaxed.toml
-python3 ../../ppstm_run.py s-relaxed.toml
-python3 ../../ppstm_run.py s-fixed-didv-opencl.toml
+python3 ../../ppstm/cli/ppstm_run.py s-relaxed-png.toml
+python3 ../../ppstm/cli/ppstm_run.py pxy-relaxed.toml
+python3 ../../ppstm/cli/ppstm_run.py s-relaxed.toml
+python3 ../../ppstm/cli/ppstm_run.py s-fixed-didv-opencl.toml
 python3 PPdos_simple.py
 python3 SUM_Orb_Contrib.py
 echo "Now all things made, before submiting, please run clean.sh!"

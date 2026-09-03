@@ -23,7 +23,7 @@ def work_dir( v__file__ ):
     return os.path.dirname( os.path.realpath( v__file__ ) )
 
 PACKAGE_PATH = work_dir( __file__ )
-CPP_PATH     = os.path.normpath( PACKAGE_PATH + '../../cpp/' )
+CPP_PATH     = os.path.normpath( PACKAGE_PATH + '/cpp' )
 
 logger.debug(" PACKAGE_PATH = ", PACKAGE_PATH)
 logger.debug(" CPP_PATH     = ", CPP_PATH)
