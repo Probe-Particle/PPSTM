@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools >= 84.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ppstm"
+version = "0.1.0"
+authors = [
+  { name="Ondřej Krejčí",    email="okrejcio@seznam.cz" },
+  { name="Lauri Kurki",      email="lauri.v.kurki@gmail.com" },
+  { name="Ole Schuett",      email="ole.schuett@empa.ch" },
+  { name="Prokop Hapala",    email="prokophapala@gmail.com" },
+  { name="Gianmarco Midena", email="gianmarco.midena@gmail.com" },
+]
+description = "Tool for simulating Scanning Tunelling Microscopy (STM) techniques"
+readme = "README.md"
+requires-python = "==3.12.13"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+]
+license = "MIT"
+license-files = ["LICENCE"]
+dependencies = [
+    "numpy==2.4.6",
+    "scipy==1.17.1",
+    "matplotlib==3.10.9",
+    "ppafm==0.4.0",
+    "tomli==2.4.1",
+]
+
+[project.optional-dependencies]
+opencl = [
+    "pyopencl==2026.1.1",
+]
+pytorch = [
+    "torch==2.13.0",
+]
+extra = [
+    "ase==3.28.0",
+    "gpaw==25.7.0",
+    "PyQt5==5.15.11",
+]
+
+[project.scripts]
+ppstm-gui = "ppstm.cli.GUI:main"
+ppstm-run = "ppstm.cli.ppstm_run:main"
+ppstm-ppdos-simple = "ppstm.cli.PPdos_simple:main"
+ppstm-sum-orb-contrib = "ppstm.cli.SUM_Orb_Contrib:main"
+
+[project.urls]
+Homepage = "https://github.com/Probe-Particle/PPSTM"
+Issues = "https://github.com/Probe-Particle/PPSTM/issues"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["ppstm*"]
+namespaces = false
+
+[tool.setuptools.package-data]
+"ppstm.cpp" = ["*.cpp", "Makefile"]
