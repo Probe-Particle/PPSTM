@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 _MIN_TIP_SAMPLE_HEIGHT_GAP = 2.0  # Angstroms
 
-def main(config: dict):
+def run_simulation(config: dict):
     # ppafm needed for relaxed tip scans and npy+xsf output
     tip_type = config['scan']['tip_type']
     npy_or_xsf_output = config['output']['NPY'] or config['output']['XSF']
@@ -115,7 +115,7 @@ def _existing_toml_file(value: str) -> Path:
 
     return path
 
-if __name__=='__main__':
+def main():
     parser = argparse.ArgumentParser(
         description="Execute PP-STM simulation scan",
     )
@@ -132,8 +132,11 @@ if __name__=='__main__':
     # Load config file
     with open(config_file, 'rb') as f:
         config = tomli.load(f)
-    
+
     logger.debug(f"Loaded config from {config_file}")
     logger.debug(f"Config: {config}")
 
-    main(config)
+    run_simulation(config)
+
+if __name__=='__main__':
+    main()

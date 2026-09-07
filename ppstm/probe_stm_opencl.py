@@ -155,7 +155,7 @@ class _ProbeSTMOpenCL(ABC):
             context: OpenCL context for memory and kernel management
             queue: Command queue for kernel execution
         """
-        CL_PATH = Path(__file__).parent.parent.joinpath("cl")
+        CL_PATH = Path(__file__).parent.joinpath("cl")
 
         def __init__(self, i_platform=0):
             platforms = self._get_platforms()

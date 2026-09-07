@@ -310,7 +310,6 @@ def	read_GPAW_all(name = 'OUTPUT.gpw', fermi = None, orbs = 'sp', pbc=(1,1), ima
     '''
     initial_check(orbs=orbs, pbc=pbc, imaginary=imaginary, cut_min=cut_min, cut_max=cut_max, cut_at=cut_at, lower_atoms=lower_atoms, lower_coefs=lower_coefs)
     # obtaining the geometry :
-    from ase import Atoms
     from gpaw import GPAW
     calc = GPAW(name)
     slab = calc.get_atoms()
