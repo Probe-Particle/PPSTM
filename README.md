@@ -25,15 +25,59 @@ It can also simulate IETS images of molecules, if the imaging mechanism is drive
 
 * [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/Probe-Particle/PPSTM)
 
-### Setup
-A simple setup with CONDA [Conda](https://conda.io) on Linux is:.
+### Installation
+
+#### Pip
+
+The pip installation requires:
+
+- Python 3.12.13
+- GCC/G++ 15.2
+- `pip`
+- `build`
+
+Run the following commands from the repository root:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip build
+python -m pip install .
+```
+
+To install optional features, specify one or more extras:
+
+```bash
+python -m pip install ".[opencl,pytorch,gui,gpaw,ase]"
+```
+
+Available extras are `opencl`, `pytorch`, `gui`, `gpaw`, `ase`.
+
+The `opencl` extra also requires an OpenCL Installable Client Driver (ICD) for your device. On Ubuntu, for example:
+
+- NVIDIA GPU: included with the NVIDIA driver
+- AMD GPU: `sudo apt install mesa-opencl-icd`  
+  See the [AMD Pro drivers](https://www.amd.com/en/support/download/drivers.html) if necessary.
+- Intel GPU: `sudo apt install intel-opencl-icd`
+- CPU: `sudo apt install pocl-opencl-icd`
+
+#### Conda
+
+On Linux, create a simple Conda environment with:
+
 ```bash
 conda env create -f environment.yml
 conda activate ppstm
-python -m ipykernel install --user --name=ppstm
 ```
 
-More details can be found on a [dedicated Wikipage](https://github.com/Probe-Particle/PPSTM/wiki/Installation).
+If you use Jupyter, optionally register the environment as a kernel:
+
+```bash
+python -m ipykernel install --user --name ppstm
+```
+
+Further options can be found at [installation wiki page](https://github.com/Probe-Particle/PPSTM/wiki/Installation).
+
 
 ### Tests
 * **Run all tests (verbose):**
