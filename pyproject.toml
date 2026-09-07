@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ppstm"
-version = "0.1.0"
+version = "0.2.0"
 authors = [
   { name="Ondřej Krejčí",    email="okrejcio@seznam.cz" },
   { name="Lauri Kurki",      email="lauri.v.kurki@gmail.com" },
